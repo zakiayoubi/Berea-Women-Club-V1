@@ -12,8 +12,15 @@ CREATE TABLE member (
     zipCode INT,
     dateOfBirth DATE,
     dateJoined DATE DEFAULT CURRENT_DATE,
-    memberType VARCHAR(50),
-    paidDues BOOLEAN
+);
+
+CREATE TABLE membershipFee (
+    feeID SERIAL PRIMARY KEY,
+    memberID INT,
+    payDate DATE,
+    status VARCHAR(50),
+    FOREIGN KEY (memberID) REFERENCES member(memberID),
+    CONSTRAINT status_check CHECK (status IN ('paid', 'not paid'))
 );
 
 CREATE TABLE organization (
@@ -30,7 +37,7 @@ CREATE TABLE organization (
 
 CREATE TABLE membershipType (
     membershipID SERIAL PRIMARY KEY,
-    memberType VARCHAR(150) DEFAULT 'Member',
+    memberType VARCHAR(150) DEFAULT 'member',
     memberID INT, -- Added this column to store the foreign key
     FOREIGN KEY (memberID) REFERENCES member(memberID)
 );
