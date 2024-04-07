@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berea Women Club</title>
+</head>
+<body>
+    <div> 
+        <h1>Welcome to Members page</h1>
+        <% members.forEach(member => { %>
+            <div>
+                <p>Member ID: <%= member.memberid %></p>
+                <p>Name: <%= member.firstname %> <%= member.lastname %></p>
+                <p>Email: <%= member.email %></p>
+                <p>Phone: <%= member.phonenumber %></p>
+                <p>Address: <%= member.streetname %>, <%= member.city %>, <%= member.usstate %>, <%= member.zipcode %></p>
+                <p>Date of Birth: <%= member.dateofbirth.toDateString() %></p>
+                <p>Date Joined: <%= member.datejoined.toDateString() %></p>
+                <p>Member Type: <%= member.membertype ? member.membertype : 'N/A' %></p>
+            </div>
+            <hr />
+        <% }); %>
+    </div>
+</body>
+</html>

@@ -17,10 +17,20 @@ CREATE TABLE member (
 CREATE TABLE membershipFee (
     feeID SERIAL PRIMARY KEY,
     memberID INT,
-    payDate DATE,
+    payDate DATE DEFAULT CURRENT_DATE,
+    paymentYear INT GENERATED ALWAYS AS (EXTRACT(YEAR FROM payDate)) STORED,
     status VARCHAR(50),
     FOREIGN KEY (memberID) REFERENCES member(memberID),
-    CONSTRAINT status_check CHECK (status IN ('paid', 'not paid'))
+    CONSTRAINT status_check CHECK (status IN ('paid', 'not paid')),
+    CONSTRAINT unique_year_member UNIQUE (memberID, paymentYear)
+);
+
+
+CREATE TABLE membershipType (
+    membershipID SERIAL PRIMARY KEY,
+    memberType VARCHAR(150) DEFAULT 'member',
+    memberID INT, -- Added this column to store the foreign key
+    FOREIGN KEY (memberID) REFERENCES member(memberID)
 );
 
 CREATE TABLE organization (
@@ -33,13 +43,6 @@ CREATE TABLE organization (
     usState VARCHAR(50),
     zipCode INT,
     organizationType VARCHAR(100)
-);
-
-CREATE TABLE membershipType (
-    membershipID SERIAL PRIMARY KEY,
-    memberType VARCHAR(150) DEFAULT 'member',
-    memberID INT, -- Added this column to store the foreign key
-    FOREIGN KEY (memberID) REFERENCES member(memberID)
 );
 
 CREATE TABLE donationInflow (
@@ -82,3 +85,4 @@ CREATE TABLE host (
     FOREIGN KEY (eventID) REFERENCES event(eventID),
     FOREIGN KEY (memberID) REFERENCES member(memberID)
 );
+
