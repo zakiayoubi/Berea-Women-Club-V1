@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berea Women Club</title>
+</head>
+<body>
+    <div> 
+        <h1>Welcome to Organization page</h1>
+        <% organizations.forEach(organization => { %>
+            <div>
+                <p>Org ID: <%= organization.organizationid %></p>
+                <p>Org Name: <%= organization.organizationname %></p>
+                <p>Org Email: <%= organization.email %></p>
+                <p>Org Phone: <%= organization.phonenumber %></p>
+                <p>Org Address: <%= organization.streetname %>, <%= organization.city %>, <%= organization.usstate %>, <%= organization.zipcode %></p>
+                <p>Org type: <%= organization.organizationtype %></p>
+            </div>
+            <hr />
+        <% }); %>
+    </div>
+</body>
+</html>

@@ -1,53 +1,26 @@
 -- member queries:
 
 -- member landing page query
-SELECT m.*, mt.memberType
-FROM member m
-LEFT JOIN membershipType mt ON m.memberID = mt.memberID LIMIT 10;
-
-
+SELECT * from member LIMIT 10;
 
 -- order by queries:
 
 -- order by first name
-SELECT m.*, mt.memberType
-FROM member m
-LEFT JOIN membershipType mt ON m.memberID = mt.memberID ORDER BY firstname LIMIT 10;
+SELECT * from member ORDER BY firstname LIMIT 10;
 
 -- order by lastname
-SELECT m.*, mt.memberType
-FROM member m
-LEFT JOIN membershipType mt ON m.memberID = mt.memberID ORDER BY lastname LIMIT 10;
+SELECT * from member ORDER BY lastname LIMIT 10;
 
 --order by datejoined
-SELECT 
-    m.dateJoined,
-    m.memberID,
-    m.firstName,
-    m.lastName,
-    m.email,
-    m.phoneNumber,
-    m.streetName,
-    m.city,
-    m.usState,
-    m.zipCode,
-    m.dateOfBirth,
-    mt.memberType
-FROM 
-    member m
-LEFT JOIN 
-    membershipType mt 
-ON 
-    m.memberID = mt.memberID 
+SELECT * from member 
 ORDER BY 
     m.dateJoined DESC 
 LIMIT 10;
 
 -- dues queries:
 
-SELECT m.*, mt.memberType, mf.paydate, mf.status
+SELECT m.*, mf.paydate, mf.status
 FROM member m
-JOIN membershipType mt ON m.memberID = mt.memberID 
 JOIN membershipFee mf ON m.memberID = mf.memberID
 WHERE mf.paydate >= '2023-01-01' AND mf.paydate <= '2023-12-31' AND mf.status = 'paid';
 
@@ -59,26 +32,12 @@ SELECT count(*) FROM member WHERE datejoined >= '2024-01-01' AND datejoined <= '
 SELECT count(*) FROM member;
 
 
--- queries for membershiptype:
-SELECT m.*, mt.memberType
-FROM member m
-JOIN membershipType mt ON m.memberID = mt.memberID 
-WHERE mt.memberType = 'officer';
--- count member types
-SELECT count(*)
-FROM member m
-JOIN membershipType mt ON m.memberID = mt.memberID 
-WHERE mt.memberType = 'officer';
-
-
 -- adding a new member query:
 
 INSERT INTO member (firstName, lastName, email, phoneNumber, 
 streetName, city, usState, zipCode, dateOfBirth, dateJoined)
 VALUES (placeholder, placeholder, ...);
 
-INSERT INTO membershipType (memberType, memberID)
-VALUES ('board member', 8);
 
 INSERT INTO membershipFee (memberID, payDate, paymentYear, status)
 VALUES (15, '2022-10-25', 'not paid');
@@ -98,10 +57,6 @@ SET
   dateOfBirth = 'NewDateOfBirth' 
 WHERE memberID = SpecificMemberID;
 
-UPDATE membershipType
-SET
-  memberType = 'board member'
-WHERE memberID = SpecificMemberID;
 
 UPDATE membershipFee
 SET
@@ -235,6 +190,20 @@ ORDER BY
   EXTRACT(YEAR FROM donationdate), 
   EXTRACT(MONTH FROM donationdate);
 
+-- adding a donation inflow:
+INSERT INTO donationInflow (organizationID, category, amount, donationDate)
+VALUES (1, 'Education', 500.00, '2023-04-07'); -- Example values
+
+-- updating a donation inflow: 
+UPDATE donationInflow
+SET amount = 600.00 -- new amount
+WHERE donationInflowId = 2; -- example
+
+-- deleting a donation inflow:
+DELETE FROM donationInflow
+WHERE donationInflowId = 3; -- Assuming you want to delete the record with donationInflowId 3
+
+
 ---------------------------------------------------------
 -- Query to join donationOutflow with organization and select all fields
 SELECT do.*, o.organizationName FROM donationOutflow do LEFT JOIN organization o ON do.organizationID = o.organizationID;
@@ -277,8 +246,24 @@ ORDER BY
   EXTRACT(YEAR FROM donationDate), 
   EXTRACT(MONTH FROM donationDate);
 
+
+-- Insert a new donation outflow record
+INSERT INTO donationOutflow (organizationID, donationDate, amount, category)
+VALUES (1, '2023-04-07', 750.00, 'Healthcare'); -- Example values
+
+-- Update an existing donation outflow record
+UPDATE donationOutflow
+SET 
+  amount = 800.00, 
+  category = 'Education' -- New amount and category
+WHERE donationOutflowId = 4; -- Assuming you want to update this specific record
+
+-- Delete a donation outflow record
+DELETE FROM donationOutflow
+WHERE donationOutflowId = 5; -- Assuming you want to delete this specific record
+
 ---------------------------------------------
---total money raise in a year: 
+--total money raised in a year: 
 
 WITH EventTotals AS (
     SELECT SUM(amountRaised) AS totalAmountRaised

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Berea Women Club</title>
+</head>
+<body>
+    <div> 
+        <h1>Welcome to Events page</h1>
+        <% events.forEach(event => { %>
+            <div>
+                <p>event ID: <%= event.eventid %></p>
+                <p>event Name: <%= event.eventname %></p>
+                <p>event location: <%= event.eventlocation %></p>
+                <p>event Address: <%= event.streetname %>, <%= event.city %>, <%= event.usstate %>, <%= event.zipcode %></p>
+                <p>event date: <%= event.eventdate %></p>
+                <p>Money Raised: <%= event.amountraised %></p>
+                <p>Event Cost:  <%= event.eventcost %></p>
+                <p>event type: <%= event.eventtype %></p>
+            </div>
+            <hr />
+        <% }); %>
+    </div>
+</body>
+</html>

@@ -4,7 +4,7 @@ CREATE TABLE member (
     memberID SERIAL PRIMARY KEY,
     firstName VARCHAR(100),
     lastName VARCHAR(100),
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
     phoneNumber VARCHAR(20), -- Changed to VARCHAR to accommodate formatting
     streetName VARCHAR(150),
     city VARCHAR(50),
@@ -12,6 +12,7 @@ CREATE TABLE member (
     zipCode INT,
     dateOfBirth DATE,
     dateJoined DATE DEFAULT CURRENT_DATE,
+    memberType VARCHAR(50) DEFAULT 'member'
 );
 
 CREATE TABLE membershipFee (
@@ -19,19 +20,13 @@ CREATE TABLE membershipFee (
     memberID INT,
     payDate DATE DEFAULT CURRENT_DATE,
     paymentYear INT GENERATED ALWAYS AS (EXTRACT(YEAR FROM payDate)) STORED,
-    status VARCHAR(50),
+    status VARCHAR(10),
     FOREIGN KEY (memberID) REFERENCES member(memberID),
     CONSTRAINT status_check CHECK (status IN ('paid', 'not paid')),
     CONSTRAINT unique_year_member UNIQUE (memberID, paymentYear)
+    ON DELETE CASCADE;
 );
 
-
-CREATE TABLE membershipType (
-    membershipID SERIAL PRIMARY KEY,
-    memberType VARCHAR(150) DEFAULT 'member',
-    memberID INT, -- Added this column to store the foreign key
-    FOREIGN KEY (memberID) REFERENCES member(memberID)
-);
 
 CREATE TABLE organization (
     organizationID SERIAL PRIMARY KEY,
