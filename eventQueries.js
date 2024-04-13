@@ -42,8 +42,8 @@ async function fetchAllEvents() {
       GROUP BY EXTRACT(MONTH FROM eventDate)
       ORDER BY EXTRACT(MONTH FROM eventDate)
     `;
-    const { rows } = await db.query(query, [year]);
-    return rows;
+    const result = await db.query(query, [year]);
+    return result.rows;
   }
   
   async function insertEvent(eventData) {

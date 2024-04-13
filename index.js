@@ -232,6 +232,8 @@ app.delete('/deleteOrganization/:id', async (req, res) => {
 // -----------------------------------------------------------
 // event handlers
 
+
+// Complete
 app.get('/events', async (req, res) => {
   try {
     const events = await fetchAllEvents();
@@ -244,6 +246,8 @@ app.get('/events', async (req, res) => {
   }
 });
 
+
+// Complete
 app.get('/events/:id', async (req, res) => {
   try {
     const events = await fetchEventById(req.params.id);
@@ -256,6 +260,8 @@ app.get('/events/:id', async (req, res) => {
   }
 });
 
+
+// Complete
 app.get('/events', async (req, res) => {
   try {
     const events = await sortEvents(req.query.sortBy);
@@ -268,15 +274,15 @@ app.get('/events', async (req, res) => {
   }
 });
 
-// app.get('/events/amount-raised/yearly', async (req, res) => {
-//   try {
-//     const rows = await fetchAmountRaisedYearly();
-//     res.json(rows);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
+app.get('/events/amount-raised/yearly', async (req, res) => {
+  try {
+    const rows = await fetchAmountRaisedYearly();
+    res.json(rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
 
 // app.get('/events/amount-raised/monthly/:year', async (req, res) => {
 //   try {
