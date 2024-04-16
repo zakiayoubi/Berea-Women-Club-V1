@@ -196,31 +196,28 @@ async function updateMemberInformation(memberData) {
     }
 }
 
-
-
-
-  async function fetchMemberEvents(firstname) {
+  async function fetchMemberEvents(id) {
     const query = `
       SELECT m.firstname, e.eventname 
       FROM event e 
       LEFT JOIN host h ON e.eventid = h.eventid 
       LEFT JOIN member m ON h.memberid = m.memberid 
-      WHERE m.firstname = $1
+      WHERE m.memberId = $1
     `;
-    const { rows } = await db.query(query, [firstname]);
-    return rows;
+    const result = await db.query(query, [id]);
+    return result.rows;
   }
   
-  async function fetchEventMembers(eventname) {
+  async function fetchEventMembers(id) {
     const query = `
       SELECT e.eventname, m.firstname 
       FROM event e 
       LEFT JOIN host h ON e.eventid = h.eventid 
       LEFT JOIN member m ON h.memberid = m.memberid 
-      WHERE e.eventname = $1
+      WHERE e.eventID = $1
     `;
-    const { rows } = await db.query(query, [eventname]);
-    return rows;
+    const result = await db.query(query, [id]);
+    return result.rows;
   }
 
 export {

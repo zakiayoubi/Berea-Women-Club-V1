@@ -46,6 +46,42 @@ async function fetchAllEvents() {
     return result.rows;
   }
   
+  async function fetchEventMonthlyCosts(year) {
+    const query = `
+      SELECT 
+        EXTRACT(MONTH FROM eventDate) AS eventMonth, 
+        SUM(eventCost) AS totalCost
+      FROM event
+      WHERE EXTRACT(YEAR FROM eventDate) = $1
+      GROUP BY EXTRACT(MONTH FROM eventDate)
+      ORDER BY EXTRACT(MONTH FROM eventDate)
+    `;
+    const result = await db.query(query, [year]);
+    return result.rows;
+  }
+  async function fetchYearlyEventCosts(year) {
+    const query = `
+      SELECT 
+        SUM(eventCost) AS totalCost
+      FROM event
+      WHERE EXTRACT(YEAR FROM eventDate) = $1
+    `;
+    const result = await db.query(query, [year]);
+    return result.rows; // Assuming you want to return a single value for total cost
+  }
+  
+  async function fetchYearlyMoneyRaised(year) {
+    const query = `
+      SELECT 
+        SUM(amountRaised) AS totalRaised
+      FROM event
+      WHERE EXTRACT(YEAR FROM eventDate) = $1
+    `;
+    const result = await db.query(query, [year]);
+    return result.rows; // Assuming you want to return a single value for total raised
+  }
+  
+  
   async function insertEvent(eventData) {
     const { eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType } = eventData;
     const query = `
@@ -75,8 +111,8 @@ async function fetchAllEvents() {
       WHERE eventID = $11
       RETURNING *;
     `;
-    const { rows } = await db.query(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType, eventID]);
-    return rows;
+    const rows = await db.query(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType, eventID]);
+    return rows[0];
   }
   
   async function deleteEvent(eventID) {
@@ -91,4 +127,7 @@ async function fetchAllEvents() {
     insertEvent,
     updateEvent,
     deleteEvent,
+    fetchEventMonthlyCosts,
+    fetchYearlyEventCosts,
+    fetchYearlyMoneyRaised,
   };
