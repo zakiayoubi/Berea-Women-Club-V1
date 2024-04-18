@@ -1,7 +1,8 @@
 import express from "express";
+import bodyParser from "body-parser";
 import {
     getMembers,
-    getMemberByID,
+    getMemberByName,
     getMemberDues,
     fetchNewMembers,
     fetchTotalMembers,
@@ -42,6 +43,7 @@ const port = 3000;
 
 app.use(express.json());
 app.use(express.static("public"));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs'); // Set the view engine to EJS
 
 // Complete
@@ -54,6 +56,20 @@ app.get('/members', async (req, res) => {
   const orderBy = req.query.orderBy || 'memberID'; // You can pass 'firstName', 'lastName', or 'dateJoined' as query parameters
   try {
     const result = await getMembers(orderBy);
+    res.render("member.ejs", {
+      members: result
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/search', async (req, res) => {
+  const searchTerm = req.query.searchTerm;
+  console.log(searchTerm);
+  try {
+    const result = await getMemberByName(searchTerm);
     console.log(result);
     res.render("member.ejs", {
       members: result
@@ -64,19 +80,39 @@ app.get('/members', async (req, res) => {
   }
 });
 
+
+
+// Route to handle POST request
+app.post('/sort', async(req, res) => {
+  const orderBy = req.body.sortby;
+  console.log(orderBy);
+  try {
+    const result = await getMembers(orderBy);
+    res.render("member.ejs", {
+      members: result
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Complete
-app.get('/members/dues', async (req, res) => {
-  const year = req.query.year || 2024;
-  const status = req.query.status || "paid";
+app.post('/dues', async (req, res) => {
+  const year = req.body.year;
+  console.log(year);
+  const status = req.body.status;
+  console.log(status);
   try {
     const result = await getMemberDues(year, status);
-    console.log(result);
     res.render("member.ejs", { members: result });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 // Complete
 app.get("/members/:memberId", async (req, res) => {

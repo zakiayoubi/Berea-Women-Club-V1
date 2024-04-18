@@ -2,23 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berea Women Club</title>
+    <!-- CSS LINK -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Fontawesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Berea Women's Club</title>
 </head>
 <body>
-    <div> 
-        <h1>Welcome to Organization page</h1>
-        <% organizations.forEach(organization => { %>
-            <div>
-                <p>Org ID: <%= organization.organizationid %></p>
-                <p>Org Name: <%= organization.organizationname %></p>
-                <p>Org Email: <%= organization.email %></p>
-                <p>Org Phone: <%= organization.phonenumber %></p>
-                <p>Org Address: <%= organization.streetname %>, <%= organization.city %>, <%= organization.usstate %>, <%= organization.zipcode %></p>
-                <p>Org type: <%= organization.organizationtype %></p>
-            </div>
-            <hr />
-        <% }); %>
-    </div>
+    <!-------------------------------------------- HEADER SECTION -->
+    <header class="header" >
+        <a href="#" class="logo">
+            <img src="./Loved.jpg" alt="logo">
+        </a>
+        <nav class="navbar">
+            <nav class="navbar">
+                
+                <a href="./Index.html" class="active">home</a>
+                <a href="./Members.html">Members</a>
+                <a href="./AboutUs.html">About Us</a>
+                <a href="./Events.html">Events</a>
+                <a href="./organization.html">organization</a>
+                <a href="./Donationin.html">Donations Inflow</a>
+                <a href="./Donationout.html">Donations Outflow</a>
+                <a href="./Contact.html">Contact</a>
+        </nav>
+        </div>
+    </header>
+    <!---------------------------------------------HEADER SECTION -->
+
+    <!---------------------------------------------FOOTER SECTION -->
+    <section class="footer">
+        <div class="search">
+            <input type="text" class="search-input" placeholder="Search">
+            <button class="btn btn-primary">search</button>
+        </div>
+        <div class="share">
+            <a href="#" class="https://www.facebook.com/groups/375904663316598/"></a>
+          
+        </div>
+        <div class="links">
+            <a href="#Members">Members</a>
+            <a href="#About">About</a>
+            <a href="#Donations">Donations</a>
+            <a href="#organizations">organizations</a>
+            <a href="#Events">Events</a>
+            <a href="#contact">contact</a>
+        
+        </div>
+        <div class="credit">
+            creaated by <span>DataBase Dream Team</span> | all rights reserved!
+        </div>
+    </section>
+    <!---------------------------------------------FOOTER SECTION -->
+
+<script src="./script.js"></script>
 </body>
 </html>

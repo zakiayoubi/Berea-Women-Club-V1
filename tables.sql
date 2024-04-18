@@ -18,14 +18,18 @@ CREATE TABLE member (
 CREATE TABLE membershipFee (
     feeID SERIAL PRIMARY KEY,
     memberID INT,
+    paymentYear INT,
     payDate DATE DEFAULT CURRENT_DATE,
-    paymentYear INT GENERATED ALWAYS AS (EXTRACT(YEAR FROM payDate)) STORED,
     status VARCHAR(10),
-    FOREIGN KEY (memberID) REFERENCES member(memberID),
+    FOREIGN KEY (memberID) REFERENCES member(memberID) ON DELETE CASCADE,
     CONSTRAINT status_check CHECK (status IN ('paid', 'not paid')),
-    CONSTRAINT unique_year_member UNIQUE (memberID, paymentYear)
-    ON DELETE CASCADE;
+    CONSTRAINT unique_year_member UNIQUE (memberID, paymentYear),
+    CONSTRAINT paydate_status_check CHECK (
+        (status = 'paid' AND payDate IS NOT NULL) OR
+        (status = 'not paid' AND payDate IS NULL)
+    )
 );
+
 
 
 CREATE TABLE organization (

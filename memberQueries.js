@@ -2,23 +2,25 @@ import db from "./db.js";
 
 
 async function getMembers(orderBy) {
-    let column = 'memberId'; // default ordering
+    let column = 'memberid'; // default ordering
     switch (orderBy) {
-      case 'firstName':
-        column = 'firstName';
+      case 'firstname':
+        column = 'firstname';
         break;
-      case 'lastName':
-        column = 'lastName';
+      case 'lastname':
+        column = 'lastname';
         break;
-      case 'dateJoined':
-        column = 'dateJoined';
+      case 'datejoined':
+        column = 'datejoined';
         break;
       // Add more cases as needed
     }
   
     const query = `
-      SELECT * FROM member 
-      ORDER BY ${column} LIMIT 2;
+      SELECT m.*, mf.paymentyear, mf.paydate, mf.status
+      FROM member m
+      JOIN membershipFee mf ON m.memberID = mf.memberID 
+      ORDER BY ${column} LIMIT 4;
     `;
   
     try {
@@ -30,36 +32,36 @@ async function getMembers(orderBy) {
     }
   }
 
-async function getMemberByID(memberId) {
-    const query = 'SELECT * FROM member WHERE memberID = $1';
+  async function getMemberByName(searchTerm) {
+    const query = `SELECT m.*, mf.paymentyear, mf.paydate, mf.status
+      FROM member m JOIN membershipFee mf ON m.memberID = mf.memberID WHERE firstName LIKE $1 OR lastName LIKE $2`;
+    const searchPattern = `%${searchTerm}%`; // The % wildcard allows for any characters to be before or after the searchTerm
+  
     try {
-      const result = await db.query(query, [memberId]);
+      const result = await db.query(query, [searchPattern, searchPattern]);
       if (result.rows.length > 0) {
         return result.rows; // Return the member details
       } else {
         return null; // No member found
       }
     } catch (error) {
-      console.error('Error executing fetchMember query:', error);
+      console.error('Error executing getMemberByName query:', error);
       throw error;
     }
   }
+  
 
 async function getMemberDues(year, status) {
   const query = `
-    SELECT m.*, mf.paydate, mf.status
+    SELECT m.*, mf.paymentyear, mf.paydate, mf.status
     FROM member m
     JOIN membershipFee mf ON m.memberID = mf.memberID
-    WHERE mf.paydate >= $1 AND mf.paydate <= $2 AND mf.status = $3
+    WHERE mf.paymentyear = $1 AND mf.status = $2
   `;
-  
-  // Constructing dates for the beginning and end of the year
-  const startDate = `${year}-01-01`;
-  const endDate = `${year}-12-31`;
 
   try {
-    const result = await db.query(query, [startDate, endDate, status]);
-    console.log(result);
+    const result = await db.query(query, [year, status]);
+    console.log(result.rows);
     return result.rows; // Return the fetched rows
   } catch (err) {
     console.error('Error executing fetchMemberDues query:', err);
@@ -222,7 +224,7 @@ async function updateMemberInformation(memberData) {
 
 export {
     getMembers,
-    getMemberByID,
+    getMemberByName,
     getMemberDues,
     fetchNewMembers,
     fetchTotalMembers,

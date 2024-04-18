@@ -1,26 +1,98 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berea Women Club</title>
-</head>
-<body>
-    <div> 
-        <h1>Welcome to Members page</h1>
-        <% members.forEach(member => { %>
-            <div>
-                <p>Member ID: <%= member.memberid %></p>
-                <p>Name: <%= member.firstname %> <%= member.lastname %></p>
-                <p>Email: <%= member.email %></p>
-                <p>Phone: <%= member.phonenumber %></p>
-                <p>Address: <%= member.streetname %>, <%= member.city %>, <%= member.usstate %>, <%= member.zipcode %></p>
-                <p>Date of Birth: <%= member.dateofbirth.toDateString() %></p>
-                <p>Date Joined: <%= member.datejoined.toDateString() %></p>
-                <p>Member Type: <%= member.membertype ? member.membertype : 'N/A' %></p>
+<%- include('partials/header.ejs'); -%>
+
+<!-- search bar -->
+<div class="p-5 pt-0 half-width">
+    <form action="/search" method="get">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <div class="form-floating">
+                    <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for a member">
+                    <label for="searchInput">Search for a member</label>
+                </div>
             </div>
-            <hr />
-        <% }); %>
+            <div class="col-md-4">
+                <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<!-- buttons -->
+<div class="mx-5 mb-3">
+    <!-- Add Member Button -->
+    <button type="button" class="btn btn-secondary">Add Member</button>
+  
+    <!-- Sort By Button with Dropdown -->
+    <div class="btn-group">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          Sort By
+        </button>
+        <form action="/sort" method="POST" class="dropdown-menu">
+            <!-- Dropdown menu items as buttons -->
+            <button class="dropdown-item" type="submit" name="sortby" value="firstname">Name</button>
+            <button class="dropdown-item" type="submit" name="sortby" value="datejoined">Join Date</button>
+            <button class="dropdown-item" type="submit" name="sortby" value="membertype">Type</button>
+        </form>
     </div>
-</body>
-</html>
+    <div class="btn-group">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Dues
+        </button>
+        <form action="/dues" method="POST" class="dropdown-menu p-2">
+            <!-- Status selection -->
+            <label class="dropdown-item-text">Status:</label>
+            <select class="form-select" name="status">
+                <option value="paid">Paid</option>
+                <option value="not paid">Not Paid</option>
+            </select>
+            <!-- Year selection -->
+            <label class="dropdown-item-text mt-2">Year:</label>
+            <select class="form-select" name="year">
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+            </select>
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+    </div>
+</div>
+<!-- list of members -->
+<div class="mx-5">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">No</th>
+          <th scope="col">Name</th>
+          <th scope="col">Email</th>
+          <th scope="col">Phone</th>
+          <th scope="col">Dues Status</th>
+          <th scope="col">Year</th>
+          <th scope="col">Date</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+        <% let counter = 1; %>
+        <% members.forEach(member => { %>
+        <tbody>
+            <tr>
+            <th scope="row"><%= counter %></th>
+            <td><%= member.firstname %> <%= member.lastname %></td>
+            <td><%= member.email %></td>
+            <td><%= member.phonenumber %></td>
+            <td><%= member.status %></td>
+            <td><%= member.paymentyear %></td>
+            <td><%= member.paydate ? new Date(member.paydate).toLocaleDateString() : "" %></td>
+            <td>
+                <button class="btn btn-primary btn-sm">Edit</button>
+                <button class="btn btn-danger btn-sm">Delete</button>
+            </td>
+            </tr>
+        </tbody>
+        <% counter++; %>
+        <% }) %>
+    </table>
+  </div>
+
+<%- include('partials/footer.ejs'); -%>
