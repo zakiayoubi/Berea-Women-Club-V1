@@ -15,6 +15,8 @@ import {
     fetchEventMembers,
 } from "./memberQueries.js";
 
+
+
 import {
     fetchAllOrganizations,
     fetchOrganizationCount,
@@ -37,7 +39,16 @@ import {
   deleteEvent,
 } from "./eventQueries.js";
 
+
+import { fetchDonationInflows,
+  fetchDonationInflowById,
+  fetchDonationInflowRaisedYearly,
+  insertDonationInflow,
+  updateDonationInflow,
+  deleteDonationInflow,} from "./donationInflowQueries.js"
+  
 const app = express();
+
 const port = 3000;
 
 
@@ -46,16 +57,22 @@ app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs'); // Set the view engine to EJS
 
+
+
+
 // Complete
 app.get("/", (req, res) => {
   res.render("index.ejs", );
 });
+
+
 
 // Complete
 app.get('/members', async (req, res) => {
   const orderBy = req.query.orderBy || 'memberID'; // You can pass 'firstName', 'lastName', or 'dateJoined' as query parameters
   try {
     const result = await getMembers(orderBy);
+    console.log(result);
     res.render("member.ejs", {
       members: result
     });
@@ -423,76 +440,56 @@ app.get('/event-members/:id', async (req, res) => {
   }
 });
 
-// // -------------------------------------------------------------
-// app.get('/donation-inflows', async (req, res) => {
-//   try {
-//     const inflows = await fetchDonationInflows();
-//     res.render('donation-inflows', { inflows });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
+// -------------------------------------------------------------
+// Donation Inflows!!!!
+function isValidDonationInflowId(id) {
+  console.log(id);
+  return Number.isInteger(id) && id > 0;
+}
 
-// // Donation Inflow by Specific ID
-// app.get('/donation-inflows/:id', async (req, res) => {
-//   const specificId = req.params.id;
-//   try {
-//     const inflows = await fetchDonationInflowById(specificId);
-//     res.render('donation-inflow-detail', { inflow: inflows[0] });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
 
-// // Amount Raised Per Year
-// app.get('/donation-inflows/amount-raised/yearly', async (req, res) => {
-//   try {
-//     const yearlyTotals = await fetchAmountRaisedYearly();
-//     res.render('amount-raised-yearly', { yearlyTotals });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.post('/donation-inflows', async (req, res) => {
-//   try {
-//     const newInflow = await insertDonationInflow(req.body);
-//     res.status(201).json(newInflow);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.put('/donation-inflows/:id', async (req, res) => {
-//   const donationInflowId = req.params.id;
-//   try {
-//     const updatedInflow = await updateDonationInflow(donationInflowId, req.body);
-//     if (updatedInflow) {
-//       res.json(updatedInflow);
-//     } else {
-//       res.status(404).send('Donation Inflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.delete('/donation-inflows/:id', async (req, res) => {
-//   const donationInflowId = req.params.id;
-//   try {
-//     const deletedInflow = await deleteDonationInflow(donationInflowId);
-//     if (deletedInflow) {
-//       res.json({ message: 'Donation Inflow deleted successfully', deletedInflow });
-//     } else {
-//       res.status(404).send('Donation Inflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
+app.get('/donationInflows', async (req, res) => {
+    try {
+      const inflows = await fetchDonationInflows(); // Assuming fetchDonationInflows is a function to retrieve inflows
+      res.render('donationInflow.ejs', { inflows });
+      console.log(inflows);
+  } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
+  }
+});
+
+app.post('/delete', async (req, res) => {
+  let donationInflowId = req.body.deleteId;
+  
+  // Parse the delete ID to an integer
+  donationInflowId = parseInt(donationInflowId);
+console.log( donationInflowId);
+console.log(typeof donationInflowId);
+console.log(typeof donationInflowId);
+console.log(typeof donationInflowId);
+  try {
+      if (isNaN(donationInflowId) || donationInflowId <= 0) {
+          return res.status(400).json({ message: 'Invalid Donation Inflow ID' });
+      }
+
+      // Proceed with the delete operation
+      const deletedInflow = await deleteDonationInflow(donationInflowId);
+      if (deletedInflow) {
+          res.json({ message: 'Donation Inflow deleted successfully', deletedInflow });
+      } else {
+          res.status(404).json({ message: 'Donation Inflow not found' });
+      }
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+
+
 
 // // Fetch all donation outflows
 // app.get('/donation-outflows', async (req, res) => {

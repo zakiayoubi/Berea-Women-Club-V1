@@ -1,16 +1,17 @@
 import db from "./db.js";
 
-
 async function fetchDonationInflows(limit = 5) {
   const query = `
-    SELECT di.*, o.organizationName 
+    SELECT di.*, o.organizationname 
     FROM donationinflow di 
-    LEFT JOIN organization o ON di.organizationid = o.organizationid 
-    LIMIT $1
+    LEFT JOIN organization o ON di.organizationid = o.organizationid;
   `;
-  const { rows } = await db.query(query, [limit]);
+  const { rows } = await db.query(query);
   return rows;
 }
+
+
+
 
 async function fetchDonationInflowById(donationInflowId) {
   const query = `
@@ -57,10 +58,17 @@ async function updateDonationInflow(donationInflowId, donationData) {
 }
 
 async function deleteDonationInflow(donationInflowId) {
-  const query = 'DELETE FROM donationinflow WHERE donationinflowid = $1 RETURNING *;';
+  console.log('Received donation inflow ID:', donationInflowId);
+
+  const query = 'DELETE FROM donationinflow WHERE donationInflowId = $1 RETURNING *;';
+  console.log('Executing SQL query:', query);
+
   const { rows } = await db.query(query, [donationInflowId]);
+  console.log('Rows deleted:', rows.length);
+
   return rows[0]; // Return the deleted record
 }
+
 
 export {
   fetchDonationInflows,

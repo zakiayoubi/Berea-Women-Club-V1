@@ -19,7 +19,7 @@ CREATE TABLE membershipFee (
     feeID SERIAL PRIMARY KEY,
     memberID INT,
     paymentYear INT,
-    payDate DATE DEFAULT CURRENT_DATE,
+    payDate DATE,
     status VARCHAR(10),
     FOREIGN KEY (memberID) REFERENCES member(memberID) ON DELETE CASCADE,
     CONSTRAINT status_check CHECK (status IN ('paid', 'not paid')),

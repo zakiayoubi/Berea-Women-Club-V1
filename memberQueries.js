@@ -20,7 +20,7 @@ async function getMembers(orderBy) {
       SELECT m.*, mf.paymentyear, mf.paydate, mf.status
       FROM member m
       JOIN membershipFee mf ON m.memberID = mf.memberID 
-      ORDER BY ${column} LIMIT 4;
+      ORDER BY ${column} LIMIT 2;
     `;
   
     try {
