@@ -1,4 +1,5 @@
 import express from "express";
+import db from "./db.js";
 import bodyParser from "body-parser";
 import {
     getMemberById,
@@ -12,6 +13,7 @@ import {
     addNewMember,
     addMembershipFee,
     updateMemberInformation,
+    updateOrInsertMembershipFee,
     deleteMember,
     fetchMemberEvents,
     fetchEventMembers,
@@ -230,7 +232,6 @@ app.get("/members/:memberId", async (req, res) => {
 
   const unformattedDateJoined = new Date(finalResult.datejoined);
   finalResult.datejoined = unformattedDateJoined.toISOString().substring(0, 10);
-
   res.render("memberInfo.ejs", {
     member: finalResult,
     dues: memberDues,
@@ -238,16 +239,25 @@ app.get("/members/:memberId", async (req, res) => {
 });
 
 app.post("/updatedMemberInfo/:memberId", async(req, res) => {
+    // Filter out empty dues before processing
+  const filteredStatus = [].concat(req.body.status || []).filter(s => s !== '');
+  const filteredPaymentYears = [].concat(req.body.paymentYear || []).filter(y => y !== '');
+  const filteredPaymentDates = [].concat(req.body.paymentDate || []).filter(d => d !== '');
+    
   const memberId = req.params.memberId;
-  const { firstName, lastName, email, phone, street, city, state, zip, dateOfBirth, dateJoined, membershipType, status} = req.body;
+  const { firstName, lastName, email, phone, street, city, state, zip, dateOfBirth, dateJoined, membershipType} = req.body;
+
   
   const newMember = {"memberId": memberId, "firstName": firstName, "lastName": lastName, "email": email,
                    "phoneNumber": phone, "streetName": street, "city": city, "usState": state, "zipCode": zip, 
                    "dateOfBirth": dateOfBirth, "dateJoined": dateJoined, "memberType": membershipType};
-  console.log(newMember);
+
   try {
     await updateMemberInformation(newMember);
-    res.json({ message: "Member updated successfully" });
+    for (let i=0; i<=(filteredPaymentYears.length - 1); i++) {
+      await updateOrInsertMembershipFee(db, memberId, filteredPaymentYears[i], filteredStatus[i], filteredPaymentDates[i], );
+    }
+    res.redirect(`/members/${memberId}`)
   } catch (error) {
     console.error("Error updating the member:", error);
     res.status(500).send("Internal Server Error");
@@ -257,12 +267,12 @@ app.post("/updatedMemberInfo/:memberId", async(req, res) => {
 
 
 // Complete
-app.delete("/deleteMember", async (req, res) => {
-  const memberId = req.body.memberId;
-
+app.post("/deleteMember/:memberId", async (req, res) => {
+  const memberId = req.params.memberId;
+  console.log(memberId);
   try {
     await deleteMember(memberId);
-    res.json({ message: "Member deleted successfully" });
+    res.redirect("/members")
   } catch (error) {
     console.error("Error deleting the member:", error);
     res.status(500).send("Internal Server Error");
