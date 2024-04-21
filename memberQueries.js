@@ -17,11 +17,10 @@ async function getMembers(orderBy) {
     }
   
     const query = `
-      SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-      FROM member m
-      JOIN membershipFee mf ON m.memberID = mf.memberID 
-      ORDER BY ${column} LIMIT 2;
-    `;
+    SELECT * from member
+    ORDER BY ${column};
+`;
+
   
     try {
       const result = await db.query(query);
@@ -34,7 +33,7 @@ async function getMembers(orderBy) {
 
   async function getMemberByName(searchTerm) {
     const query = `SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-      FROM member m JOIN membershipFee mf ON m.memberID = mf.memberID WHERE firstName LIKE $1 OR lastName LIKE $2`;
+      FROM member m LEFT JOIN membershipFee mf ON m.memberID = mf.memberID WHERE firstName LIKE $1 OR lastName LIKE $2`;
     const searchPattern = `%${searchTerm}%`; // The % wildcard allows for any characters to be before or after the searchTerm
   
     try {
@@ -55,7 +54,7 @@ async function getMemberDues(year, status) {
   const query = `
     SELECT m.*, mf.paymentyear, mf.paydate, mf.status
     FROM member m
-    JOIN membershipFee mf ON m.memberID = mf.memberID
+    LEFT JOIN membershipFee mf ON m.memberID = mf.memberID
     WHERE mf.paymentyear = $1 AND mf.status = $2
   `;
 
@@ -71,8 +70,10 @@ async function getMemberDues(year, status) {
 
 async function fetchNewMembers(year) {
     const query = `
-        SELECT * from Member
-        WHERE datejoined >= $1 AND datejoined <= $2
+        SELECT m.*, mf.paymentyear, mf.paydate, mf.status
+        FROM member m
+        LEFT JOIN membershipFee mf ON m.memberID = mf.memberID
+        WHERE m.datejoined >= $1 AND m.datejoined <= $2
     `;
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
@@ -117,14 +118,14 @@ async function fetchTotalMembersYear(year) {
 async function addNewMember(memberData) {
     const memberQuery = `
       INSERT INTO member 
-      (firstName, lastName, email, phoneNumber, streetName, city, usState, zipCode, dateOfBirth, memberType) 
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+      (firstName, lastName, email, phoneNumber, streetName, city, usState, zipCode, dateOfBirth, dateJoined, memberType) 
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
       RETURNING memberID
     `;
     const memberValues = [
       memberData.firstName, memberData.lastName, memberData.email, 
-      memberData.phoneNumber, memberData.streetName, memberData.city, 
-      memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.memberType
+      memberData.phone, memberData.street, memberData.city, 
+      memberData.state, memberData.zip, memberData.dateOfBirth, memberData.dateJoined, memberData.membershipType
     ];
   
     const memberResult = await db.query(memberQuery, memberValues);
@@ -132,9 +133,10 @@ async function addNewMember(memberData) {
   }
   
   
-async function addMembershipFee(memberId, payDate, status) {
-    const feeQuery = "INSERT INTO membershipFee (memberID, payDate, status) VALUES ($1, $2, $3)";
-    await db.query(feeQuery, [memberId, payDate, status]);
+async function addMembershipFee(memberId, dueInfo) {
+    const feeQuery = "INSERT INTO membershipFee (memberID, paymentYear, payDate, status) VALUES ($1, $2, $3, $4)";
+    const dueValues = [memberId, dueInfo.paymentYear, dueInfo.paymentDate, dueInfo.status]
+    db.query(feeQuery, dueValues);
 }
 
 async function updateMemberInformation(memberData) {

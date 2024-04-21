@@ -22,11 +22,11 @@ CREATE TABLE membershipFee (
     payDate DATE,
     status VARCHAR(10),
     FOREIGN KEY (memberID) REFERENCES member(memberID) ON DELETE CASCADE,
-    CONSTRAINT status_check CHECK (status IN ('paid', 'not paid')),
+    CONSTRAINT status_check CHECK (status IN ('paid', 'notPaid')),
     CONSTRAINT unique_year_member UNIQUE (memberID, paymentYear),
     CONSTRAINT paydate_status_check CHECK (
         (status = 'paid' AND payDate IS NOT NULL) OR
-        (status = 'not paid' AND payDate IS NULL)
+        (status = 'notPaid' AND payDate IS NULL)
     )
 );
 

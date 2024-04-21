@@ -21,8 +21,8 @@
 <!-- buttons -->
 <div class="mx-5 mb-3">
     <!-- Add Member Button -->
-    <button type="button" class="btn btn-secondary">Add Member</button>
-  
+    <a href="/addmember" class="btn btn-secondary">Add Member</a>
+
     <!-- Sort By Button with Dropdown -->
     <div class="btn-group">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -46,6 +46,22 @@
                 <option value="paid">Paid</option>
                 <option value="not paid">Not Paid</option>
             </select>
+            <!-- Year selection -->
+            <label class="dropdown-item-text mt-2">Year:</label>
+            <select class="form-select" name="year">
+                <option value="2022">2022</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+            </select>
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+        </form>
+    </div>
+    <div class="btn-group">
+        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            New Members
+        </button>
+        <form action="/newMembers" method="POST" class="dropdown-menu p-2">
             <!-- Year selection -->
             <label class="dropdown-item-text mt-2">Year:</label>
             <select class="form-select" name="year">

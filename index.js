@@ -135,7 +135,7 @@ app.post('/dues', async (req, res) => {
 app.get("/members/:memberId", async (req, res) => {
   const memberId = req.params.memberId; // Extract the memberID from the URL parameters
   try {
-    const member = await getMemberByID(memberId);
+    const member = await getMemberByName(memberId);
     if (member) {
       res.render("member.ejs", {
         members: member
@@ -151,20 +151,20 @@ app.get("/members/:memberId", async (req, res) => {
 
 
 // Complete
-app.get('/new-members', async (req, res) => {
-  const year = req.query.year || '2024'; // Default to 2024
+app.post('/newMembers', async (req, res) => {
+  const year = req.body.year;
+  console.log(year);
   try {
     const members = await fetchNewMembers(year);
     console.log(members);
-    const totalMembers = await fetchTotalMembers();
-    console.log(totalMembers.count);
-    const totalMembersYear = await fetchTotalMembersYear(year);
-    console.log(totalMembersYear.count);
-
+    // const totalMembers = await fetchTotalMembers();
+    // console.log(totalMembers.count);
+    // const totalMembersYear = await fetchTotalMembersYear(year);
+    // console.log(totalMembersYear.count);
     res.render("member.ejs", {
       members,
-      totalMembers: totalMembers.count,
-      totalMembersYear: totalMembersYear.count
+      // totalMembers: totalMembers.count,
+      // totalMembersYear: totalMembersYear.count
     });
   } catch (err) {
     console.error(err);
@@ -172,16 +172,48 @@ app.get('/new-members', async (req, res) => {
   }
 });
 
-// Complete
-app.post("/addMember", async (req, res) => {
-  const newMember = req.body;
+app.get("/addMember", (req, res) => {
+  try {
+    res.render("addMember.ejs");
+  } catch (error) {
+    console.error(error);
+    res.status(500);
+  }
+});
+
+app.post("/newMemberForm", async (req, res) => {
+  const firstName = req.body.firstName;
+  const lastName = req.body.lastName;
+  const email = req.body.email;
+  const phone = req.body.phone;
+  const street = req.body.street;
+  const city = req.body.city;
+  const state = req.body.state;
+  const zip = req.body.zip;
+  const dateOfBirth = req.body.dateOfBirth;
+  const dateJoined = req.body.dateJoined;
+  const membershipType = req.body.membershipType;
+  
+  const newMember = {"firstName": firstName, "lastName": lastName, "email": email,
+                   "phone": phone, "street": street, "city": city, "state": state, "zip": zip, 
+                   "dateOfBirth": dateOfBirth, "dateJoined": dateJoined, "membershipType": membershipType};
+  console.log(newMember);
+
+  const status = req.body.status;
+  const paymentYear = req.body.paymentYear;
+  let paymentDate = req.body.paymentDate;
+  paymentDate = paymentDate === '' ? null : paymentDate;
+
+  const dues = {"status": status, "paymentYear": paymentYear, "paymentDate": paymentDate};
+  console.log(dues)
+
   try {
     // Step 1: Insert the new member and get back the auto-generated memberID
     const memberId = await addNewMember(newMember);
     console.log(memberId);
 
     // Step 2: Use the retrieved memberID to insert the membership fee
-    await addMembershipFee(memberId, newMember.payDate, newMember.status);
+    await addMembershipFee(memberId, dues);
 
     console.log('Member and membership fee added successfully');
     res.status(200).send('Member and membership fee added successfully');
