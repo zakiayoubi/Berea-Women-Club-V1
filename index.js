@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
 import {
+    getMemberById,
+    getMemberDuesById,
     getMembers,
     getMemberByName,
     getMemberDues,
@@ -69,10 +71,8 @@ app.get("/", (req, res) => {
 
 // Complete
 app.get('/members', async (req, res) => {
-  const orderBy = req.query.orderBy || 'memberID'; // You can pass 'firstName', 'lastName', or 'dateJoined' as query parameters
   try {
-    const result = await getMembers(orderBy);
-    console.log(result);
+    const result = await getMembers();
     res.render("member.ejs", {
       members: result
     });
@@ -122,6 +122,7 @@ app.post('/dues', async (req, res) => {
   console.log(status);
   try {
     const result = await getMemberDues(year, status);
+    console.log(result);
     res.render("member.ejs", { members: result });
   } catch (err) {
     console.error(err);
@@ -131,23 +132,23 @@ app.post('/dues', async (req, res) => {
 
 
 
-// Complete
-app.get("/members/:memberId", async (req, res) => {
-  const memberId = req.params.memberId; // Extract the memberID from the URL parameters
-  try {
-    const member = await getMemberByName(memberId);
-    if (member) {
-      res.render("member.ejs", {
-        members: member
-      });
-    } else {
-      res.status(404).send("Member not found");
-    }
-  } catch (error) {
-    console.error("Error fetching the member:", error);
-    res.status(500).send("Internal Server Error");
-  }
-});
+// // Complete
+// app.get("/members/:memberId", async (req, res) => {
+//   const memberId = req.params.memberId; // Extract the memberID from the URL parameters
+//   try {
+//     const member = await getMemberByName(memberId);
+//     if (member) {
+//       res.render("member.ejs", {
+//         members: member
+//       });
+//     } else {
+//       res.status(404).send("Member not found");
+//     }
+//   } catch (error) {
+//     console.error("Error fetching the member:", error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
 
 // Complete
@@ -215,8 +216,12 @@ app.post("/newMemberForm", async (req, res) => {
     // Step 2: Use the retrieved memberID to insert the membership fee
     await addMembershipFee(memberId, dues);
 
+    const result = await getMembers();
+    res.render("member.ejs", {
+      members: result
+    });
     console.log('Member and membership fee added successfully');
-    res.status(200).send('Member and membership fee added successfully');
+    res.render("member.ejs");
   } catch (error) {
     console.error('Error adding member and membership fee:', error);
     res.status(500).send('Error adding member and membership fee');
@@ -225,14 +230,45 @@ app.post("/newMemberForm", async (req, res) => {
 
 
 // Complete
-app.put("/updateMember", async (req, res) => {
+app.get("/members/:memberId", async (req, res) => {
+  const memberId = req.params.memberId;
+  const result = await getMemberById(memberId);
+  const finalResult = result[0];
+
+  const memberDues = await getMemberDuesById(memberId);
+  memberDues.forEach(due => {
+    const newDate = new Date(due.paydate);
+    due.paydate = newDate.toISOString().substring(0, 10);
+  });
+
+  const unformattedDateOfBirth = new Date(finalResult.dateofbirth);
+  finalResult.dateofbirth = unformattedDateOfBirth.toISOString().substring(0, 10);
+
+  const unformattedDateJoined = new Date(finalResult.datejoined);
+  finalResult.datejoined = unformattedDateJoined.toISOString().substring(0, 10);
+
+  res.render("memberInfo.ejs", {
+    member: finalResult,
+    dues: memberDues,
+  });
+});
+
+app.post("/updatedMemberInfo/:memberId", async(req, res) => {
+  const memberId = req.params.memberId;
+  const { firstName, lastName, email, phone, street, city, state, zip, dateOfBirth, dateJoined, membershipType, status} = req.body;
+  
+  const newMember = {"memberId": memberId, "firstName": firstName, "lastName": lastName, "email": email,
+                   "phoneNumber": phone, "streetName": street, "city": city, "usState": state, "zipCode": zip, 
+                   "dateOfBirth": dateOfBirth, "dateJoined": dateJoined, "memberType": membershipType};
+  console.log(newMember);
   try {
-    await updateMemberInformation(req.body);
-    res.json({ message: "Member and membership information updated successfully" });
+    await updateMemberInformation(newMember);
+    res.json({ message: "Member updated successfully" });
   } catch (error) {
-    console.error("Failed to update member and membership information:", error);
+    console.error("Error updating the member:", error);
     res.status(500).send("Internal Server Error");
   }
+  
 });
 
 

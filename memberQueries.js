@@ -1,6 +1,37 @@
 import db from "./db.js";
 
 
+async function getMemberById(memberId) {
+
+  const query = `
+  SELECT * from member
+  WHERE memberId = ${memberId};
+`;
+
+  try {
+    const result = await db.query(query);
+    return result.rows;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function getMemberDuesById(memberId) {
+
+  const query = `
+  SELECT * from membershipFee
+  WHERE memberId = ${memberId};
+`;
+
+  try {
+    const result = await db.query(query);
+    return result.rows;
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+
 async function getMembers(orderBy) {
     let column = 'memberid'; // default ordering
     switch (orderBy) {
@@ -60,7 +91,6 @@ async function getMemberDues(year, status) {
 
   try {
     const result = await db.query(query, [year, status]);
-    console.log(result.rows);
     return result.rows; // Return the fetched rows
   } catch (err) {
     console.error('Error executing fetchMemberDues query:', err);
@@ -225,6 +255,8 @@ async function updateMemberInformation(memberData) {
   }
 
 export {
+    getMemberById,
+    getMemberDuesById,
     getMembers,
     getMemberByName,
     getMemberDues,
