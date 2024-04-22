@@ -149,7 +149,7 @@
                     <% dues.forEach(due => { %>
                         
                         <div class="row g-3 mt-1">
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <label for="status" class="form-label">Dues Status</label>
                                 <select class="form-select" id="status" name="status" required disabled>
                                     <option value="<%= due.status %>"><%= due.status %></option>
@@ -161,7 +161,7 @@
                                 </div>
                             </div>
                             
-                            <div class="col-sm-2">
+                            <div class="col-sm-3">
                                 <label for="paymentYear" class="form-label">Payment Year</label>
                                 <input type="text" class="form-control" id="paymentYear" name="paymentYear" value="<%= due.paymentyear %>" required disabled>
                                 <div class="invalid-feedback">
@@ -175,9 +175,6 @@
                                 <div class="invalid-feedback">
                                 Please enter the date you paid.
                                 </div>
-                            </div>
-                            <div class="col-sm-1">
-                                <button type="submit" id="deleteDue" class="btn btn-danger">Delete</button>
                             </div>
                         </div>
                     <% }) %>

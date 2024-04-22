@@ -2,34 +2,34 @@ import db from "./db.js";
 
 
 async function fetchAllEvents() {
-    const result = await db.query('SELECT * FROM event');
+    const result = await db.query('SELECT * FROM event ORDER BY eventName');
     return result.rows;
-  }
+  };
   
   async function fetchEventById(eventID) {
     const result = await db.query('SELECT * FROM event WHERE eventID = $1', [eventID]);
     return result.rows;
-  }
+  };
   
   async function sortEvents(sortBy) {
     let orderBy = 'eventID'; // default ordering
     switch (sortBy) {
-      case 'date':
+      case 'eventDate':
         orderBy = 'eventDate DESC';
         break;
-      case 'type':
+      case 'eventType':
         orderBy = 'eventType';
         break;
-      case 'raised':
+      case 'amountRaised':
         orderBy = 'amountRaised DESC';
         break;
-      case 'cost':
+      case 'eventCost':
         orderBy = 'eventCost DESC';
         break;
     }
     const result = await db.query(`SELECT * FROM event ORDER BY ${orderBy}`);
     return result.rows;
-  }
+  };
 
   
   async function fetchEventMoneyRaised(year) {
@@ -44,7 +44,7 @@ async function fetchAllEvents() {
     `;
     const result = await db.query(query, [year]);
     return result.rows;
-  }
+  };
   
   async function fetchEventMonthlyCosts(year) {
     const query = `
@@ -58,7 +58,7 @@ async function fetchAllEvents() {
     `;
     const result = await db.query(query, [year]);
     return result.rows;
-  }
+  };
   async function fetchYearlyEventCosts(year) {
     const query = `
       SELECT 
@@ -68,7 +68,7 @@ async function fetchAllEvents() {
     `;
     const result = await db.query(query, [year]);
     return result.rows; // Assuming you want to return a single value for total cost
-  }
+  };
   
   async function fetchYearlyMoneyRaised(year) {
     const query = `
@@ -79,11 +79,11 @@ async function fetchAllEvents() {
     `;
     const result = await db.query(query, [year]);
     return result.rows; // Assuming you want to return a single value for total raised
-  }
+  };
   
   
   async function insertEvent(eventData) {
-    const { eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType } = eventData;
+    const { eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType} = eventData;
     const query = `
       INSERT INTO event (eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -91,9 +91,9 @@ async function fetchAllEvents() {
     `;
     const { rows } = await db.query(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType]);
     return rows[0];
-  }
+  };
   
-  async function updateEvent(eventID, eventData) {
+  async function updateEvent(eventId, eventData) {
     const { eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType } = eventData;
     const query = `
       UPDATE event
@@ -109,16 +109,17 @@ async function fetchAllEvents() {
         eventCost = $9,
         eventType = $10
       WHERE eventID = $11
-      RETURNING *;
+      ;
     `;
-    const rows = await db.query(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType, eventID]);
+    const rows = await db.query(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType, eventId]);
     return rows[0];
-  }
+  };
   
   async function deleteEvent(eventID) {
     const { rowCount } = await db.query('DELETE FROM event WHERE eventID = $1', [eventID]);
     return rowCount;
-  }
+  };
+  
   export {
     fetchAllEvents,
     fetchEventById,
