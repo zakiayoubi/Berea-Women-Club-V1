@@ -1,26 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Berea Women Club</title>
-</head>
-<body>
-    <div> 
-        <h1>Welcome to Events page</h1>
-        <% events.forEach(event => { %>
-            <div>
-                <p>event ID: <%= event.eventid %></p>
-                <p>event Name: <%= event.eventname %></p>
-                <p>event location: <%= event.eventlocation %></p>
-                <p>event Address: <%= event.streetname %>, <%= event.city %>, <%= event.usstate %>, <%= event.zipcode %></p>
-                <p>event date: <%= event.eventdate %></p>
-                <p>Money Raised: <%= event.amountraised %></p>
-                <p>Event Cost:  <%= event.eventcost %></p>
-                <p>event type: <%= event.eventtype %></p>
+<%- include('partials/header.ejs'); -%>
+
+<!-- search bar -->
+
+<div class="p-5 pt-0 half-width">
+    <form action="/search" method="get">
+        <div class="row g-2 align-items-center">
+            <div class="col-md-8">
+                <div class="form-floating">
+                    <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for a member">
+                    <label for="searchInput">Search for an event</label>
+                </div>
             </div>
-            <hr />
-        <% }); %>
-    </div>
-</body>
-</html>
+            <div class="col-md-4">
+                <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+
+<%- include('partials/footer.ejs'); -%>
