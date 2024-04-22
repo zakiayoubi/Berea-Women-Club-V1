@@ -3,7 +3,7 @@ import db from "./db.js";
 
 
 async function fetchAllOrganizations(limit = 5) {
-    const query = 'SELECT * FROM organization LIMIT $1';
+    const query = 'SELECT * FROM organization LIMIT $3';
     const results = await db.query(query, [limit]);
     return results.rows;
   }

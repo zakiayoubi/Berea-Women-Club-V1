@@ -288,7 +288,7 @@ app.get('/organizations', async (req, res) => {
   try {
     const organizations = await fetchAllOrganizations();
     console.log(organizations);
-    const numOrganization = await fetchOrganizationCount();
+    // const numOrganization = await fetchOrganizationCount();
     res.render("organization.ejs", { organizations, numOrganization });
   } catch (error) {
     console.error(error);
