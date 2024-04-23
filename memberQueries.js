@@ -42,7 +42,10 @@ async function getMembers(orderBy) {
         column = 'lastname';
         break;
       case 'datejoined':
-        column = 'datejoined';
+        column = 'datejoined DESC';
+        break;
+      case 'membertype':
+        column = 'membertype';
         break;
       // Add more cases as needed
     }
@@ -100,10 +103,9 @@ async function getMemberDues(year, status) {
 
 async function fetchNewMembers(year) {
     const query = `
-        SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-        FROM member m
-        LEFT JOIN membershipFee mf ON m.memberID = mf.memberID
-        WHERE m.datejoined >= $1 AND m.datejoined <= $2
+        SELECT *
+        FROM member 
+        WHERE datejoined >= $1 AND datejoined <= $2 ORDER BY firstName
     `;
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
@@ -170,9 +172,6 @@ async function addMembershipFee(memberId, dueInfo) {
 }
 
 async function updateMemberInformation(memberData) {
-    // await db.query('BEGIN'); // Start transaction
-    // console.log(memberData);
-  
     try {
       const updateMemberQuery = `
         UPDATE member
@@ -193,42 +192,80 @@ async function updateMemberInformation(memberData) {
         memberData.phoneNumber, memberData.streetName, memberData.city, 
         memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.memberType, memberData.memberId]);
 
-      const updateMembershipFeeQuery = `
-        UPDATE membershipFee
-        SET
-          status = $1
-        WHERE memberId = $2
-      `;
-      await db.query(updateMembershipFeeQuery, [memberData.status, memberData.memberId]);
-  
-      // await db.query('COMMIT'); // Commit transaction
-      console.log('Member and membership information updated successfully');
     } catch (error) {
       await db.query('ROLLBACK'); // Rollback transaction on error
-      console.error('Failed to update member and membership information:', error);
+      console.error('Failed to update member information:', error);
       throw error; // Rethrow the error to be handled by the caller
     }
   }
 
+
+async function recordExists(db, memberId, paymentYear) {
+    const checkQuery = `
+      SELECT 1 FROM membershipFee
+      WHERE memberId = $1 AND paymentYear = $2
+    `;
+    const result = await db.query(checkQuery, [memberId, paymentYear]);
+    console.log(result.rows);
+    return result.rows.length > 0;
+  }
+
+async function updateOrInsertMembershipFee(db, memberId, paymentYear, status, paymentDate) {
+    const exists = await recordExists(db, memberId, paymentYear);
+  
+    if (exists) {
+      // Update the existing record
+      const updateQuery = `
+        UPDATE membershipFee
+        SET
+          status = $1,
+          payDate = $2
+        WHERE memberId = $3 AND paymentYear = $4
+      `;
+      await db.query(updateQuery, [status, paymentDate, memberId, paymentYear]);
+    } else {
+      // Insert a new record
+      const insertQuery = `
+        INSERT INTO membershipFee (memberID, paymentYear, payDate, status)
+        VALUES ($1, $2, $3, $4)
+      `;
+      await db.query(insertQuery, [memberId, paymentYear, paymentDate, status]);
+    }
+  }
+  
+  
+
   async function deleteMember(memberId) {
-    const deleteQuery = 'DELETE FROM member WHERE memberID = $1';
+    const selectQuery = 'SELECT * FROM member WHERE memberID = $1';
 
     try {
-        // Execute the delete operation and check the result
-        const result = await db.query(deleteQuery, [memberId]);
-
-        // If no rows were deleted, it means the memberId did not exist
-        if (result.rowCount === 0) {
-            console.log('Member not found or already deleted.');
-            return 'Member not found or already deleted.';
+        // First check if the member exists
+        const selectResult = await db.query(selectQuery, [memberId]);
+        
+        // If no rows are found, the member does not exist
+        if (selectResult.rowCount === 0) {
+            console.log('Member not found.');
+            return 'Member not found.';
         }
+
+        // If the member exists, proceed to delete
+        const deleteQuery = 'DELETE FROM member WHERE memberID = $1';
+        const deleteResult = await db.query(deleteQuery, [memberId]);
+
+        // Check if the delete operation was successful
+        if (deleteResult.rowCount === 0) {
+            console.log('Error deleting member.');
+            return 'Error deleting member.';
+        }
+
         console.log(`Member with ID ${memberId} successfully deleted.`);
         return `Member with ID ${memberId} successfully deleted.`;
     } catch (error) {
-        console.error('Error executing deleteMember query:', error);
+        console.error('Error executing deleteMember function:', error);
         throw error; // Rethrow the error to be handled by the caller
     }
 }
+
 
   async function fetchMemberEvents(id) {
     const query = `
@@ -266,6 +303,7 @@ export {
     addNewMember,
     addMembershipFee,
     updateMemberInformation,
+    updateOrInsertMembershipFee,
     deleteMember,
     fetchMemberEvents,
     fetchEventMembers,

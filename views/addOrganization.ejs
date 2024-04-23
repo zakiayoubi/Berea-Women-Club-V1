@@ -3,39 +3,40 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Add a new member</h4>
+            <h4 class="mb-3 text-center">Add a New Organization</h4>
             <hr class="my-4">
-            <form class="needs-validation" action="/members/newMemberForm" method="POST">
+            <form class="needs-validation" action="/organizations/newOrgForm" method="POST">
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="firstName" class="form-label">First name</label>
-                        <input type="text" class="form-control" id="firstName" name="firstName" required>
+                        <label for="organizationName" class="form-label">Organization</label>
+                        <input type="text" class="form-control" id="organizationName" name="organizationName" required>
                         <div class="invalid-feedback">
-                            Valid first name is required.
+                            Valid organization name is required.
                         </div>
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="lastName" class="form-label">Last name</label>
-                        <input type="text" class="form-control" id="lastName" name="lastName" required>
+                        <label for="organizationType" class="form-label">Organization Type</label>
+                        <input type="text" class="form-control" id="organizationType" name="organizationType" required>
                         <div class="invalid-feedback">
-                            Valid last name is required.
+                            Valid type is required.
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback">
+                            Valid organization email is required.
                         </div>
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="email" class="form-label">Email</span></label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+                        <label for="phoneNumber" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" required>
                         <div class="invalid-feedback">
-                            Please enter a valid email address.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" placeholder="8599865432" required>
-                        <div class="invalid-feedback">
-                        Please enter a valid phone number .
+                            Valid phone number is required.
                         </div>
                     </div>
 
@@ -111,78 +112,21 @@
                         <option value="Wisconsin">Wisconsin</option>
                         <option value="Wyoming">Wyoming</option>
                     </select>
-                    <div class="invalid-feedback">
-                        Please provide a valid state.
-                    </div>
+                        <div class="invalid-feedback">
+                            Please provide a valid state.
+                        </div>
                     </div>
 
                     <div class="col-md-3">
-                    <label for="zip" class="form-label">Zip</label>
-                    <input type="text" class="form-control" id="zip" name="zip" required>
-                    <div class="invalid-feedback">
-                        Zip code required.
-                    </div>
-                    </div>
-                
-                    <div class="col-sm-6">
-                        <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                        <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" placeholder="YYYY-MM-DD" required>
+                        <label for="zip" class="form-label">Zip</label>
+                        <input type="text" class="form-control" id="zip" name="zip" required>
                         <div class="invalid-feedback">
-                        Please enter your date of birth.
-                        </div>
-                    </div>
-            
-                    <div class="col-sm-6">
-                        <label for="dateJoined" class="form-label">Date Joined</label>
-                        <input type="date" class="form-control" id="dateJoined" name="dateJoined" placeholder="YYYY-MM-DD" required>
-                        <div class="invalid-feedback">
-                        Please enter the date you joined.
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mt-3">
-                    <label for="membershipType" class="form-label">Role</label>
-                    <select class="form-select" id="membershipType" name="membershipType" required>
-                        <option value="">Choose...</option>
-                        <option value="member">Member</option>
-                        <option value="officer">Officer</option>
-                        <option value="boardMember">Board Member</option>
-                    </select>
-                    <div class="invalid-feedback">
-                        Please provide a membership type.
-                    </div>
-                </div>
-                <div class="row g-3 mt-1">
-                    <div class="col-md-3">
-                        <label for="status" class="form-label">Dues Status</label>
-                        <select class="form-select" id="status" name="status" required>
-                            <option value="">Choose...</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Not Paid">Not Paid</option>
-                        </select>
-                        <div class="invalid-feedback">
-                            Please provide a payment status.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3">
-                        <label for="paymentYear" class="form-label">Payment Year</label>
-                        <input type="year" class="form-control" id="paymentYear" name="paymentYear" placeholder="YYYY" required>
-                        <div class="invalid-feedback">
-                        Please enter the year of payment.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="paymentDate" class="form-label">Payment Date <span class="text-body-secondary">(optional if not paid)</label>
-                        <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD" required>
-                        <div class="invalid-feedback">
-                        Please enter the date you paid.
+                            Zip code required.
                         </div>
                     </div>
                 </div>
                 <hr class="my-4">
-                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Add Member</button>
+                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Add Organization</button>
                 </div>
             </form>
         </div>

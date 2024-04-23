@@ -3,39 +3,23 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Add a new member</h4>
+            <h4 class="mb-3 text-center">Add a new event</h4>
             <hr class="my-4">
-            <form class="needs-validation" action="/members/newMemberForm" method="POST">
+            <form class="needs-validation" action="/events/newEventForm" method="POST">
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="firstName" class="form-label">First name</label>
-                        <input type="text" class="form-control" id="firstName" name="firstName" required>
+                        <label for="eventName" class="form-label">Event</label>
+                        <input type="text" class="form-control" id="eventName" name="eventName" required>
                         <div class="invalid-feedback">
-                            Valid first name is required.
+                            Valid event name is required.
                         </div>
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="lastName" class="form-label">Last name</label>
-                        <input type="text" class="form-control" id="lastName" name="lastName" required>
+                        <label for="location" class="form-label">Location <span class="text-body-secondary">(venune, building)</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
                         <div class="invalid-feedback">
-                            Valid last name is required.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="email" class="form-label">Email</span></label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
-                        <div class="invalid-feedback">
-                            Please enter a valid email address.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" placeholder="8599865432" required>
-                        <div class="invalid-feedback">
-                        Please enter a valid phone number .
+                            Valid location is required.
                         </div>
                     </div>
 
@@ -125,64 +109,39 @@
                     </div>
                 
                     <div class="col-sm-6">
-                        <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                        <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" placeholder="YYYY-MM-DD" required>
+                        <label for="eventDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="eventDate" name="eventDate" placeholder="YYYY-MM-DD" required>
                         <div class="invalid-feedback">
-                        Please enter your date of birth.
+                        Please enter your event date.
                         </div>
                     </div>
             
                     <div class="col-sm-6">
-                        <label for="dateJoined" class="form-label">Date Joined</label>
-                        <input type="date" class="form-control" id="dateJoined" name="dateJoined" placeholder="YYYY-MM-DD" required>
+                        <label for="eventType" class="form-label">Event Type</label>
+                        <input type="text" class="form-control" id="eventType" name="eventType" required>
                         <div class="invalid-feedback">
-                        Please enter the date you joined.
+                        Please enter the event type.
                         </div>
                     </div>
-                </div>
-                <div class="col-md-4 mt-3">
-                    <label for="membershipType" class="form-label">Role</label>
-                    <select class="form-select" id="membershipType" name="membershipType" required>
-                        <option value="">Choose...</option>
-                        <option value="member">Member</option>
-                        <option value="officer">Officer</option>
-                        <option value="boardMember">Board Member</option>
-                    </select>
-                    <div class="invalid-feedback">
-                        Please provide a membership type.
+
+                    <div class="col-md-3 mt-3">
+                        <label for="cost" class="form-label">Cost</label>
+                        <input type="number" class="form-control" id="cost" name="cost" required>
+                        <div class="invalid-feedback">
+                            Please provide the event cost.
+                        </div>
                     </div>
-                </div>
-                <div class="row g-3 mt-1">
+
                     <div class="col-md-3">
-                        <label for="status" class="form-label">Dues Status</label>
-                        <select class="form-select" id="status" name="status" required>
-                            <option value="">Choose...</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Not Paid">Not Paid</option>
-                        </select>
+                        <label for="amountRaised" class="form-label">Amount Raised</label>
+                        <input type="number" class="form-control" id="amountRaised" name="amountRaised" required>
                         <div class="invalid-feedback">
-                            Please provide a payment status.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3">
-                        <label for="paymentYear" class="form-label">Payment Year</label>
-                        <input type="year" class="form-control" id="paymentYear" name="paymentYear" placeholder="YYYY" required>
-                        <div class="invalid-feedback">
-                        Please enter the year of payment.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="paymentDate" class="form-label">Payment Date <span class="text-body-secondary">(optional if not paid)</label>
-                        <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD" required>
-                        <div class="invalid-feedback">
-                        Please enter the date you paid.
+                            Please provide the amount raised.
                         </div>
                     </div>
                 </div>
                 <hr class="my-4">
-                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Add Member</button>
+                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Add Event</button>
                 </div>
             </form>
         </div>
