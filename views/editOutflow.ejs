@@ -1,0 +1,51 @@
+<%- include('partials/header.ejs'); -%>
+
+<div class="container mt-5">
+    <h1>Update Donation Outflow</h1>
+
+    <form action="/donationOutflows/update" method="POST" style="display: table; width: 100%;">
+        <input type="hidden" name="id" value="<%= donationOutflow.donationoutflowid %>">
+
+        <!-- Record Name -->
+        <div class="mb-3" style="display: table-row;">
+            <label for="recordName" class="form-label" style="display: table-cell; padding: 8px; vertical-align: middle;">Record Name:</label>
+            <div style="display: table-cell;">
+                <input type="text" class="form-control" id="recordName" name="recordName" value="<%= donationOutflow.recordName %>" required>
+            </div>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3" style="display: table-row;">
+            <label for="category" class="form-label" style="display: table-cell; padding: 8px; vertical-align: middle;">Category:</label>
+            <div style="display: table-cell;">
+                <input type="text" class="form-control" id="category" name="category" value="<%= donationOutflow.category %>" required>
+            </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="mb-3" style="display: table-row;">
+            <label for="amount" class="form-label" style="display: table-cell; padding: 8px; vertical-align: middle;">Amount:</label>
+            <div style="display: table-cell;">
+                <input type="number" class="form-control" id="amount" name="amount" value="<%= donationOutflow.amount %>" step="0.01" required>
+            </div>
+        </div>
+
+        <!-- Donation Date -->
+        <div class="mb-3" style="display: table-row;">
+            <label for="donationDate" class="form-label" style="display: table-cell; padding: 8px; vertical-align: middle;">Donation Date:</label>
+            <div style="display: table-cell;">
+                <input type="date" class="form-control" id="donationDate" name="donationDate" value="<%= donationOutflow.donationDate %>" required>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display: table-row;">
+            <div style="display: table-cell;"></div>
+            <div style="display: table-cell; text-align: right; padding: 8px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="/" class="btn btn-secondary">Cancel</a>
+            </div>
+        </div>
+    </form>
+</div>
+<%- include('partials/footer.ejs'); -%>

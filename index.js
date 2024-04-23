@@ -45,6 +45,8 @@ import {
 } from "./organizationQueries.js";
 
 const app = express();
+const router = express.Router();
+
 const port = 3000;
 
 
@@ -53,10 +55,15 @@ app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs'); // Set the view engine to EJS
 
+
+
+
 // Complete
 app.get("/", (req, res) => {
   res.render("index.ejs", );
 });
+
+
 
 // Complete
 app.get('/members', async (req, res) => {

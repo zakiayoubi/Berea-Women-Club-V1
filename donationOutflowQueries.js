@@ -1,96 +1,129 @@
 import db from "./db.js";
 
+async function fetchDonationOutflows(limit = 5) {
+  const query = `
+    SELECT CAST(di.donationoutflowid AS INTEGER) AS donationoutflowid, di.*, o.organizationname 
+    FROM donationoutflow di 
+    LEFT JOIN organization o ON di.organizationid = o.organizationid
+
+    UNION
+
+    SELECT CAST(di.donationoutflowid AS INTEGER) AS donationoutflowid, di.*, o.organizationname 
+    FROM donationoutflow di 
+    LEFT JOIN organization o ON di.organizationid = o.organizationid;
+  `;
+  const { rows } = await db.query(query);
+  return rows;
+}
 
 
-async function fetchDonationOutflows() {
-    const query = `
-      SELECT do.*, o.organizationName 
-      FROM donationOutflow do 
-      LEFT JOIN organization o ON do.organizationID = o.organizationID
-    `;
-    const { rows } = await db.query(query);
-    return rows;
+async function fetchDonationOutflowById(donationOutflowId) {
+  const query = `
+    SELECT di.*
+    FROM donationoutflow di 
+    WHERE di.donationoutflowid = $1
+  `;
+  const { rows } = await db.query(query, [donationOutflowId]);
+  return rows;
+}
+
+
+
+
+async function getDonationOutflowByName(searchTerm) {
+  const query = `
+      SELECT * FROM donationOutflow
+      WHERE recordName LIKE $1
+      ORDER BY recordName;
+  `;
+  const searchPattern = `%${searchTerm}%`; // Allows for partial matching
+
+  try {
+      const result = await db.query(query, [searchPattern]);
+      if (result.rows.length > 0) {
+          return result.rows; // Return the donation outflow details
+      } else {
+          return null; // No donation outflow found
+      }
+  } catch (error) {
+      console.error('Error executing getDonationOutflowByName query:', error);
+      throw error; // Rethrowing the error to handle it in the route
   }
-  
-  async function fetchDonationOutflowById(donationOutflowId) {
-    const query = `
-      SELECT do.*, o.organizationName 
-      FROM donationOutflow do 
-      LEFT JOIN organization o ON do.organizationID = o.organizationID 
-      WHERE donationOutflowId = $1
-    `;
-    const { rows } = await db.query(query, [donationOutflowId]);
-    return rows;
+}
+
+
+async function addDonationOutflow(recordName, organizationID, category, amount, donationDate = new Date()) {
+  const query = `
+    INSERT INTO donationOutflow (recordName, organizationID, category, amount, donationDate)
+    VALUES ($1, $2, $3, $4, $5)
+  `;
+  const values = [recordName, organizationID, category, amount, donationDate];
+
+  try {
+    const res = await db.query(query, values);
+    return res.rows[0]; // or another appropriate response depending on your need
+  } catch (err) {
+    console.error('Error inserting donation outflow:', err);
+    throw err; // Re-throwing the error is often useful in a larger application context
   }
-  
-  async function fetchDonationOutflowOrderedBy(orderCriteria) {
-    let orderBy = 'do.donationOutflowId';
-    switch (orderCriteria) {
-      case 'amount':
-        orderBy = 'do.amount DESC';
-        break;
-      case 'category':
-        orderBy = 'do.category';
-        break;
-      case 'date':
-        orderBy = 'do.donationDate';
-        break;
-    }
-    const query = `
-      SELECT do.*, o.organizationName 
-      FROM donationOutflow do 
-      LEFT JOIN organization o ON do.organizationID = o.organizationID 
-      ORDER BY ${orderBy}
-    `;
-    const { rows } = await db.query(query);
-    return rows;
-  }
-  
-  async function fetchAmountDonatedYearly() {
-    const query = `
-      SELECT EXTRACT(YEAR FROM donationDate) AS donationYear, SUM(amount) AS totalDonated
-      FROM donationOutflow
-      GROUP BY EXTRACT(YEAR FROM donationDate)
-    `;
-    const { rows } = await db.query(query);
-    return rows;
-  }
-  async function insertDonationOutflow(donationData) {
-    const { organizationID, amount, category, donationDate } = donationData;
-    const query = `
-      INSERT INTO donationOutflow (organizationID, amount, category, donationDate) 
-      VALUES ($1, $2, $3, $4) 
-      RETURNING *;
-    `;
-    const { rows } = await db.query(query, [organizationID, amount, category, donationDate]);
-    return rows[0];
-  }
-  
-  async function updateDonationOutflow(donationOutflowId, donationData) {
-    const { organizationID, amount, category, donationDate } = donationData;
-    const query = `
-      UPDATE donationOutflow 
-      SET organizationID = $1, amount = $2, category = $3, donationDate = $4 
-      WHERE donationOutflowId = $5 
-      RETURNING *;
-    `;
-    const { rows } = await db.query(query, [organizationID, amount, category, donationDate, donationOutflowId]);
-    return rows[0];
-  }
-  
-  async function deleteDonationOutflow(donationOutflowId) {
-    const query = 'DELETE FROM donationOutflow WHERE donationOutflowId = $1 RETURNING *;';
-    const { rows } = await db.query(query, [donationOutflowId]);
-    return rows[0]; // Return the deleted record
+}
+
+
+async function updateDonationOutflow(donationOutflowId, donationData) {
+  const { category, amount, donationDate, recordName } = donationData;
+  const query = `
+    UPDATE donationoutflow
+    SET category = $1, amount = $2, donationdate = $3, recordName = $4
+    WHERE donationoutflowid = $5
+    RETURNING *;
+  `;
+  const { rows } = await db.query(query, [category, amount, donationDate, recordName, donationOutflowId]);
+  return rows[0];
+}
+
+
+
+async function deleteDonationOutflow(donationOutflowId) {
+  const query = `
+      DELETE FROM donationoutflow
+      WHERE donationoutflowid = $1;
+  `;
+  return db.query(query, [donationOutflowId]);
+}
+
+async function fetchSortedDonationOutflows(sortby) {
+  const validColumns = ['donationOutflowId', 'recordName', 'category', 'amount', 'donationDate'];
+  let column = 'donationOutflowId'; // Default sorting column
+
+  if (validColumns.includes(sortby)) {
+    column = sortby;
+  } else {
+    console.error('Invalid sort column');
+    throw new Error('Invalid sort column');
   }
 
-  export {
-    fetchDonationOutflows,
-    fetchDonationOutflowById,
-    fetchDonationOutflowOrderedBy,
-    fetchAmountDonatedYearly,
-    insertDonationOutflow,
-    updateDonationOutflow,
-    deleteDonationOutflow,
-  };
-  
+  const query = `
+      SELECT * FROM donationOutflow
+      ORDER BY ${column};
+  `;
+
+  try {
+      const { rows } = await db.query(query);
+      return rows;
+  } catch (err) {
+      console.error('Error fetching sorted donation outflows:', err);
+      throw err;
+  }
+}
+
+
+
+export {
+  fetchDonationOutflows,
+  fetchDonationOutflowById,
+  updateDonationOutflow,
+  deleteDonationOutflow,
+  addDonationOutflow,
+  getDonationOutflowByName,
+  fetchSortedDonationOutflows,
+};
