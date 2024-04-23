@@ -44,12 +44,26 @@ import {
 
 import { fetchDonationInflows,
   fetchDonationInflowById,
-  fetchDonationInflowRaisedYearly,
-  insertDonationInflow,
+  addDonationInflow,
   updateDonationInflow,
-  deleteDonationInflow,} from "./donationInflowQueries.js"
+  deleteDonationInflow,
+  getDonationInflowByName,
+  fetchSortedDonationInflows,
+} from "./donationInflowQueries.js"
+
+
+import {
+  fetchDonationOutflows,
+  fetchDonationOutflowById,
+  updateDonationOutflow,
+  deleteDonationOutflow,
+  addDonationOutflow,
+  getDonationOutflowByName,
+  fetchSortedDonationOutflows,
+} from "./donationOutflowQueries.js"
   
 const app = express();
+const router = express.Router();
 
 const port = 3000;
 
@@ -510,137 +524,371 @@ app.get('/event-members/:id', async (req, res) => {
 
 // -------------------------------------------------------------
 // Donation Inflows!!!!
-function isValidDonationInflowId(id) {
-  console.log(id);
-  return Number.isInteger(id) && id > 0;
-}
 
 
 app.get('/donationInflows', async (req, res) => {
     try {
-      const inflows = await fetchDonationInflows(); // Assuming fetchDonationInflows is a function to retrieve inflows
-      res.render('donationInflow.ejs', { inflows });
-      console.log(inflows);
+      const donationInflow = await fetchDonationInflows(); // Assuming fetchDonationInflows is a function to retrieve inflows
+
+      res.render('donationInflow.ejs', { donationInflow });
+ 
   } catch (error) {
       console.error(error);
       res.status(500).send('Server error');
   }
 });
 
-app.post('/delete', async (req, res) => {
-  let donationInflowId = req.body.deleteId;
-  
-  // Parse the delete ID to an integer
-  donationInflowId = parseInt(donationInflowId);
-console.log( donationInflowId);
-console.log(typeof donationInflowId);
-console.log(typeof donationInflowId);
-console.log(typeof donationInflowId);
+// Import your database model (assuming it's named DonationInflow)
+
+
+app.get('/donationInflows/edit', async (req, res) => {
   try {
-      if (isNaN(donationInflowId) || donationInflowId <= 0) {
-          return res.status(400).json({ message: 'Invalid Donation Inflow ID' });
+    const inflowId = req.query.id; // Retrieve the ID from the query parameters
+    console.log(req.body);
+
+    // Proceed with fetching the entity information based on the received ID
+ 
+    const inflow = await fetchDonationInflowById(inflowId);
+    console.log(inflow);
+
+    if (inflow.length > 0) {
+    res.render('edit.ejs', { donationInflow: inflow[0] }); // Pass only the first element
+} else {
+    res.status(404).send('Donation inflow not found');
+}
+
+    // Render the template with the fetched entity information
+  } catch (error) {
+    console.error('Error fetching donation inflow:', error);
+    res.render('error', { message: 'An error occurred' });
+  }
+});
+
+
+app.post('/donationInflows/update', async (req, res) => {
+  const { id, category, amount, donationDate,recordName } = req.body;
+
+  if (!id) {
+      return res.status(400).send('Error: ID is missing');
+  }
+
+  try {
+    const updatedRecord = await updateDonationInflow(id, { category, amount, donationDate,recordName });
+
+    if (!updatedRecord) {
+      return res.status(404).send('No record found with the given ID.');
+    }
+
+    // Send the updated record back to the client
+    res.redirect('/donationInflows')
+  } catch (error) {
+    console.error('Error executing update query', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+app.get('/error', (req, res) => {
+  res.status(500).send('Sorry, something went wrong.');
+});
+
+
+
+app.post('/delete', async (req, res) => {
+  const { deleteId } = req.body;
+
+  if (!deleteId) {
+      return res.status(400).send('Error: ID is missing for deletion.');
+  }
+
+  try {
+      const result = await deleteDonationInflow(deleteId);
+      if (result.rowCount === 0) {
+          return res.status(404).send('No record found with the given ID.');
       }
 
-      // Proceed with the delete operation
-      const deletedInflow = await deleteDonationInflow(donationInflowId);
-      if (deletedInflow) {
-          res.json({ message: 'Donation Inflow deleted successfully', deletedInflow });
+      // Redirect back to the listing page or to another confirmation page
+      res.redirect('/donationInflows');
+  } catch (error) {
+      console.error('Error executing delete query', error);
+      res.status(500).send('Internal Server Error');
+  }
+});
+
+
+app.get('/donationInflows/add', (req, res) => {
+  res.render('addInflow', { title: 'Add New Donation Inflow' });
+});
+
+
+app.post('/donationInflows/create', async (req, res) => {
+  const { recordName, organizationID, category, amount, donationDate } = req.body;
+  try {
+
+    const addinflow = await addDonationInflow(recordName, organizationID, category, amount, donationDate)
+
+    res.redirect('/donationInflows');
+  } catch (err) {
+    console.log(error);
+ 
+  }
+});
+
+app.get('/donationsearch', async (req, res) => {
+  try {
+      const { searchTerm, sortby } = req.query;
+
+      // Default sorting if none provided
+      let sortOptions = {};
+      if (sortby) {
+          if (sortby === 'recordName') {
+              sortOptions = { recordname: 1 }; // 1 for ascending
+          } else if (sortby === 'category') {
+              sortOptions = { category: 1 };
+          } else if (sortby === 'amount') {
+              sortOptions = { amount: 1 };
+          } else if (sortby === 'donationDate') {
+              sortOptions = { donationdate: 1 };
+          }
+      }
+
+      if (!searchTerm) {
+          // Optional: Redirect or render all donation inflows if no search term is provided
+          res.redirect('/'); 
       } else {
-          res.status(404).json({ message: 'Donation Inflow not found' });
+          // Assuming getDonationInflowByName can handle an additional sort parameter
+          const donationInflows = await getDonationInflowByName(searchTerm, sortOptions);
+
+          console.log(donationInflows);
+
+          if (donationInflows && donationInflows.length > 0) {
+              res.render('donationInflowsList.ejs', { donationInflows });
+          } else {
+              res.render('donationInflowsList.ejs', { donationInflows: [], message: 'No results found' });
+          }
       }
   } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Server error' });
+      console.error('Search failed:', error);
+      res.status(500).send('Error occurred while fetching data');
   }
+});
+
+app.get('/sortDonationInflows', async (req, res) => {
+  try {
+      const { sortby } = req.query;
+      let column = 'donationInflowId'; // default column
+
+      if (sortby) {
+          switch (sortby) {
+              case 'recordName':
+                  column = 'recordName';
+                  break;
+              case 'category':
+                  column = 'category';
+                  break;
+              case 'amount':
+                  column = 'amount';
+                  break;
+              case 'donationDate':
+                  column = 'donationDate';
+                  break;
+              default:
+                  res.status(400).send('Invalid sort option');
+                  return;
+          }
+      }
+
+      console.log(`Sorting by column: ${column}`);
+      const donationInflows = await fetchSortedDonationInflows(column);
+      console.log('Donation Inflows:', donationInflows);
+      res.render('donationInflowsList.ejs', { donationInflows });
+  } catch (error) {
+      console.error('Error in sorting donation inflows:', error);
+      res.status(500).send('Error occurred while sorting data');
+  }
+});
+
+app.get('/donationOutflows', async (req, res) => {
+  try {
+    const donationOutflow = await fetchDonationOutflows(); // Assuming fetchDonationOutflows is a function to retrieve outflows
+
+    res.render('donationOutflow.ejs', { donationOutflow });
+
+} catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+}
+});
+
+// Import your database model (assuming it's named DonationOutflow)
+
+
+app.get('/donationOutflows/edit', async (req, res) => {
+try {
+  const outflowId = req.query.id; // Retrieve the ID from the query parameters
+  console.log(req.body);
+
+  // Proceed with fetching the entity information based on the received ID
+
+  const outflow = await fetchDonationOutflowById(outflowId);
+  console.log(outflow);
+
+  if (outflow.length > 0) {
+  res.render('editOutflow.ejs', { donationOutflow: outflow[0] }); // Pass only the first element
+} else {
+  res.status(404).send('Donation outflow not found');
+}
+
+  // Render the template with the fetched entity information
+} catch (error) {
+  console.error('Error fetching donation outflow:', error);
+  res.render('error', { message: 'An error occurred' });
+}
+});
+
+
+app.post('/donationOutflows/update', async (req, res) => {
+const { id, category, amount, donationDate,recordName } = req.body;
+
+if (!id) {
+    return res.status(400).send('Error: ID is missing');
+}
+
+try {
+  const updatedRecord = await updateDonationOutflow(id, { category, amount, donationDate,recordName });
+
+  if (!updatedRecord) {
+    return res.status(404).send('No record found with the given ID.');
+  }
+
+  // Send the updated record back to the client
+  res.redirect('/donationOutflows')
+} catch (error) {
+  console.error('Error executing update query', error);
+  res.status(500).send('Internal Server Error');
+}
+});
+app.get('/error', (req, res) => {
+res.status(500).send('Sorry, something went wrong.');
+});
+
+
+
+app.post('/deleteOutflow', async (req, res) => {
+const { deleteId } = req.body;
+
+if (!deleteId) {
+    return res.status(400).send('Error: ID is missing for deletion.');
+}
+
+try {
+    const result = await deleteDonationOutflow(deleteId);
+    if (result.rowCount === 0) {
+        return res.status(404).send('No record found with the given ID.');
+    }
+
+    // Redirect back to the listing page or to another confirmation page
+    res.redirect('/donationOutflows');
+} catch (error) {
+    console.error('Error executing delete query', error);
+    res.status(500).send('Internal Server Error');
+}
+});
+
+
+app.get('/donationOutflows/add', (req, res) => {
+res.render('addOutflow', { title: 'Add New Donation Outflow' });
+});
+
+
+app.post('/donationOutflows/create', async (req, res) => {
+const { recordName, organizationID, category, amount, donationDate } = req.body;
+try {
+
+  const addoutflow = await addDonationOutflow(recordName, organizationID, category, amount, donationDate)
+
+  res.redirect('/donationOutflows');
+} catch (err) {
+  console.log(error);
+
+}
+});
+
+app.get('/donationsearch', async (req, res) => {
+try {
+    const { searchTerm, sortby } = req.query;
+
+    // Default sorting if none provided
+    let sortOptions = {};
+    if (sortby) {
+        if (sortby === 'recordName') {
+            sortOptions = { recordname: 1 }; // 1 for ascending
+        } else if (sortby === 'category') {
+            sortOptions = { category: 1 };
+        } else if (sortby === 'amount') {
+            sortOptions = { amount: 1 };
+        } else if (sortby === 'donationDate') {
+            sortOptions = { donationdate: 1 };
+        }
+    }
+
+    if (!searchTerm) {
+        // Optional: Redirect or render all donation outflows if no search term is provided
+        res.redirect('/'); 
+    } else {
+        // Assuming getDonationOutflowByName can handle an additional sort parameter
+        const donationOutflows = await getDonationOutflowByName(searchTerm, sortOptions);
+
+        console.log(donationOutflows);
+
+        if (donationOutflows && donationOutflows.length > 0) {
+            res.render('donationOutflowsList.ejs', { donationOutflows });
+        } else {
+            res.render('donationOutflowsList.ejs', { donationOutflows: [], message: 'No results found' });
+        }
+    }
+} catch (error) {
+    console.error('Search failed:', error);
+    res.status(500).send('Error occurred while fetching data');
+}
+});
+
+app.get('/sortDonationOutflows', async (req, res) => {
+try {
+    const { sortby } = req.query;
+    let column = 'donationOutflowId'; // default column
+
+    if (sortby) {
+        switch (sortby) {
+            case 'recordName':
+                column = 'recordName';
+                break;
+            case 'category':
+                column = 'category';
+                break;
+            case 'amount':
+                column = 'amount';
+                break;
+            case 'donationDate':
+                column = 'donationDate';
+                break;
+            default:
+                res.status(400).send('Invalid sort option');
+                return;
+        }
+    }
+
+    console.log(`Sorting by column: ${column}`);
+    const donationOutflows = await fetchSortedDonationOutflows(column);
+    console.log('Donation Outflows:', donationOutflows);
+    res.render('donationOutflowsList.ejs', { donationOutflows });
+} catch (error) {
+    console.error('Error in sorting donation outflows:', error);
+    res.status(500).send('Error occurred while sorting data');
+}
 });
 
 
 
 
-
-
-// // Fetch all donation outflows
-// app.get('/donation-outflows', async (req, res) => {
-//   try {
-//     const outflows = await fetchDonationOutflows();
-//     res.render('donation-outflows', { outflows });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Fetch a specific donation outflow by ID
-// app.get('/donation-outflows/:id', async (req, res) => {
-//   try {
-//     const outflow = await fetchDonationOutflowById(req.params.id);
-//     res.render('donation-outflow-detail', { outflow: outflow[0] });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Fetch donation outflows ordered by criteria
-// ['amount', 'category', 'date'].forEach(criteria => {
-//   app.get(`/donation-outflows/${criteria}`, async (req, res) => {
-//     try {
-//       const outflows = await fetchDonationOutflowsOrderedBy(criteria);
-//       res.render(`donation-outflows-${criteria}`, { outflows });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).send('Server error');
-//     }
-//   });
-// });
-
-// // Fetch amount donated yearly
-// app.get('/donation-outflows/yearly', async (req, res) => {
-//   try {
-//     const yearlyTotals = await fetchAmountDonatedYearly();
-//     res.render('donation-outflows-yearly', { yearlyTotals });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.post('/donation-outflows', async (req, res) => {
-//   try {
-//     const newOutflow = await insertDonationOutflow(req.body);
-//     res.status(201).json(newOutflow);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.put('/donation-outflows/:id', async (req, res) => {
-//   const donationOutflowId = req.params.id;
-//   try {
-//     const updatedOutflow = await updateDonationOutflow(donationOutflowId, req.body);
-//     if (updatedOutflow) {
-//       res.json(updatedOutflow);
-//     } else {
-//       res.status(404).send('Donation Outflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.delete('/donation-outflows/:id', async (req, res) => {
-//   const donationOutflowId = req.params.id;
-//   try {
-//     const deletedOutflow = await deleteDonationOutflow(donationOutflowId);
-//     if (deletedOutflow) {
-//       res.json({ message: 'Donation Outflow deleted successfully', deletedOutflow });
-//     } else {
-//       res.status(404).send('Donation Outflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
 
 
 app.listen(port, () => {

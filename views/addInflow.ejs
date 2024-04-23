@@ -1,0 +1,28 @@
+<%- include('partials/header.ejs'); -%>
+<div class="container mt-5">
+    <h2>Add New Donation Inflow</h2>
+    <form action="/donationInflows/create" method="post">
+        <div class="mb-3">
+            <label for="recordName" class="form-label">Record Name</label>
+            <input type="text" class="form-control" id="recordName" name="recordName" required>
+        </div>
+        <div class="mb-3">
+            <label for="organizationID" class="form-label">Organization ID</label>
+            <input type="number" class="form-control" id="organizationID" name="organizationID" required>
+        </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <input type="text" class="form-control" id="category" name="category" required>
+        </div>
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount</label>
+            <input type="number" class="form-control" id="amount" name="amount" required>
+        </div>
+        <div class="mb-3">
+            <label for="donationDate" class="form-label">Donation Date</label>
+            <input type="date" class="form-control" id="donationDate" name="donationDate">
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+<%- include('partials/footer.ejs'); -%>
