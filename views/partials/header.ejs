@@ -16,7 +16,7 @@
         </a>
   
         <ul class="nav nav-pills">
-          <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
+          <li class="nav-item"><a href="/" class="nav-link" aria-current="page">Home</a></li>
           <li class="nav-item"><a href="/members" class="nav-link">Members</a></li>
           <li class="nav-item"><a href="/events" class="nav-link">Events</a></li>
           <li class="nav-item"><a href="/organizations" class="nav-link">Organizations</a></li>
@@ -24,6 +24,26 @@
           <li class="nav-item"><a href="/donationOutflows" class="nav-link">Donation Outflow</a></li>
         </ul>
       </header>
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Get current URL path and assign 'active' class
+          var path = window.location.pathname;
+          var navLinks = document.querySelectorAll('.nav .nav-link');
+      
+          navLinks.forEach(function(link) {
+            if (link.getAttribute('href') === '/' && path === '/') {
+              // Exact match for 'Home' link
+              link.classList.add('active');
+            } else if (link.getAttribute('href') !== '/' && path.startsWith(link.getAttribute('href')) && path.length > 1) {
+              // Match all other links only if the path is not just '/'
+              link.classList.add('active');
+            }
+          });
+        });
+      </script>
+      
+      
+      
         
 
     

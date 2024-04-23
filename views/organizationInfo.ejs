@@ -1,47 +1,47 @@
-<%- include('partials/header.ejs'); -%>
-
+<%- include("partials/header.ejs"); %>
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Add a new member</h4>
+            <h4 class="mb-3 text-center">Organization Information</h4>
             <hr class="my-4">
-            <form class="needs-validation" action="/members/newMemberForm" method="POST">
+            <form class="needs-validation" id="updateForm" action="/updateOrganizationInfo/<%= organization.organizationid %>" method="POST" novalidate>
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="firstName" class="form-label">First name</label>
-                        <input type="text" class="form-control" id="firstName" name="firstName" required>
+                        <label for="organizationName" class="form-label">Organization</label>
+                        <input type="text" class="form-control" id="organizationName" name="organizationName" value="<%= organization.organizationname %>" required disabled>
                         <div class="invalid-feedback">
-                            Valid first name is required.
+                            Valid organization name is required.
                         </div>
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="lastName" class="form-label">Last name</label>
-                        <input type="text" class="form-control" id="lastName" name="lastName" required>
+                        <label for="organizationType" class="form-label">Organization Type</label>
+                        <input type="text" class="form-control" id="organizationType" name="organizationType" value="<%= organization.organizationtype %>" required disabled>
                         <div class="invalid-feedback">
-                            Valid last name is required.
+                            Valid type is required.
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="<%= organization.email %>" required disabled>
+                        <div class="invalid-feedback">
+                            Valid organization email is required.
                         </div>
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="email" class="form-label">Email</span></label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+                        <label for="phoneNumber" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= organization.phonenumber %>" required disabled>
                         <div class="invalid-feedback">
-                            Please enter a valid email address.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="text" class="form-control" id="phone" name="phone" placeholder="8599865432" required>
-                        <div class="invalid-feedback">
-                        Please enter a valid phone number .
+                            Valid phone number is required.
                         </div>
                     </div>
 
                     <div class="col-12">
                         <label for="street" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="street" name="street" placeholder="1234 Main St" required>
+                        <input type="text" class="form-control" id="street" name="street" value="<%= organization.streetname %>"  placeholder="1234 Main St" required disabled>
                         <div class="invalid-feedback">
                             Please enter your address.
                         </div>
@@ -50,7 +50,7 @@
 
                     <div class="col-md-5">
                         <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" name="city" required>
+                        <input type="text" class="form-control" id="city" name="city" value="<%= organization.city %>" required disabled>
                         <div class="invalid-feedback">
                         Valid city name is required.
                         </div>
@@ -58,8 +58,8 @@
 
                     <div class="col-md-4">
                     <label for="state" class="form-label">State</label>
-                    <select class="form-select" id="state" name="state" required>
-                        <option value="">Choose...</option>
+                    <select class="form-select" id="state" name="state" value="<%= organization.usstate %>" required disabled>
+                        <option value="<%= organization.usstate %>"><%= organization.usstate %></option>
                         <option value="Alabama">Alabama</option>
                         <option value="Alaska">Alaska</option>
                         <option value="Arizona">Arizona</option>
@@ -111,84 +111,43 @@
                         <option value="Wisconsin">Wisconsin</option>
                         <option value="Wyoming">Wyoming</option>
                     </select>
-                    <div class="invalid-feedback">
-                        Please provide a valid state.
-                    </div>
+                        <div class="invalid-feedback">
+                            Please provide a valid state.
+                        </div>
                     </div>
 
                     <div class="col-md-3">
-                    <label for="zip" class="form-label">Zip</label>
-                    <input type="text" class="form-control" id="zip" name="zip" required>
-                    <div class="invalid-feedback">
-                        Zip code required.
-                    </div>
-                    </div>
-                
-                    <div class="col-sm-6">
-                        <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                        <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" placeholder="YYYY-MM-DD" required>
+                        <label for="zip" class="form-label">Zip</label>
+                        <input type="text" class="form-control" id="zip" name="zip" value="<%= organization.zipcode %>" required disabled>
                         <div class="invalid-feedback">
-                        Please enter your date of birth.
-                        </div>
-                    </div>
-            
-                    <div class="col-sm-6">
-                        <label for="dateJoined" class="form-label">Date Joined</label>
-                        <input type="date" class="form-control" id="dateJoined" name="dateJoined" placeholder="YYYY-MM-DD" required>
-                        <div class="invalid-feedback">
-                        Please enter the date you joined.
+                            Zip code required.
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mt-3">
-                    <label for="membershipType" class="form-label">Role</label>
-                    <select class="form-select" id="membershipType" name="membershipType" required>
-                        <option value="">Choose...</option>
-                        <option value="member">Member</option>
-                        <option value="officer">Officer</option>
-                        <option value="boardMember">Board Member</option>
-                    </select>
-                    <div class="invalid-feedback">
-                        Please provide a membership type.
-                    </div>
-                </div>
-                <div class="row g-3 mt-1">
-                    <div class="col-md-3">
-                        <label for="status" class="form-label">Dues Status</label>
-                        <select class="form-select" id="status" name="status" required>
-                            <option value="">Choose...</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Not Paid">Not Paid</option>
-                        </select>
-                        <div class="invalid-feedback">
-                            Please provide a payment status.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3">
-                        <label for="paymentYear" class="form-label">Payment Year</label>
-                        <input type="year" class="form-control" id="paymentYear" name="paymentYear" placeholder="YYYY" required>
-                        <div class="invalid-feedback">
-                        Please enter the year of payment.
-                        </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="paymentDate" class="form-label">Payment Date <span class="text-body-secondary">(optional if not paid)</label>
-                        <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD" required>
-                        <div class="invalid-feedback">
-                        Please enter the date you paid.
-                        </div>
-                    </div>
-                </div>
-                <hr class="my-4">
-                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Add Member</button>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary btn-lg my-4" onclick="toggleEdit()" id="editButton">Update Organization</button>
+                    <button type="submit" class="btn btn-success btn-lg my-4" style="display:none;" id="updateButton">Submit Changes</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+<script>
+    function toggleEdit() {
+        // Get all input and select elements within the form
+        const formElements = document.querySelectorAll('#updateForm input, #updateForm select');
+        
+        // Enable all input and select fields
+        formElements.forEach(element => {
+            element.disabled = false; // Remove the 'disabled' attribute
+        });
+        
+        // Hide the edit button and show the submit button
+        document.getElementById('editButton').style.display = 'none';
+        document.getElementById('updateButton').style.display = 'block';
+        
+    }
+</script>
+    
 
-
-
-<%- include('partials/footer.ejs'); -%>
+<%- include('partials/footer.ejs'); %>

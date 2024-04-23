@@ -42,7 +42,10 @@ async function getMembers(orderBy) {
         column = 'lastname';
         break;
       case 'datejoined':
-        column = 'datejoined';
+        column = 'datejoined DESC';
+        break;
+      case 'membertype':
+        column = 'membertype';
         break;
       // Add more cases as needed
     }

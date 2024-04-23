@@ -2,7 +2,7 @@
 
 <!-- search bar -->
 <div class="p-5 pt-0 half-width">
-    <form action="/search" method="get">
+    <form action="/members/search" method="get">
         <div class="row g-2 align-items-center">
             <div class="col-md-8">
                 <div class="form-floating">
@@ -21,25 +21,26 @@
 <!-- buttons -->
 <div class="mx-5 mb-3">
     <!-- Add Member Button -->
-    <a href="/addmember" class="btn btn-secondary">Add Member</a>
+    <a href="/members/addmember" class="btn btn-secondary">Add Member</a>
 
     <!-- Sort By Button with Dropdown -->
     <div class="btn-group">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
           Sort By
         </button>
-        <form action="/sort" method="POST" class="dropdown-menu">
+        <form action="/members/sort" method="POST" class="dropdown-menu">
             <!-- Dropdown menu items as buttons -->
-            <button class="dropdown-item" type="submit" name="sortby" value="firstname">Name</button>
-            <button class="dropdown-item" type="submit" name="sortby" value="datejoined">Join Date</button>
-            <button class="dropdown-item" type="submit" name="sortby" value="membertype">Type</button>
+            <button class="dropdown-item" type="submit" name="sortby" value="firstname">First Name</button>
+            <button class="dropdown-item" type="submit" name="sortby" value="lastname">Last Name</button>
+            <button class="dropdown-item" type="submit" name="sortby" value="datejoined">Date Joined</button>
+            <button class="dropdown-item" type="submit" name="sortby" value="membertype">Role</button>
         </form>
     </div>
     <div class="btn-group">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             Dues
         </button>
-        <form action="/dues" method="POST" class="dropdown-menu p-2">
+        <form action="/members/dues" method="POST" class="dropdown-menu p-2">
             <!-- Status selection -->
             <label class="dropdown-item-text">Status:</label>
             <select class="form-select" name="status">
@@ -61,7 +62,7 @@
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             New Members
         </button>
-        <form action="/newMembers" method="POST" class="dropdown-menu p-2">
+        <form action="/members/newMembers" method="POST" class="dropdown-menu p-2">
             <!-- Year selection -->
             <label class="dropdown-item-text mt-2">Year:</label>
             <select class="form-select" name="year">
@@ -83,6 +84,8 @@
           <th scope="col">Name</th>
           <th scope="col">Email</th>
           <th scope="col">Phone</th>
+          <th scope="col">Date Joined</th>
+          <th scope="col">Role</th>
           <th scope="col">Dues Status</th>
           <th scope="col">Year</th>
           <th scope="col">Date</th>
@@ -97,8 +100,10 @@
                     <td><a href="/members/<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></a></td>
                     <td><%= member.email %></td>
                     <td><%= member.phonenumber %></td>
-                    <td><%= member.status %></td>
+                    <td><%= member.datejoined ? new Date(member.datejoined).toLocaleDateString() : "" %></td>
+                    <td><%= member.membertype %></td>
                     <td><%= member.paymentyear %></td>
+                    <td><%= member.status %></td> <!-- Example placeholder for dues status -->
                     <td><%= member.paydate ? new Date(member.paydate).toLocaleDateString() : "" %></td>
                     <td>
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= member.memberid %>">
@@ -132,7 +137,6 @@
             
     </table>
     </div>
-  
 
 
 <%- include('partials/footer.ejs'); -%>
