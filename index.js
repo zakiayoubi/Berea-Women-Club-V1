@@ -20,15 +20,6 @@ import {
 } from "./memberQueries.js";
 
 import {
-    fetchAllOrganizations,
-    fetchOrganizationCount,
-    fetchSpecificOrganization,
-    addOrganization,
-    updateOrganization,
-    deleteOrganization,
-} from "./organizationQueries.js";
-
-import {
   fetchAllEvents,
   fetchEventById,
   sortEvents,
@@ -39,7 +30,19 @@ import {
   insertEvent,
   updateEvent,
   deleteEvent,
+  fetchNewEvents,
 } from "./eventQueries.js";
+
+import {
+  fetchAllOrganizations,
+  sortOrganizations,
+  fetchOrganizationCount,
+  fetchSpecificOrganization,
+  fetchOrganizationByName,
+  addOrganization,
+  updateOrganization,
+  deleteOrganization,
+} from "./organizationQueries.js";
 
 const app = express();
 const port = 3000;
@@ -68,25 +71,11 @@ app.get('/members', async (req, res) => {
   }
 });
 
-app.get('/search', async (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  console.log(searchTerm);
-  try {
-    const result = await getMemberByName(searchTerm);
-    console.log(result);
-    res.render("member.ejs", {
-      members: result
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 
 
 // Route to handle POST request
-app.post('/sort', async(req, res) => {
+app.post('/members/sort', async(req, res) => {
   const orderBy = req.body.sortby;
   console.log(orderBy);
   try {
@@ -101,7 +90,7 @@ app.post('/sort', async(req, res) => {
 });
 
 // Complete
-app.post('/dues', async (req, res) => {
+app.post('/members/dues', async (req, res) => {
   const year = req.body.year;
   console.log(year);
   const status = req.body.status;
@@ -138,7 +127,7 @@ app.post('/dues', async (req, res) => {
 
 
 // Complete
-app.post('/newMembers', async (req, res) => {
+app.post('/members/newMembers', async (req, res) => {
   const year = req.body.year;
   console.log(year);
   try {
@@ -159,7 +148,7 @@ app.post('/newMembers', async (req, res) => {
   }
 });
 
-app.get("/addMember", (req, res) => {
+app.get("/members/addMember", (req, res) => {
   try {
     res.render("addMember.ejs");
   } catch (error) {
@@ -168,7 +157,7 @@ app.get("/addMember", (req, res) => {
   }
 });
 
-app.post("/newMemberForm", async (req, res) => {
+app.post("/members/newMemberForm", async (req, res) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
   const email = req.body.email;
@@ -212,6 +201,21 @@ app.post("/newMemberForm", async (req, res) => {
   }
 });
 
+app.get('/members/search', async (req, res) => {
+  console.log('Received request:', req.query);
+  const searchTerm = req.query.searchTerm;
+  console.log('Search term:', searchTerm);
+  try {
+  const result = await getMemberByName(searchTerm);
+  console.log(result);
+  res.render("member.ejs", {
+    members: result
+  });
+} catch (err) {
+  console.error(err);
+  res.status(500).json({ error: 'Internal server error' });
+}
+});
 
 // Complete
 app.get("/members/:memberId", async (req, res) => {
@@ -235,6 +239,7 @@ app.get("/members/:memberId", async (req, res) => {
     dues: memberDues,
   });
 });
+
 
 app.post("/updatedMemberInfo/:memberId", async(req, res) => {
     // Filter out empty dues before processing
@@ -287,9 +292,8 @@ app.post("/deleteMember/:memberId", async (req, res) => {
 app.get('/organizations', async (req, res) => {
   try {
     const organizations = await fetchAllOrganizations();
-    console.log(organizations);
     // const numOrganization = await fetchOrganizationCount();
-    res.render("organization.ejs", { organizations, numOrganization });
+    res.render("organization.ejs", { organizations});
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
@@ -297,9 +301,10 @@ app.get('/organizations', async (req, res) => {
 });
 
 // Complete
-app.get('/organizations/:id', async (req, res) => {
+app.get('/organizations/searchOrganization', async (req, res) => {
+  const searchTerm = req.query.searchTerm;
   try {
-    const organizations = await fetchSpecificOrganization(req.params.id);
+    const organizations = await fetchOrganizationByName(searchTerm);
     if (organizations.length > 0) {
       res.render("organization.ejs", { organizations });
     } else {
@@ -312,10 +317,85 @@ app.get('/organizations/:id', async (req, res) => {
 });
 
 // Complete
-app.post('/addOrganization', async (req, res) => {
+app.get('/organizations/addOrganization', async (req, res) => {
   try {
-    await addOrganization(req.body);
-    res.status(201).send('You successfully added an organization');
+    res.render('addOrganization.ejs');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
+
+// sort org route
+app.post('/organizations/sortOrg', async (req, res) => {
+  const sortBy = req.body.sortBy;
+  try {
+    const result = await sortOrganizations(sortBy);
+    res.render("organization.ejs", {
+      organizations: result
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
+
+
+app.post("/organizations/newOrgForm", async (req, res) => {
+  const organizationName = req.body.organizationName;
+  const organizationType = req.body.organizationType;
+  const street = req.body.street;
+  const city = req.body.city;
+  const state = req.body.state;
+  const zip = req.body.zip;
+  const email = req.body.email;
+  const phoneNumber = req.body.phoneNumber;
+  
+  const newOrg = {"organizationName": organizationName, "organizationType": organizationType,
+                   "streetName": street, "city": city, "usState": state, "zipCode": zip, 
+                   "email": email, "phoneNumber": phoneNumber};
+
+  try {
+    // Step 1: Insert the new event
+    await addOrganization(newOrg);
+
+    const result = await fetchAllOrganizations();
+    res.render("organization.ejs", {
+      organizations: result
+    });
+  } catch (error) {
+    console.error('Error adding organization', error);
+    res.status(500).send('Error adding organization');
+  }
+});
+
+// route to each organization
+app.get("/organizations/:organizationId", async (req, res) => {
+  const organizationId = req.params.organizationId;
+  console.log(organizationId);
+  const result = await fetchSpecificOrganization(organizationId);
+  console.log(result[0]);
+  res.render("organizationInfo.ejs", {
+    organization: result[0],
+  });
+});
+
+// Complete
+app.post('/updateOrganizationInfo/:organizationId', async (req, res) => {
+  const orgId = req.params.organizationId;
+
+  const { organizationName, organizationType, email, phoneNumber, street, city, state, zip} = req.body;
+
+
+  const orgData = {"organizationName": organizationName, "organizationType": organizationType, "email": email, "phoneNumber": phoneNumber,
+                "streetName": street, "city": city, "usState": state, "zipCode": zip};
+
+  console.log(orgData);
+  
+  try {
+    await updateOrganization(orgId, orgData);
+    res.redirect(`/organizations/${orgId}`);
+    
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
@@ -323,25 +403,12 @@ app.post('/addOrganization', async (req, res) => {
 });
 
 // Complete
-app.put('/updateOrganization', async (req, res) => {
+app.post('/deleteOrganization/:organizationId', async (req, res) => {
+  const orgId = req.params.organizationId;
+  console.log(orgId);
   try {
-    const result = await updateOrganization(req.query.id, req.body);
-    if (result.length > 0) {
-      res.json(result[0]);
-    } else {
-      res.status(404).send('Organization not found');
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-  }
-});
-
-// Complete
-app.delete('/deleteOrganization/:id', async (req, res) => {
-  try {
-    await deleteOrganization(req.params.id);
-    res.status(204).send();
+    await deleteOrganization(orgId);
+    res.redirect("/organizations")
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
@@ -369,7 +436,7 @@ app.get('/events', async (req, res) => {
 });
 
 // Complete
-app.get('/addEvent', async (req, res) => {
+app.get('/events/addEvent', async (req, res) => {
   try {
     res.render("addEvent.ejs")
   } catch (error) {
@@ -378,7 +445,7 @@ app.get('/addEvent', async (req, res) => {
   }
 });
 
-app.post("/newEventForm", async (req, res) => {
+app.post("/events/newEventForm", async (req, res) => {
   const eventName = req.body.eventName;
   const location = req.body.location;
   const street = req.body.street;
@@ -410,12 +477,28 @@ app.post("/newEventForm", async (req, res) => {
 });
 
 // sort events route
-app.post('/sortEvent', async (req, res) => {
+app.post('/events/sortEvent', async (req, res) => {
   const sortBy = req.body.sortBy;
   try {
     const result = await sortEvents(sortBy);
     res.render("event.ejs", {
       events: result
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
+
+// new events route
+app.post('/events/newEvents', async (req, res) => {
+  const year = req.body.year;
+  console.log(year);
+
+  try {
+    const events = await fetchNewEvents(year);
+    res.render("event.ejs", {
+      events
     });
   } catch (error) {
     console.error(error);
@@ -473,21 +556,7 @@ app.post("/deleteEvent/:eventId", async (req, res) => {
 
 
 
-// // new events route
-// app.get('/newEvent', async (req, res) => {
-//   const year = req.body.year;
-//   console.log(year);
 
-//   // try {
-//   //   const events = await fetchAllEvents();
-//   //   res.render("event.ejs", {
-//   //     events
-//   //   });
-//   // } catch (error) {
-//   //   console.error(error);
-//   //   res.status(500).send('Server error');
-//   // }
-// });
 
 // // Complete
 // app.get('/events/amount-raised-yearly', async (req, res) => {

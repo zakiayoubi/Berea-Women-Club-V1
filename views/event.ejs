@@ -2,7 +2,7 @@
 
 <!-- search bar -->
 <div class="p-5 pt-0 half-width">
-    <form action="/searchEvent" method="get">
+    <form action="/events/searchEvent" method="get">
         <div class="row g-2 align-items-center">
             <div class="col-md-8">
                 <div class="form-floating">
@@ -21,14 +21,14 @@
 <!-- buttons -->
 <div class="mx-5 mb-3">
     <!-- Add event Button -->
-    <a href="/addevent" class="btn btn-secondary">Add Event</a>
+    <a href="/events/addevent" class="btn btn-secondary">Add Event</a>
 
     <!-- Sort By Button with Dropdown -->
     <div class="btn-group">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
           Sort By
         </button>
-        <form action="/sortEvent" method="POST" class="dropdown-menu">
+        <form action="/events/sortEvent" method="POST" class="dropdown-menu">
             <!-- Dropdown menu items as buttons -->
             <button class="dropdown-item" type="submit" name="sortBy" value="eventDate">Date</button>
             <button class="dropdown-item" type="submit" name="sortBy" value="eventType">Type</button>
@@ -41,7 +41,7 @@
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
             New Events
         </button>
-        <form action="/newEvents" method="POST" class="dropdown-menu p-2">
+        <form action="/events/newEvents" method="POST" class="dropdown-menu p-2">
             <!-- Year selection -->
             <label class="dropdown-item-text mt-2">Year:</label>
             <select class="form-select" name="year">

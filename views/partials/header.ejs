@@ -31,12 +31,18 @@
           var navLinks = document.querySelectorAll('.nav .nav-link');
       
           navLinks.forEach(function(link) {
-            if (link.getAttribute('href') === path) {
+            if (link.getAttribute('href') === '/' && path === '/') {
+              // Exact match for 'Home' link
+              link.classList.add('active');
+            } else if (link.getAttribute('href') !== '/' && path.startsWith(link.getAttribute('href')) && path.length > 1) {
+              // Match all other links only if the path is not just '/'
               link.classList.add('active');
             }
           });
         });
       </script>
+      
+      
       
         
 

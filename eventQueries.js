@@ -1,5 +1,23 @@
 import db from "./db.js";
 
+async function fetchNewEvents(year) {
+  const query = `
+      SELECT *
+      FROM event 
+      WHERE eventDate >= $1 AND eventDate <= $2 ORDER BY eventDate DESC;
+  `;
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+
+  try {
+      const result = await db.query(query, [startDate, endDate]);
+      return result.rows;
+  } catch (err) {
+      console.error('Error executing fetchNewEvents query:', err);
+      throw err;
+  }
+};
+
 
 async function fetchAllEvents() {
     const result = await db.query('SELECT * FROM event ORDER BY eventName');
@@ -121,6 +139,7 @@ async function fetchAllEvents() {
   };
   
   export {
+    fetchNewEvents,
     fetchAllEvents,
     fetchEventById,
     sortEvents,
