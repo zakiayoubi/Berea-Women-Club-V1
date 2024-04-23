@@ -286,9 +286,8 @@ app.post("/deleteMember/:memberId", async (req, res) => {
 app.get('/organizations', async (req, res) => {
   try {
     const organizations = await fetchAllOrganizations();
-    console.log(organizations);
-    // const numOrganization = await fetchOrganizationCount();
-    res.render("organization.ejs", { organizations, numOrganization });
+    const numOrganization = await fetchOrganizationCount();
+    res.render("organization.ejs", { organizations });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
@@ -296,9 +295,12 @@ app.get('/organizations', async (req, res) => {
 });
 
 // Complete
-app.get('/organizations/:id', async (req, res) => {
+app.get('/searchOrganization', async (req, res) => {
+  const searchTerm = req.query.searchTerm;
+  console.log(searchTerm);
   try {
-    const organizations = await fetchSpecificOrganization(req.params.id);
+    const organizations = await fetchSpecificOrganization(searchTerm);
+    console.log(organizations);
     if (organizations.length > 0) {
       res.render("organization.ejs", { organizations });
     } else {
