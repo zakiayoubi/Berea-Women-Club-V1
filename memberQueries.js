@@ -72,11 +72,7 @@ async function getMembers(orderBy) {
   
     try {
       const result = await db.query(query, [searchPattern, searchPattern]);
-      if (result.rows.length > 0) {
-        return result.rows; // Return the member details
-      } else {
-        return null; // No member found
-      }
+      return result.rows; // Return the member details
     } catch (error) {
       console.error('Error executing getMemberByName query:', error);
       throw error;

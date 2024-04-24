@@ -46,19 +46,22 @@ CREATE TABLE organization (
 
 CREATE TABLE donationInflow (
     donationInflowId SERIAL PRIMARY KEY,
+    recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
+    donationDate DATE DEFAULT CURRENT_DATE,
     category VARCHAR(100),
     amount NUMERIC(12, 2),
-    donationDate DATE DEFAULT CURRENT_DATE,
+    
     FOREIGN KEY (organizationID) REFERENCES organization(organizationID)
 );
 
 CREATE TABLE donationOutflow ( -- Corrected table name and consistency
-    donationOutflowId SERIAL PRIMARY KEY,
+    donationOutflowId SERIAL PRIMARY KEY,    
+    recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
     donationDate DATE DEFAULT CURRENT_DATE,
-    amount NUMERIC(12, 2),
     category VARCHAR(100),
+    amount NUMERIC(12, 2),
     FOREIGN KEY (organizationID) REFERENCES organization(organizationID)
 );
 

@@ -1,72 +1,131 @@
 import db from "./db.js";
 
-
-async function fetchDonationInflows(limit = 5) {
+async function fetchDonationInflows() {
   const query = `
-    SELECT di.*, o.organizationName 
-    FROM donationinflow di 
-    LEFT JOIN organization o ON di.organizationid = o.organizationid 
-    LIMIT $1
+      select di.*, o.organizationname from donationinflow di JOIN organization o ON 
+      di.organizationID = o.organizationID ORDER BY di.donationInflowId;
   `;
-  const { rows } = await db.query(query, [limit]);
-  return rows;
-}
+  const result = await db.query(query);
+  return result.rows;
+};
+
 
 async function fetchDonationInflowById(donationInflowId) {
   const query = `
-    SELECT di.*, o.organizationName 
-    FROM donationinflow di 
-    LEFT JOIN organization o ON di.organizationid = o.organizationid 
-    WHERE di.donationinflowid = $1
+    select di.*, o.organizationname from donationinflow di JOIN organization o ON 
+    di.organizationID = o.organizationID WHERE di.donationinflowID = $1;
+    
   `;
-  const { rows } = await db.query(query, [donationInflowId]);
-  return rows;
+  const result = await db.query(query, [donationInflowId]);
+  return result.rows;
+};
+
+
+
+
+async function getDonationInflowByName(searchTerm) {
+  const query = `
+      SELECT * FROM donationInflow
+      WHERE recordName LIKE $1
+      ORDER BY recordName;
+  `;
+  const searchPattern = `%${searchTerm}%`; // Allows for partial matching
+
+  try {
+      const result = await db.query(query, [searchPattern]);
+        return result.rows; // Return the donation inflow details
+  } catch (error) {
+      console.error('Error executing getDonationInflowByName query:', error);
+      throw error; // Rethrowing the error to handle it in the route
+  }
 }
 
-async function fetchDonationInflowRaisedYearly() {
-  const query = `
-    SELECT EXTRACT(YEAR FROM donationdate) AS donationYear, SUM(amount) AS totalRaised
-    FROM donationinflow
-    GROUP BY EXTRACT(YEAR FROM donationdate)
-  `;
-  const { rows } = await db.query(query);
-  return rows;
-}
 
-async function insertDonationInflow(donationData) {
-  const { organizationid, category, amount, donationDate } = donationData;
+async function addDonationInflow(newOrg) {
+  const recordName = newOrg.recordName;
+  const organizationID = newOrg.organization;
+  const category = newOrg.category;
+  const amount = newOrg.amount;
+  const donationDate = newOrg.donationDate;
+
   const query = `
-    INSERT INTO donationinflow (organizationid, category, amount, donationdate) 
-    VALUES ($1, $2, $3, $4) 
-    RETURNING *;
+    INSERT INTO donationInflow (recordName, organizationID, donationDate, category, amount)
+    VALUES ($1, $2, $3, $4, $5)
   `;
-  const { rows } = await db.query(query, [organizationid, category, amount, donationDate]);
-  return rows[0];
-}
+  const values = [recordName, organizationID, donationDate, category, amount];
+
+  try {
+    const res = await db.query(query, values);
+    return res.rows[0]; // or another appropriate response depending on your need
+  } catch (err) {
+    console.error('Error inserting donation inflow:', err);
+    throw err; // Re-throwing the error is often useful in a larger application context
+  }
+};
+
 
 async function updateDonationInflow(donationInflowId, donationData) {
-  const { organizationid, category, amount, donationDate } = donationData;
+  const { organizationID, category, amount, donationDate, recordName } = donationData;
   const query = `
-    UPDATE donationinflow 
-    SET organizationid = $1, category = $2, amount = $3, donationdate = $4 
-    WHERE donationinflowid = $5 
-    RETURNING *;
+    UPDATE donationinflow
+    SET 
+    recordName = $1,
+    organizationID = $2,
+    donationdate = $3, 
+    category = $4, 
+    amount = $5
+    WHERE donationInflowId = $6
+    ;
   `;
-  const { rows } = await db.query(query, [organizationid, category, amount, donationDate, donationInflowId]);
+  const { rows } = await db.query(query, [recordName, organizationID, donationDate, category, amount, donationInflowId]);
   return rows[0];
-}
+};
+
+
+async function sortInflows(sortBy) {
+  let orderBy = 'o.organizationName'; // default ordering
+  switch (sortBy) {
+    case 'recordName':
+      orderBy = 'di.recordName';
+      break;
+    case 'organizationName':
+      orderBy = 'o.organizationName';
+      break;
+    case 'category':
+      orderBy = 'di.category';
+      break;
+    case 'amount':
+      orderBy = 'di.amount DESC';
+      break;
+    case 'donationDate':
+      orderBy = 'di.donationDate DESC';
+      break;
+  }
+
+  const query = `
+      SELECT di.*, o.organizationName FROM donationInflow di
+      JOIN organization o ON di.organizationID = o.organizationID
+      ORDER BY ${orderBy}
+  `
+  const result = await db.query(query);
+  return result.rows;
+};
+
 
 async function deleteDonationInflow(donationInflowId) {
-  const query = 'DELETE FROM donationinflow WHERE donationinflowid = $1 RETURNING *;';
-  const { rows } = await db.query(query, [donationInflowId]);
-  return rows[0]; // Return the deleted record
-}
+  const query = `
+      DELETE FROM donationinflow
+      WHERE donationinflowid = $1;
+  `;
+  return db.query(query, [donationInflowId]);
+};
 
 export {
   fetchDonationInflows,
   fetchDonationInflowById,
-  fetchDonationInflowRaisedYearly,
-  insertDonationInflow,
   updateDonationInflow,
   deleteDonationInflow,
+  addDonationInflow,
+  getDonationInflowByName,
+  sortInflows,
 };

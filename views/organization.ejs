@@ -1,97 +1,100 @@
 <%- include('partials/header.ejs'); -%>
 
-<!-- search bar -->
-<div class="p-5 pt-0 half-width">
-    <form action="/organizations/searchOrganization" method="get">
-        <div class="row g-2 align-items-center">
-            <div class="col-md-8">
-                <div class="form-floating">
-                    <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for an organization">
-                    <label for="searchInput">Search for an organization</label>
+<div class="container mt-5">
+    <!-- search bar -->
+    <div class="p-5 pt-0 half-width">
+        <form action="/organizations/searchOrganization" method="get">
+            <div class="row g-1 align-items-center">
+                <div class="col-md-8">
+                    <div class="form-floating">
+                        <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for an organization">
+                        <label for="searchInput">Search for an organization</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
                 </div>
             </div>
-            <div class="col-md-4">
-                <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
-            </div>
-        </div>
-    </form>
-</div>
-
-
-<!-- buttons -->
-<div class="mx-5 mb-3">
-    <!-- Add event Button -->
-    <a href="/organizations/addOrganization" class="btn btn-secondary">Add Organization</a>
-
-    <!-- Sort By Button with Dropdown -->
-    <div class="btn-group">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          Sort By
-        </button>
-        <form action="/organizations/sortOrg" method="POST" class="dropdown-menu">
-            <!-- Dropdown menu items as buttons -->
-            <button class="dropdown-item" type="submit" name="sortBy" value="organizationName">Name</button>
-            <button class="dropdown-item" type="submit" name="sortBy" value="organizationType">Type</button>
         </form>
     </div>
-</div>
 
-<!-- list of events -->
-<div class="mx-5">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">No</th>
-          <th scope="col">Organization</th>
-          <th scope="col">Email</th>
-          <th scope="col">Phone</th>
-          <th scope="col">Address</th>
-          <th scope="col">Type</th>
-          <th scope="col">Action</th>
-        </tr>
-      </thead>
-        <% let counter = 1; %>
-        <% organizations.forEach(org => { %>
-            <tbody>
-                <tr>
-                    <th scope="row"><%= counter %></th>
-                    <td><a href="/organizations/<%= org.organizationid %>"><%= org.organizationname %></a></td>
-                    <td><%= org.email %></td>
-                    <td><%= org.phonenumber%></td>
-                    <td><%= org.streetname %> <%= org.city %> <%= org.usstate %> <%= org.zipcode %></td>
-                    <td><%= org.organizationtype %></td>
-                    <td>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= org.organizationid %>">
-                            Delete
-                        </button>
-                        <!-- Modal per member -->
-                        <div class="modal fade" id="deleteModal<%= org.organizationid %>" tabindex="-1" aria-labelledby="deleteOrganization" aria-hidden="true">
-                            <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Organization</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                Are you sure you want to delete this organization?
-                                </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <form action="/deleteOrganization/<%= org.organizationid %>" method="POST">
-                                            <button type="submit" class="btn btn-primary">Confirm</button>
-                                        </form>
+
+    <!-- buttons -->
+    <div class="mb-3">
+        <!-- Add event Button -->
+        <a href="/organizations/addOrganization" class="btn btn-secondary">Add Organization</a>
+
+        <!-- Sort By Button with Dropdown -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Sort By
+            </button>
+            <form action="/organizations/sortOrg" method="POST" class="dropdown-menu">
+                <!-- Dropdown menu items as buttons -->
+                <button class="dropdown-item" type="submit" name="sortBy" value="organizationName">Name</button>
+                <button class="dropdown-item" type="submit" name="sortBy" value="organizationType">Type</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- list of events -->
+    <div>
+        <table class="table">
+        <thead>
+            <tr>
+            <th scope="col">No</th>
+            <th scope="col">Organization</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Address</th>
+            <th scope="col">Type</th>
+            <th scope="col">Action</th>
+            </tr>
+        </thead>
+            <% let counter = 1; %>
+            <% organizations.forEach(org => { %>
+                <tbody>
+                    <tr>
+                        <th scope="row"><%= counter %></th>
+                        <td><a href="/organizations/<%= org.organizationid %>"><%= org.organizationname %></a></td>
+                        <td><%= org.email %></td>
+                        <td><%= org.phonenumber%></td>
+                        <td><%= org.streetname %> <%= org.city %> <%= org.usstate %> <%= org.zipcode %></td>
+                        <td><%= org.organizationtype %></td>
+                        <td>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= org.organizationid %>">
+                                Delete
+                            </button>
+                            <!-- Modal per member -->
+                            <div class="modal fade" id="deleteModal<%= org.organizationid %>" tabindex="-1" aria-labelledby="deleteOrganization" aria-hidden="true">
+                                <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Organization</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                    Are you sure you want to delete this organization?
+                                    </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <form action="/deleteOrganization/<%= org.organizationid %>" method="POST">
+                                                <button type="submit" class="btn btn-primary">Confirm</button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-            <% counter++; %>
-            <% }) %>
-    </table>
+                        </td>
+                    </tr>
+                </tbody>
+                <% counter++; %>
+                <% }) %>
+        </table>
+    </div>
+    
 </div>
-  
+
 
 
 <%- include('partials/footer.ejs'); -%>

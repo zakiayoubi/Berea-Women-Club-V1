@@ -1,142 +1,144 @@
 <%- include('partials/header.ejs'); -%>
 
-<!-- search bar -->
-<div class="p-5 pt-0 half-width">
-    <form action="/members/search" method="get">
-        <div class="row g-2 align-items-center">
-            <div class="col-md-8">
-                <div class="form-floating">
-                    <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for a member">
-                    <label for="searchInput">Search for a member</label>
+<div class="container mt-5"> 
+    <!-- search bar -->
+    <div class="p-5 pt-0 half-width">
+        <form action="/members/search" method="get">
+            <div class="row g-1 align-items-center">
+                <div class="col-md-8">
+                    <div class="form-floating">
+                        <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for a member">
+                        <label for="searchInput">Search for a member</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
                 </div>
             </div>
-            <div class="col-md-4">
-                <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
-            </div>
+        </form>
+    </div>
+
+
+    <!-- buttons -->
+    <div class="mb-3">
+        <!-- Add Member Button -->
+        <a href="/members/addmember" class="btn btn-secondary">Add Member</a>
+
+        <!-- Sort By Button with Dropdown -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Sort By
+            </button>
+            <form action="/members/sort" method="POST" class="dropdown-menu">
+                <!-- Dropdown menu items as buttons -->
+                <button class="dropdown-item" type="submit" name="sortby" value="firstname">First Name</button>
+                <button class="dropdown-item" type="submit" name="sortby" value="lastname">Last Name</button>
+                <button class="dropdown-item" type="submit" name="sortby" value="datejoined">Date Joined</button>
+                <button class="dropdown-item" type="submit" name="sortby" value="membertype">Role</button>
+            </form>
         </div>
-    </form>
-</div>
-
-
-<!-- buttons -->
-<div class="mx-5 mb-3">
-    <!-- Add Member Button -->
-    <a href="/members/addmember" class="btn btn-secondary">Add Member</a>
-
-    <!-- Sort By Button with Dropdown -->
-    <div class="btn-group">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          Sort By
-        </button>
-        <form action="/members/sort" method="POST" class="dropdown-menu">
-            <!-- Dropdown menu items as buttons -->
-            <button class="dropdown-item" type="submit" name="sortby" value="firstname">First Name</button>
-            <button class="dropdown-item" type="submit" name="sortby" value="lastname">Last Name</button>
-            <button class="dropdown-item" type="submit" name="sortby" value="datejoined">Date Joined</button>
-            <button class="dropdown-item" type="submit" name="sortby" value="membertype">Role</button>
-        </form>
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                Dues
+            </button>
+            <form action="/members/dues" method="POST" class="dropdown-menu p-2">
+                <!-- Status selection -->
+                <label class="dropdown-item-text">Status:</label>
+                <select class="form-select" name="status">
+                    <option value="Paid">Paid</option>
+                    <option value="Not Paid">Not Paid</option>
+                </select>
+                <!-- Year selection -->
+                <label class="dropdown-item-text mt-2">Year:</label>
+                <select class="form-select" name="year">
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
+            </form>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                New Members
+            </button>
+            <form action="/members/newMembers" method="POST" class="dropdown-menu p-2">
+                <!-- Year selection -->
+                <label class="dropdown-item-text mt-2">Year:</label>
+                <select class="form-select" name="year">
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                </select>
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
+            </form>
+        </div>
     </div>
-    <div class="btn-group">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Dues
-        </button>
-        <form action="/members/dues" method="POST" class="dropdown-menu p-2">
-            <!-- Status selection -->
-            <label class="dropdown-item-text">Status:</label>
-            <select class="form-select" name="status">
-                <option value="Paid">Paid</option>
-                <option value="Not Paid">Not Paid</option>
-            </select>
-            <!-- Year selection -->
-            <label class="dropdown-item-text mt-2">Year:</label>
-            <select class="form-select" name="year">
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-            </select>
-            <!-- Submit button -->
-            <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
-        </form>
-    </div>
-    <div class="btn-group">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            New Members
-        </button>
-        <form action="/members/newMembers" method="POST" class="dropdown-menu p-2">
-            <!-- Year selection -->
-            <label class="dropdown-item-text mt-2">Year:</label>
-            <select class="form-select" name="year">
-                <option value="2022">2022</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-            </select>
-            <!-- Submit button -->
-            <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
-        </form>
-    </div>
-</div>
-<!-- list of members -->
-<div class="mx-5">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">No</th>
-          <th scope="col">Name</th>
-          <th scope="col">Email</th>
-          <th scope="col">Phone</th>
-          <th scope="col">Date Joined</th>
-          <th scope="col">Role</th>
-          <th scope="col">Dues Status</th>
-          <th scope="col">Year</th>
-          <th scope="col">Date</th>
-          <th scope="col">Action</th>
-        </tr>
-      </thead>
-        <% let counter = 1; %>
-        <% members.forEach(member => { %>
-            <tbody>
-                <tr>
-                    <th scope="row"><%= counter %></th>
-                    <td><a href="/members/<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></a></td>
-                    <td><%= member.email %></td>
-                    <td><%= member.phonenumber %></td>
-                    <td><%= member.datejoined ? new Date(member.datejoined).toLocaleDateString() : "" %></td>
-                    <td><%= member.membertype %></td>
-                    <td><%= member.paymentyear %></td>
-                    <td><%= member.status %></td> <!-- Example placeholder for dues status -->
-                    <td><%= member.paydate ? new Date(member.paydate).toLocaleDateString() : "" %></td>
-                    <td>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= member.memberid %>">
-                            Delete
-                        </button>
-                        <!-- Modal per member -->
-                        <div class="modal fade" id="deleteModal<%= member.memberid %>" tabindex="-1" aria-labelledby="deleteMember" aria-hidden="true">
-                            <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Member</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- list of members -->
+        <table class="table">
+        <thead>
+            <tr>
+            <th scope="col">No</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">Date Joined</th>
+            <th scope="col">Role</th>
+            <th scope="col">Dues Status</th>
+            <th scope="col">Year</th>
+            <th scope="col">Date</th>
+            <th scope="col">Action</th>
+            </tr>
+        </thead>
+            <% let counter = 1; %>
+            <% members.forEach(member => { %>
+                <tbody>
+                    <tr>
+                        <th scope="row"><%= counter %></th>
+                        <td><a href="/members/<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></a></td>
+                        <td><%= member.email %></td>
+                        <td><%= member.phonenumber %></td>
+                        <td><%= member.datejoined ? new Date(member.datejoined).toLocaleDateString() : "" %></td>
+                        <td><%= member.membertype %></td>
+                        <td><%= member.paymentyear %></td>
+                        <td><%= member.status %></td> <!-- Example placeholder for dues status -->
+                        <td><%= member.paydate ? new Date(member.paydate).toLocaleDateString() : "" %></td>
+                        <td>
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= member.memberid %>">
+                                Delete
+                            </button>
+                            <!-- Modal per member -->
+                            <div class="modal fade" id="deleteModal<%= member.memberid %>" tabindex="-1" aria-labelledby="deleteMember" aria-hidden="true">
+                                <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Member</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                    Are you sure you want to delete this member?
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <form action="/deleteMember/<%= member.memberid %>" method="POST">
+                                        <button type="submit" class="btn btn-primary">Confirm</button>
+                                    </form>
+                                    </div>
                                 </div>
-                                <div class="modal-body">
-                                Are you sure you want to delete this member?
-                                </div>
-                                <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <form action="/deleteMember/<%= member.memberid %>" method="POST">
-                                    <button type="submit" class="btn btn-primary">Confirm</button>
-                                </form>
                                 </div>
                             </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
+                        </td>
+                    </tr>
+                </tbody>
             <% counter++; %>
             <% }) %>
-            
-    </table>
-    </div>
+        </table>
+</div>
+
+
+
 
 
 <%- include('partials/footer.ejs'); -%>

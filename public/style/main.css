@@ -1,6 +1,6 @@
-body {
+/* body {
     background-color: rgb(229, 244, 255);
-}
+} */
 
 .half-width {
     width: 50%;       /* Set the width to 50% of its parent, which is typically the viewport if the parent is the body */
@@ -10,4 +10,24 @@ body {
 .bheight {
     height: 50px;
 }
+
+.clickable-row:hover {
+    cursor: pointer;
+    background-color: #dae0e5; /* This color is for hover effect, you can choose any color you like */
+  }
+
+  .background-image {
+    /* Set the URL of your desired background image */
+    background-image: url('/assets/Loved.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh; /* This sets the minimum height to full viewport height */
+}
+
+
+.dropdown-menu {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
 

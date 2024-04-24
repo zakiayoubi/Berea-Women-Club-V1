@@ -1,22 +1,23 @@
 <%- include('partials/header.ejs'); -%>
-
-<div class="p-5 pt-0 half-width">
-    <form action="/search" method="get">
-        <div class="row g-2 align-items-center">
-            <div class="col-md-8">
-                <div class="form-floating">
-                    <input type="search" class="form-control rounded-3" id="searchInput" name="query" placeholder="Search for a member">
-                    <label for="searchInput">Search for a resource</label>
+<div class="background-image">
+    <div class="d-flex align-items-center justify-content-center vh-100 position-relative">
+    <div class="p-5 shadow bg-white rounded-3" style="width: 50%; margin-top: -20%;">
+        <form action="/search" method="get">
+            <div class="row g-2 align-items-center">
+                <div class="col-md-8">
+                    <div class="form-floating">
+                        <input type="search" class="form-control rounded-3" id="searchInput" name="query" placeholder="Search for a member">
+                        <label for="searchInput">Search for a resource</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary btn-lg w-100 rounded-3" type="submit">Search</button>
                 </div>
             </div>
-            <div class="col-md-4">
-                <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
-            </div>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
-
-   
+</div>
 
 
 <%- include('partials/footer.ejs'); -%>
