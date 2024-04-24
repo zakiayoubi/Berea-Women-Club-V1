@@ -46,6 +46,55 @@ async function sortOrganizations(sortBy) {
     await db.query(query, [organizationName, email, phoneNumber, streetName, city, usState, zipCode, organizationType]);
   };
   
+  //sorting by (name A-Z and type)
+  async function getOrganization(orderBy) {
+    let column = 'organizationid'; // default ordering
+    switch (orderBy) {
+      case 'organizationid':
+        column = 'organizationid';
+        break;
+      case 'organizationname':
+          column = 'organizationname';
+          break;
+      case 'email':
+        column = 'email';
+        break;
+      case ' phonenumber':
+        column = ' phonenumber';
+        break;
+              case 'streetname':
+        column = 'streetname';
+        break;
+      case 'city':
+        column = 'city';
+        break;
+      case 'usstate':
+          column = 'usstate';
+          break;
+      case ' zipcode':
+          column = ' zipcode';
+          break;
+      case ' organizationtype':
+            column = ' organizationtype';
+            break;
+      // Add more cases as needed
+    }
+  
+    const query = `
+    SELECT * from member
+    ORDER BY ${column};
+`;
+
+  
+    try {
+      const result = await db.query(query);
+      return result.rows;
+    } catch (err) {
+      console.error(err);
+      return [];
+    }
+  }
+  //end of sort
   async function updateOrganization(id, data) {
     const { organizationName, email, phoneNumber, streetName, city, usState, zipCode, organizationType } = data;
     const query = `
