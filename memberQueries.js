@@ -68,7 +68,7 @@ async function getMembers(orderBy) {
   async function getMemberByName(searchTerm) {
     const query = `SELECT m.*, mf.paymentyear, mf.paydate, mf.status
       FROM member m LEFT JOIN membershipFee mf ON m.memberID = mf.memberID WHERE firstName LIKE $1 OR lastName LIKE $2`;
-    const searchPattern = `%${searchTerm}%`; // The % wildcard allows for any characters to be before or after the searchTerm
+    const searchPattern = `%${searchTerm}%`; 
   
     try {
       const result = await db.query(query, [searchPattern, searchPattern]);

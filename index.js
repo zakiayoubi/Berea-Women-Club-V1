@@ -207,8 +207,7 @@ app.post("/members/newMemberForm", async (req, res) => {
 });
 
 app.get('/members/search', async (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  console.log('Search term:', searchTerm);
+  const searchTerm = req.query.searchTerm.trim();
   try {
   const result = await getMemberByName(searchTerm);
   console.log(result);
@@ -310,20 +309,16 @@ app.get('/organizations', async (req, res) => {
 
 // Complete
 app.get('/organizations/searchOrganization', async (req, res) => {
-  const searchTerm = req.query.searchTerm;
+  const searchTerm = req.query.searchTerm.trim();
   try {
     const organizations = await fetchOrganizationByName(searchTerm);
-    console.log(organizations);
-    if (organizations.length > 0) {
-      res.render("organization.ejs", { organizations });
-    } else {
-      res.render("organization.ejs", {organizations: []})
-    }
+    res.render("organization.ejs", { organizations });
   } catch (error) {
     console.error(error);
     res.status(500).send('Server error');
   }
 });
+
 
 // Complete
 app.get('/organizations/addOrganization', async (req, res) => {

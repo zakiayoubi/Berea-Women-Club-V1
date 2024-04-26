@@ -34,9 +34,9 @@ CREATE TABLE membershipFee (
 
 CREATE TABLE organization (
     organizationID SERIAL PRIMARY KEY,
-    organizationName VARCHAR(150) NOT NULL,
+    organizationName VARCHAR(150) UNIQUE NOT NULL,
     email VARCHAR(100),
-    phoneNumber VARCHAR(20), -- Changed to VARCHAR
+    phoneNumber VARCHAR(20),
     streetName VARCHAR(150),
     city VARCHAR(50),
     usState VARCHAR(50),
