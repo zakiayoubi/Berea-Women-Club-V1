@@ -1,6 +1,7 @@
 /* body {
-    background-color: rgb(229, 244, 255);
+    background-color: #c5eefb;
 } */
+
 
 .half-width {
     width: 50%;       /* Set the width to 50% of its parent, which is typically the viewport if the parent is the body */
@@ -29,5 +30,35 @@
     max-height: 300px;
     overflow-y: auto;
 }
+
+.disabled-badge {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Additional CSS for dropdown effect */
+#dropdownMenu {
+    position: absolute;
+    width: 28%; /* Adjust as per the alignment */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000; /* Make sure it's above other content */
+}
+
+/* Custom CSS */
+.nav-item .nav-link:hover {
+    background-color: #007bff !important; /* Bootstrap primary blue */
+    color: white;
+  }
+  
+  /* Ensure that the text-primary links don't change text color on hover */
+  .nav-item .text-primary:hover {
+    color: white !important;
+  }
+  
+
+
+
+
 
 

@@ -3,37 +3,23 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
+          <h4 class="mb-3 text-center mt-4">Annual Event Summary</h4>
+            <hr class="my-4">
             <table class="table table-hover" id="yearlyDataTable">
                 <thead>
                   <tr>
-                    <th scope="col" class="col-4">Year</th>
-                    <th scope="col" class="col-4">Cost</th>
-                    <th scope="col" class="col-4">Amount Raised</th>
+                    <th scope="col" class="col-4 text-center">Year</th>
+                    <th scope="col" class="col-4 text-center">Cost</th>
+                    <th scope="col" class="col-4 text-center">Amount Raised</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="clickable-row" data-bs-toggle="collapse" data-bs-target=".month-row" aria-expanded="false" aria-controls="monthRows">
-                    <td class="col-4 bg-primary text-white">
-                      <!-- Form to post the year when the row is clicked -->
-                      <form action="/events/year" method="POST" style="display: inline;">
-                          <input type="hidden" name="year" value="2024">
-                          <button type="submit" class="btn btn-primary btn-block" style="background-color: transparent; border: none;">
-                            2024
-                        </button>
-                        
-                      </form>
-                    </td>
-                    <td class="col-4 bg-primary text-white">2,000</td>
-                    <td class="col-4 bg-primary text-white">25,000</td>
+                  <% stats.forEach(stat => { %>
+                  <tr>
+                      <td class="col-4 bg-primary text-white text-center"><%= stat.eventyear %></td>
+                      <td class="col-4 bg-primary text-white text-center"><%= stat.totaleventcost %></td>
+                      <td class="col-4 bg-primary text-white text-center"><%= stat.totalamountraised %></td>
                   </tr>
-                  <!-- Collapsible rows for each month -->
-                  <!-- Ensure you handle these data entries correctly in your actual application -->
-                  <% ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"].forEach(function(month) { %>
-                    <tr class="month-row collapse">
-                      <td class="col-4"><%= month %></td>
-                      <td class="col-4">Value TBD</td>
-                      <td class="col-4">Value TBD</td>
-                    </tr>
                   <% }) %>
                 </tbody>
             </table>

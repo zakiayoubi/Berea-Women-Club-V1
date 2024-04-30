@@ -2,7 +2,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Event Information</h4>
+            <h4 class="mb-3 text-center mt-4">Event Information</h4>
             <hr class="my-4">
             <form class="needs-validation" id="updateForm" action="/updateEventInfo/<%= event.eventid %>" method="POST">
                 <div class="row g-3">
@@ -133,21 +133,56 @@
                             Please provide the amount raised.
                         </div>
                     </div>
+
+                    <hr class="mt-4">
+                    <h4 class="mb-3 text-center">Add the members who attended this event</h4>
+                    <div class="row">
+                        <div class="col-6 col-md-4"> <!-- Adjust the column size as needed -->
+                            <button type="button" id="toggleMemberButton" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#memberModal" disabled>Add an attendee</button>
+                        </div>
+                    </div>
+                    <div id="selectedMembers" class="mt-4 p-3 border rounded shadow-sm" style="display: none;"></div> <!-- Container for selected members -->
+
+
+                    <!-- Member Selection Modal -->
+                    <div class="modal" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="memberModalLabel">Choose a Member <span class="fs-6 small text-body-secondary">(if you can't find a member, please add that member first)</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="text" class="form-control mb-3" id="memberSearch" placeholder="Type to search...">
+                                    <div class="list-group" id="memberList">
+                                        <% members.forEach(member => { %>
+                                            <button type="button" class="list-group-item list-group-item-action" data-value="<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></button>
+                                        <% }) %>                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-primary btn-lg my-4" onclick="toggleEdit()" id="editButton">Update Event</button>
-                    <button type="submit" class="btn btn-success btn-lg my-4" style="display:none;" id="updateButton">Submit Changes</button>
+                    <button type="button" class="btn btn-primary btn-lg my-4" onclick="toggleEdit()" id="editButton">Edit Event</button>
+                    <button type="submit" class="btn btn-primary btn-lg my-4" style="display:none;" id="updateButton">Save Changes</button>
+                    <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" onclick="cancelEdit()" style="display:none;" id="cancelButton">Cancel Changes</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 <script>
+    let isEditing = false;  // This will track whether the form is in edit mode
     function toggleEdit() {
+        isEditing = true;  // Set editing mode to true
+        document.querySelectorAll('.badge').forEach(badge => {
+            badge.classList.remove('disabled-badge');
+            badge.querySelector('.btn-close').disabled = false; // Enable remove button
+        });
         // Get all input and select elements within the form
         const formElements = document.querySelectorAll('#updateForm input, #updateForm select');
-        
-        // Enable all input and select fields
         formElements.forEach(element => {
             element.disabled = false; // Remove the 'disabled' attribute
         });
@@ -155,8 +190,93 @@
         // Hide the edit button and show the submit button
         document.getElementById('editButton').style.display = 'none';
         document.getElementById('updateButton').style.display = 'block';
-        
+        document.getElementById('cancelButton').style.display = 'block';
+        document.getElementById('toggleMemberButton').disabled = false;
+        enableRemoveButtons(false); // Enable all remove buttons
+        }
+        function enableRemoveButtons(disable) {
+        document.querySelectorAll('.btn-close').forEach(button => {
+            button.disabled = disable;
+        });
     }
+        function cancelEdit() {
+            // Refresh the page
+            window.location.reload();
+        };
+
+    // --------------------------------------
+    document.addEventListener('DOMContentLoaded', function() {
+    const attendees = <%- JSON.stringify(attendeesList) %>; // This brings in preloaded attendees
+    console.log(attendees);
+
+    const searchInput = document.getElementById('memberSearch');
+    const memberList = document.getElementById('memberList');
+    const selectedMembersDiv = document.getElementById('selectedMembers');
+    const toggleMemberButton = document.getElementById('toggleMemberButton');
+    const modalElement = document.getElementById('memberModal');
+    let modal = bootstrap.Modal.getInstance(modalElement) || new bootstrap.Modal(modalElement);
+    let selectedMemberIds = new Set();  // Initialize the set for IDs
+
+    memberList.addEventListener('click', function(event) {
+    const target = event.target;
+    if (target.tagName === 'BUTTON' && target.classList.contains('list-group-item-action')) {
+        const memberId = target.getAttribute('data-value');
+        const memberName = target.textContent;
+        addMemberBadge(memberName, memberId);
+        // modal.hide(); // Optionally hide the modal after selection
+    }
+});
+
+
+    // Function to add member badges, used for both preloaded and newly selected members
+    function addMemberBadge(name, memberId) {
+        memberId = String(memberId);
+        if (!selectedMemberIds.has(memberId)) {
+            selectedMemberIds.add(memberId);
+
+            const memberBadge = document.createElement('span');
+            memberBadge.classList.add('badge', 'bg-light', 'text-black', 'border', 'border-secondary', 'd-inline-flex', 'align-items-center', 'me-2', 'mb-2');
+            if (!isEditing) {  // Only add disabled class if not in editing mode
+                memberBadge.classList.add('disabled-badge');
+            }
+            memberBadge.textContent = name;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'btn-close ms-2 p-2';
+            removeBtn.disabled = !isEditing;  // Enable the button only if in editing mode
+            removeBtn.onclick = function() {
+                selectedMemberIds.delete(memberId);
+                memberBadge.remove();
+                if (selectedMembersDiv.children.length === 0) {
+                    selectedMembersDiv.style.display = 'none';
+                }
+            };
+
+            memberBadge.appendChild(removeBtn);
+            selectedMembersDiv.appendChild(memberBadge);
+            
+            // Store the selected memberId in a hidden input for form submission
+            const hiddenInput = document.createElement('input');
+            hiddenInput.setAttribute('type', 'hidden');
+            hiddenInput.setAttribute('name', 'attendeeIds[]');
+            hiddenInput.value = memberId;
+            memberBadge.appendChild(hiddenInput);
+        } else {
+            console.log("Member already selected: ", name);
+        }
+    }
+
+
+    // Prepopulate attendees from backend
+    attendees.forEach(attendee => {
+        addMemberBadge(attendee.name, attendee.memberid);
+    });
+
+    selectedMembersDiv.style.display = selectedMemberIds.size > 0 ? 'block' : 'none';
+});
+
+
 </script>
     
 

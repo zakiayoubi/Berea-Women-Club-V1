@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Add a new event</h4>
+            <h4 class="mb-3 text-center mt-4">Add a new event</h4>
             <hr class="my-4">
             <form class="needs-validation" action="/events/newEventForm" method="POST">
                 <div class="row g-3">
@@ -139,15 +139,117 @@
                             Please provide the amount raised.
                         </div>
                     </div>
+                    <hr class="mt-4">
+                    
+                    <h4 class="mb-3 text-center">Add the members who attended this event</h4>
+                    <div class="row">
+                        <div class="col-6 col-md-4"> <!-- Adjust the column size as needed -->
+                            <button type="button" id="toggleMemberButton" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#memberModal">Add an attendee</button>
+                        </div>
+                    </div>
+                    <div id="selectedMembers" class="mt-4 p-3 border rounded shadow-sm" style="display: none;"></div> <!-- Container for selected members -->
+
+
+                    <!-- Member Selection Modal -->
+                    <div class="modal" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="memberModalLabel">Choose a Member <span class="fs-6 small text-body-secondary">(if you can't find a member, please add that member first)</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="text" class="form-control mb-3" id="memberSearch" placeholder="Type to search...">
+                                    <div class="list-group" id="memberList">
+                                        <% members.forEach(member => { %>
+                                            <button type="button" class="list-group-item list-group-item-action" data-value="<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></button>
+                                        <% }) %>                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <hr class="my-4">
-                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Add Event</button>
+                <button class="w-100 btn btn-primary btn-lg my-5" type="submit">Add Event</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('memberSearch');
+        const memberList = document.getElementById('memberList');
+        const selectedMembersDiv = document.getElementById('selectedMembers');
+        const toggleMemberButton = document.getElementById('toggleMemberButton');
+        const modalElement = document.getElementById('memberModal');
+        let modal;
+        if (bootstrap.Modal.getInstance(modalElement)) {
+            modal = bootstrap.Modal.getInstance(modalElement);
+        } else {
+            modal = new bootstrap.Modal(modalElement);
+        }
+        let selectedMemberIds = new Set();  // Set to store the IDs of selected members
+    
+        toggleMemberButton.addEventListener('click', function() {
+            // Ensure the div is visible when the modal is triggered
+            selectedMembersDiv.style.display = 'block';
+        });
+    
+        // Handle the member search filter
+        searchInput.addEventListener('keyup', function() {
+            const searchText = searchInput.value.toLowerCase();
+            Array.from(memberList.querySelectorAll('.list-group-item')).forEach(function(item) {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+    
+        // Handle the selection of a member from the list and adding a badge
+        memberList.addEventListener('click', function(e) {
+            if (e.target.tagName === 'BUTTON' && e.target.classList.contains('list-group-item-action')) {
+                const memberId = e.target.getAttribute('data-value');
+                // Check if the member is already selected
+                if (!selectedMemberIds.has(memberId)) {
+                    selectedMemberIds.add(memberId); // Add member ID to the set
+        
+                    const memberName = e.target.textContent;
+                    const memberBadge = document.createElement('span');
+                    memberBadge.classList.add('badge', 'bg-light', 'text-black', 'border', 'border-secondary', 'd-inline-flex', 'align-items-center', 'me-2', 'mb-2');
+                    memberBadge.textContent = memberName;
+        
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'btn-close ms-2 p-2';
+                    removeBtn.onclick = function() {
+                        selectedMemberIds.delete(memberId); // Remove the member ID from the set upon removal
+                        memberBadge.remove();
+                        // Hide the div if there are no more members listed
+                        if (selectedMembersDiv.children.length === 0) {
+                            selectedMembersDiv.style.display = 'none';
+                        }
+                    };
+        
+                    memberBadge.appendChild(removeBtn);
+                    selectedMembersDiv.appendChild(memberBadge);
+        
+                    // store the selected memberId in a hidden input for form submission
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.setAttribute('type', 'hidden');
+                    hiddenInput.setAttribute('name', 'attendeeIds[]');
+                    hiddenInput.value = memberId;
+                    memberBadge.appendChild(hiddenInput);
+        
+                    modal.hide();
+                }
+            }
+        });
+    });
+</script>
+    
+    
+    
+    
 
 <%- include('partials/footer.ejs'); -%>

@@ -160,12 +160,7 @@ async function addNewMember(memberData) {
     return memberResult.rows[0].memberid; // Return the new member's ID
   }
   
-  
-async function addMembershipFee(memberId, dueInfo) {
-    const feeQuery = "INSERT INTO membershipFee (memberID, paymentYear, payDate, status) VALUES ($1, $2, $3, $4)";
-    const dueValues = [memberId, dueInfo.paymentYear, dueInfo.paymentDate, dueInfo.status]
-    db.query(feeQuery, dueValues);
-}
+
 
 async function updateMemberInformation(memberData) {
     try {
@@ -196,38 +191,28 @@ async function updateMemberInformation(memberData) {
   }
 
 
-async function recordExists(db, memberId, paymentYear) {
-    const checkQuery = `
-      SELECT 1 FROM membershipFee
-      WHERE memberId = $1 AND paymentYear = $2
-    `;
-    const result = await db.query(checkQuery, [memberId, paymentYear]);
-    console.log(result.rows);
-    return result.rows.length > 0;
-  }
-
-async function updateOrInsertMembershipFee(db, memberId, paymentYear, status, paymentDate) {
-    const exists = await recordExists(db, memberId, paymentYear);
-  
-    if (exists) {
-      // Update the existing record
-      const updateQuery = `
-        UPDATE membershipFee
-        SET
-          status = $1,
-          payDate = $2
-        WHERE memberId = $3 AND paymentYear = $4
-      `;
-      await db.query(updateQuery, [status, paymentDate, memberId, paymentYear]);
-    } else {
-      // Insert a new record
-      const insertQuery = `
-        INSERT INTO membershipFee (memberID, paymentYear, payDate, status)
-        VALUES ($1, $2, $3, $4)
-      `;
-      await db.query(insertQuery, [memberId, paymentYear, paymentDate, status]);
+  async function addMembershipFee(memberId, paymentYear, paymentDate, status) {
+    // Validate inputs
+    if (status === 'Paid' && paymentDate === null) {
+        throw new Error('Payment date must be provided when status is "Paid".');
     }
-  }
+    if (status === 'Not Paid' && paymentDate !== null) {
+        throw new Error('Payment date must be null when status is "Not Paid".');
+    }
+
+    const feeQuery = "INSERT INTO membershipFee (memberID, paymentYear, payDate, status) VALUES ($1, $2, $3, $4)";
+    const dueValues = [memberId, paymentYear, paymentDate, status];
+
+    try {
+        await db.query(feeQuery, dueValues);
+    } catch (error) {
+        // Handle database errors (e.g., unique constraint violations)
+        throw new Error('Database error: ' + error.message);
+    }
+}
+
+
+
   
   
 
@@ -299,7 +284,6 @@ export {
     addNewMember,
     addMembershipFee,
     updateMemberInformation,
-    updateOrInsertMembershipFee,
     deleteMember,
     fetchMemberEvents,
     fetchEventMembers,

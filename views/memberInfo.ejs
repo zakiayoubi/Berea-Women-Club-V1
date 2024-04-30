@@ -2,7 +2,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Member Information</h4>
+            <h4 class="mb-3 text-center mt-4">Member Information</h4>
             <hr class="my-4">
             <form class="needs-validation" id="updateForm" action="/updatedMemberInfo/<%= member.memberid %>" method="POST" novalidate>
                 <div class="row g-3">
@@ -204,7 +204,7 @@
                             </div>
                             <div class="col-sm-6">
                                 <label for="paymentDate" class="form-label">Payment Date <span class="text-body-secondary">(optional if not paid)</span></label>
-                                <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD" required>
+                                <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD">
                                 <div class="invalid-feedback">
                                     Please enter the date you paid.
                                 </div>
@@ -213,8 +213,9 @@
                     </div>
                 <hr class="my-4">
                 <div class="d-flex justify-content-center">
-                    <button type="button" class="btn btn-primary btn-lg mb-5" onclick="toggleEdit()" id="editButton">Edit Member</button>
-                    <button type="submit" class="btn btn-primary btn-lg mb-5" style="display:none;" id="updateButton">Save Changes</button>
+                    <button type="button" class="btn btn-primary btn-lg my-4 mx-1" onclick="toggleEdit()" id="editButton">Edit Member</button>
+                    <button type="submit" class="btn btn-primary btn-lg my-4 mx-1" style="display:none;" id="updateButton">Save Changes</button>
+                    <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" onclick="cancelEdit()" style="display:none;" id="cancelButton">Cancel Changes</button>
                 </div>
             </form>
         </div>
@@ -233,7 +234,12 @@
         // Hide the edit button and show the submit button
         document.getElementById('editButton').style.display = 'none';
         document.getElementById('updateButton').style.display = 'block';
-    }
+        document.getElementById('cancelButton').style.display = 'block';
+    };
+    function cancelEdit() {
+        // Refresh the page
+        window.location.reload();
+    };
 
     document.addEventListener('DOMContentLoaded', function() {
     const toggleButton = document.getElementById('toggleDuesButton');
@@ -242,6 +248,7 @@
     toggleButton.addEventListener('click', function() {
         duesInputs.classList.toggle('d-none');  // Toggle visibility
     });
+
 });
 </script>
     

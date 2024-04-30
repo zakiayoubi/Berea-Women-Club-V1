@@ -1,22 +1,26 @@
 import express from "express";
 import db from "./db.js";
 import bodyParser from "body-parser";
+import bcrypt from "bcrypt";
+import passport from "passport";
+import session from "express-session";
+import { Strategy } from "passport-local";
+import env from "dotenv";
 import {
-    getMemberById,
-    getMemberDuesById,
-    getMembers,
-    getMemberByName,
-    getMemberDues,
-    fetchNewMembers,
-    fetchTotalMembers,
-    fetchTotalMembersYear,
-    addNewMember,
-    addMembershipFee,
-    updateMemberInformation,
-    updateOrInsertMembershipFee,
-    deleteMember,
-    fetchMemberEvents,
-    fetchEventMembers,
+  getMemberById,
+  getMemberDuesById,
+  getMembers,
+  getMemberByName,
+  getMemberDues,
+  fetchNewMembers,
+  fetchTotalMembers,
+  fetchTotalMembersYear,
+  addNewMember,
+  addMembershipFee,
+  updateMemberInformation,
+  deleteMember,
+  fetchMemberEvents,
+  fetchEventMembers,
 } from "./memberQueries.js";
 
 import {
@@ -32,6 +36,10 @@ import {
   deleteEvent,
   fetchNewEvents,
   fetchEventByName,
+  addEventAttendees,
+  fetchEventAttendees,
+  updateEventAttendees,
+  deleteEventAttendees,
 } from "./eventQueries.js";
 
 import {
@@ -53,6 +61,8 @@ import {
   addDonationInflow,
   getDonationInflowByName,
   sortInflows,
+  fetchDonationInflowsTotal,
+  fetchNewInflows,
 } from "./donationInflowQueries.js";
 
 import {
@@ -63,228 +73,377 @@ import {
   addDonationOutflow,
   getDonationOutflowByName,
   sortOutflows,
+  fetchDonationOutflowsTotal,
+  fetchNewOutflows,
 } from "./donationOutflowQueries.js";
+
 
 
 
 const app = express();
 const port = 3000;
-
+const saltRounds = 10;
 
 app.use(express.json());
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set('view engine', 'ejs'); // Set the view engine to EJS
+app.set("view engine", "ejs"); // Set the view engine to EJS
+env.config();
 
+app.use(
+  session({
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 1000 * 60 * 60,
+    }
+  })
+);
 
+app.use(passport.initialize());
+app.use(passport.session());
+
+// async function hashingPassword(password) {
+//   try {
+//       bcrypt.hash(password, saltRounds, async(err, hash) => {
+//       if (err) {
+//         console.log("Error hasing password", err);
+//       } else {
+//         console.log(hash);
+//       }
+//     });
+//     } catch (err) {
+//       console.log(err);
+//     }
+// }
+
+// (async () => {
+//   try {
+//     await hashingPassword("123456");
+//   } catch (err) {
+//     console.error("An error occurred:", err);
+//   }
+// })();
 
 // Complete
 app.get("/", (req, res) => {
-  res.render("index.ejs", );
+  if (req.isAuthenticated()) {
+    res.render("index.ejs");
+  } else {
+    res.redirect("/login");
+  }
 });
 
-
-
-// Complete
-app.get('/members', async (req, res) => {
+app.get("/login", async (req, res) => {
   try {
-    const result = await getMembers();
-    res.render("member.ejs", {
-      members: result
-    });
+    res.render("login.ejs", {});
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/login",
+  })
+);
+
+// Complete
+app.get("/members", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const result = await getMembers();
+      res.render("member.ejs", {
+        members: result,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // Route to handle POST request
-app.post('/members/sort', async(req, res) => {
-  const orderBy = req.body.sortby;
-  console.log(orderBy);
-  try {
-    const result = await getMembers(orderBy);
-    res.render("member.ejs", {
-      members: result
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
+app.post("/members/sort", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const orderBy = req.body.sortby;
+    console.log(orderBy);
+    try {
+      const result = await getMembers(orderBy);
+      res.render("member.ejs", {
+        members: result,
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // Complete
-app.post('/members/dues', async (req, res) => {
-  const year = req.body.year;
-  console.log(year);
-  const status = req.body.status;
-  console.log(status);
-  try {
-    const result = await getMemberDues(year, status);
-    console.log(result);
-    res.render("member.ejs", { members: result });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
+app.post("/members/dues", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const year = req.body.year;
+    console.log(year);
+    const status = req.body.status;
+    console.log(status);
+    try {
+      const result = await getMemberDues(year, status);
+      console.log(result);
+      res.render("member.ejs", { members: result });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
-
-
 // Complete
-app.post('/members/newMembers', async (req, res) => {
-  const year = req.body.year;
-  console.log(year);
-  try {
-    const members = await fetchNewMembers(year);
-    console.log(members);
-    // const totalMembers = await fetchTotalMembers();
-    // console.log(totalMembers.count);
-    // const totalMembersYear = await fetchTotalMembersYear(year);
-    // console.log(totalMembersYear.count);
-    res.render("member.ejs", {
-      members,
-      // totalMembers: totalMembers.count,
-      // totalMembersYear: totalMembersYear.count
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
+app.post("/members/newMembers", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const year = req.body.year;
+    try {
+      const members = await fetchNewMembers(year);
+      console.log(members);
+      // const totalMembers = await fetchTotalMembers();
+      // console.log(totalMembers.count);
+      // const totalMembersYear = await fetchTotalMembersYear(year);
+      // console.log(totalMembersYear.count);
+      res.render("member.ejs", {
+        members,
+        // totalMembers: totalMembers.count,
+        // totalMembersYear: totalMembersYear.count
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 app.get("/members/addMember", (req, res) => {
-  try {
-    res.render("addMember.ejs");
-  } catch (error) {
-    console.error(error);
-    res.status(500);
+  if (req.isAuthenticated()) {
+    try {
+      res.render("addMember.ejs");
+    } catch (error) {
+      console.error(error);
+      res.status(500);
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 app.post("/members/newMemberForm", async (req, res) => {
-  const firstName = req.body.firstName;
-  const lastName = req.body.lastName;
-  const email = req.body.email;
-  const phone = req.body.phone;
-  const street = req.body.street;
-  const city = req.body.city;
-  const state = req.body.state;
-  const zip = req.body.zip;
-  const dateOfBirth = req.body.dateOfBirth;
-  const dateJoined = req.body.dateJoined;
-  const membershipType = req.body.membershipType;
-  
-  const newMember = {"firstName": firstName, "lastName": lastName, "email": email,
-                   "phone": phone, "street": street, "city": city, "state": state, "zip": zip, 
-                   "dateOfBirth": dateOfBirth, "dateJoined": dateJoined, "membershipType": membershipType};
-  console.log(newMember);
+  if (req.isAuthenticated()) {
+    const firstName = req.body.firstName;
+    const lastName = req.body.lastName;
+    const email = req.body.email;
+    const phone = req.body.phone;
+    const street = req.body.street;
+    const city = req.body.city;
+    const state = req.body.state;
+    const zip = req.body.zip;
+    const dateOfBirth = req.body.dateOfBirth;
+    const dateJoined = req.body.dateJoined;
+    const membershipType = req.body.membershipType;
 
-  const status = req.body.status;
-  const paymentYear = req.body.paymentYear;
-  let paymentDate = req.body.paymentDate;
-  paymentDate = paymentDate === '' ? null : paymentDate;
+    const newMember = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phone: phone,
+      street: street,
+      city: city,
+      state: state,
+      zip: zip,
+      dateOfBirth: dateOfBirth,
+      dateJoined: dateJoined,
+      membershipType: membershipType,
+    };
+    console.log(newMember);
 
-  const dues = {"status": status, "paymentYear": paymentYear, "paymentDate": paymentDate};
-  console.log(dues)
+    const status = req.body.status;
+    const paymentYear = req.body.paymentYear;
+    let paymentDate = req.body.paymentDate;
+    paymentDate = !paymentDate ? null : paymentDate; // This sets paymentDate to null if it is either an empty string, undefined, or null
 
-  try {
-    // Step 1: Insert the new member and get back the auto-generated memberID
-    const memberId = await addNewMember(newMember);
-    console.log(memberId);
+    console.log(paymentDate);
+    try {
+      // Step 1: Insert the new member and get back the auto-generated memberID
+      const memberId = await addNewMember(newMember);
+      console.log(memberId);
 
-    // Step 2: Use the retrieved memberID to insert the membership fee
-    await addMembershipFee(memberId, dues);
-
-    const result = await getMembers();
-    res.render("member.ejs", {
-      members: result
-    });
-  } catch (error) {
-    console.error('Error adding member and membership fee:', error);
-    res.status(500).send('Error adding member and membership fee');
+      // Step 2: Use the retrieved memberID to insert the membership fee
+      await addMembershipFee(memberId, paymentYear, paymentDate, status);
+      res.redirect(`/members/${memberId}`);
+    } catch (error) {
+      console.error("Error adding member and membership fee:", error);
+      res.status(500).send("Error adding member and membership fee");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
-app.get('/members/search', async (req, res) => {
-  const searchTerm = req.query.searchTerm.trim();
-  try {
-  const result = await getMemberByName(searchTerm);
-  console.log(result);
-  if (result.length > 0) {
-    res.render("member.ejs", {members: result})
+app.get("/members/search", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const searchTerm = req.query.searchTerm.trim();
+    try {
+      const result = await getMemberByName(searchTerm);
+      console.log(result);
+      if (result.length > 0) {
+        res.render("member.ejs", { members: result });
+      } else {
+        res.render("member.ejs", { members: [] });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Internal server error" });
+    }
   } else {
-    res.render("member.ejs", {members: []})
-  };
-
-} catch (err) {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
-}
+    res.redirect("/login");
+  }
 });
 
 // Complete
 app.get("/members/:memberId", async (req, res) => {
-  const memberId = req.params.memberId;
-  const result = await getMemberById(memberId);
-  const finalResult = result[0];
+  if (req.isAuthenticated()) {
+    const memberId = req.params.memberId;
+    if (/^\d+$/.test(memberId)) {
+      const result = await getMemberById(memberId);
+      if (result.length > 0) {
+        const finalResult = result[0];
 
-  const memberDues = await getMemberDuesById(memberId);
-  memberDues.forEach(due => {
-    const newDate = new Date(due.paydate);
-    due.paydate = newDate.toISOString().substring(0, 10);
-  });
+        const unformattedDateOfBirth = new Date(finalResult.dateofbirth);
+        finalResult.dateofbirth = unformattedDateOfBirth
+          .toISOString()
+          .substring(0, 10);
 
-  const unformattedDateOfBirth = new Date(finalResult.dateofbirth);
-  finalResult.dateofbirth = unformattedDateOfBirth.toISOString().substring(0, 10);
+        const unformattedDateJoined = new Date(finalResult.datejoined);
+        finalResult.datejoined = unformattedDateJoined
+          .toISOString()
+          .substring(0, 10);
 
-  const unformattedDateJoined = new Date(finalResult.datejoined);
-  finalResult.datejoined = unformattedDateJoined.toISOString().substring(0, 10);
-  res.render("memberInfo.ejs", {
-    member: finalResult,
-    dues: memberDues,
-  });
-});
-
-
-app.post("/updatedMemberInfo/:memberId", async(req, res) => {
-    // Filter out empty dues before processing
-  const filteredStatus = [].concat(req.body.status || []).filter(s => s !== '');
-  const filteredPaymentYears = [].concat(req.body.paymentYear || []).filter(y => y !== '');
-  const filteredPaymentDates = [].concat(req.body.paymentDate || []).filter(d => d !== '');
-    
-  const memberId = req.params.memberId;
-  const { firstName, lastName, email, phone, street, city, state, zip, dateOfBirth, dateJoined, membershipType} = req.body;
-
-  
-  const newMember = {"memberId": memberId, "firstName": firstName, "lastName": lastName, "email": email,
-                   "phoneNumber": phone, "streetName": street, "city": city, "usState": state, "zipCode": zip, 
-                   "dateOfBirth": dateOfBirth, "dateJoined": dateJoined, "memberType": membershipType};
-
-  try {
-    await updateMemberInformation(newMember);
-    for (let i=0; i<=(filteredPaymentYears.length - 1); i++) {
-      await updateOrInsertMembershipFee(db, memberId, filteredPaymentYears[i], filteredStatus[i], filteredPaymentDates[i]);
+        const memberDues = await getMemberDuesById(memberId);
+        memberDues.forEach((due) => {
+          if (due.paydate) {
+            const newDate = new Date(due.paydate);
+            due.paydate = newDate.toISOString().substring(0, 10);
+          }
+        });
+        res.render("memberInfo.ejs", {
+          member: finalResult,
+          dues: memberDues,
+        });
+      } else {
+        res.status(404).send("Invalid Member ID");
+      }
+    } else {
+      res.status(404).send("Page Not Found");
     }
-    res.redirect(`/members/${memberId}`)
-  } catch (error) {
-    console.error("Error updating the member:", error);
-    res.status(500).send("Internal Server Error");
+  } else {
+    res.redirect("/login");
   }
-  
 });
 
+app.post("/updatedMemberInfo/:memberId", async (req, res) => {
+  if (req.isAuthenticated) {
+    // Filter out empty dues before processing
+    const filteredStatus = []
+      .concat(req.body.status || [])
+      .filter((s) => s !== "");
+    const filteredPaymentYears = []
+      .concat(req.body.paymentYear || [])
+      .filter((y) => y !== "");
+    const filteredPaymentDates = []
+      .concat(req.body.paymentDate || [])
+      .filter((d) => d !== "");
+    console.log(filteredStatus);
+    const memberId = req.params.memberId;
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      street,
+      city,
+      state,
+      zip,
+      dateOfBirth,
+      dateJoined,
+      membershipType,
+    } = req.body;
+
+    const newMember = {
+      memberId: memberId,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      phoneNumber: phone,
+      streetName: street,
+      city: city,
+      usState: state,
+      zipCode: zip,
+      dateOfBirth: dateOfBirth,
+      dateJoined: dateJoined,
+      memberType: membershipType,
+    };
+
+    try {
+      await db.query('BEGIN'); // Start transaction
+      await updateMemberInformation(newMember);
+      const deleteQuery = `
+        DELETE FROM membershipFee
+        WHERE memberId = $1
+      `;
+      await db.query(deleteQuery, [memberId]);
+      for (let i = 0; i <= filteredPaymentYears.length - 1; i++) {
+        await addMembershipFee(
+          memberId,
+          filteredPaymentYears[i],
+          filteredPaymentDates[i],
+          filteredStatus[i],
+        );
+      }
+      await db.query('COMMIT'); // Commit transaction
+      res.redirect(`/members/${memberId}`);
+    } catch (error) {
+      await db.query('ROLLBACK'); // Roll back transaction
+      console.error("Error updating the member:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
 
 // Complete
 app.post("/deleteMember/:memberId", async (req, res) => {
-  const memberId = req.params.memberId;
-  console.log(memberId);
-  try {
-    await deleteMember(memberId);
-    res.redirect("/members")
-  } catch (error) {
-    console.error("Error deleting the member:", error);
-    res.status(500).send("Internal Server Error");
+  if (req.isAuthenticated()) {
+    const memberId = req.params.memberId;
+    console.log(memberId);
+    try {
+      await deleteMember(memberId);
+      res.redirect("/members");
+    } catch (error) {
+      console.error("Error deleting the member:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
@@ -295,127 +454,185 @@ app.post("/deleteMember/:memberId", async (req, res) => {
 // organization route handlers
 
 // Complete
-app.get('/organizations', async (req, res) => {
-  try {
-    const organizations = await fetchAllOrganizations();
-    console.log(organizations);
-    // const numOrganization = await fetchOrganizationCount();
-    res.render("organization.ejs", { organizations});
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.get("/organizations", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const organizations = await fetchAllOrganizations();
+      // const numOrganization = await fetchOrganizationCount();
+      res.render("organization.ejs", { organizations });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // Complete
-app.get('/organizations/searchOrganization', async (req, res) => {
-  const searchTerm = req.query.searchTerm.trim();
-  try {
-    const organizations = await fetchOrganizationByName(searchTerm);
-    res.render("organization.ejs", { organizations });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.get("/organizations/searchOrganization", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const searchTerm = req.query.searchTerm.trim();
+    try {
+      const organizations = await fetchOrganizationByName(searchTerm);
+      res.render("organization.ejs", { organizations });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
-
 // Complete
-app.get('/organizations/addOrganization', async (req, res) => {
-  try {
-    res.render('addOrganization.ejs');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.get("/organizations/addOrganization", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      res.render("addOrganization.ejs");
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // sort org route
-app.post('/organizations/sortOrg', async (req, res) => {
-  const sortBy = req.body.sortBy;
-  try {
-    const result = await sortOrganizations(sortBy);
-    res.render("organization.ejs", {
-      organizations: result
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.post("/organizations/sortOrg", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const sortBy = req.body.sortBy;
+    try {
+      const result = await sortOrganizations(sortBy);
+      res.render("organization.ejs", {
+        organizations: result,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
-
 app.post("/organizations/newOrgForm", async (req, res) => {
-  const organizationName = req.body.organizationName;
-  const organizationType = req.body.organizationType;
-  const street = req.body.street;
-  const city = req.body.city;
-  const state = req.body.state;
-  const zip = req.body.zip;
-  const email = req.body.email;
-  const phoneNumber = req.body.phoneNumber;
-  
-  const newOrg = {"organizationName": organizationName, "organizationType": organizationType,
-                   "streetName": street, "city": city, "usState": state, "zipCode": zip, 
-                   "email": email, "phoneNumber": phoneNumber};
+  if (req.isAuthenticated()) {
+    const organizationName = req.body.organizationName;
+    const organizationType = req.body.organizationType;
+    const street = req.body.street;
+    const city = req.body.city;
+    const state = req.body.state;
+    const zip = req.body.zip;
+    const email = req.body.email;
+    const phoneNumber = req.body.phoneNumber;
 
-  try {
-    // Step 1: Insert the new event
-    await addOrganization(newOrg);
+    const newOrg = {
+      organizationName: organizationName,
+      organizationType: organizationType,
+      streetName: street,
+      city: city,
+      usState: state,
+      zipCode: zip,
+      email: email,
+      phoneNumber: phoneNumber,
+    };
 
-    const result = await fetchAllOrganizations();
-    res.render("organization.ejs", {
-      organizations: result
-    });
-  } catch (error) {
-    console.error('Error adding organization', error);
-    res.status(500).send('Error adding organization');
+    try {
+      // Step 1: Insert the new event
+      await addOrganization(newOrg);
+
+      const result = await fetchAllOrganizations();
+      res.render("organization.ejs", {
+        organizations: result,
+      });
+    } catch (error) {
+      console.error("Error adding organization", error);
+      res.status(500).send("Error adding organization");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // route to each organization
 app.get("/organizations/:organizationId", async (req, res) => {
-  const organizationId = req.params.organizationId;
-  console.log(organizationId);
-  const result = await fetchSpecificOrganization(organizationId);
-  console.log(result[0]);
-  res.render("organizationInfo.ejs", {
-    organization: result[0],
-  });
-});
-
-// Complete
-app.post('/updateOrganizationInfo/:organizationId', async (req, res) => {
-  const orgId = req.params.organizationId;
-
-  const { organizationName, organizationType, email, phoneNumber, street, city, state, zip} = req.body;
-
-
-  const orgData = {"organizationName": organizationName, "organizationType": organizationType, "email": email, "phoneNumber": phoneNumber,
-                "streetName": street, "city": city, "usState": state, "zipCode": zip};
-
-  console.log(orgData);
-  
-  try {
-    await updateOrganization(orgId, orgData);
-    res.redirect(`/organizations/${orgId}`);
-    
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+  if (req.isAuthenticated()) {
+    const organizationId = req.params.organizationId;
+    // Check if organizationId is a string of digits
+    if (/^\d+$/.test(organizationId)) {
+      const result = await fetchSpecificOrganization(organizationId);
+      if (result.length > 0) {
+        res.render("organizationInfo.ejs", {
+          organization: result[0],
+        });
+      } else {
+        res.status(404).send("Invalid Organization ID");
+      }
+    } else {
+      res.status(404).send("Page Not Found");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // Complete
-app.post('/deleteOrganization/:organizationId', async (req, res) => {
-  const orgId = req.params.organizationId;
-  console.log(orgId);
-  try {
-    await deleteOrganization(orgId);
-    res.redirect("/organizations")
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.post("/updateOrganizationInfo/:organizationId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const orgId = req.params.organizationId;
+
+    const {
+      organizationName,
+      organizationType,
+      email,
+      phoneNumber,
+      street,
+      city,
+      state,
+      zip,
+    } = req.body;
+
+    const orgData = {
+      organizationName: organizationName,
+      organizationType: organizationType,
+      email: email,
+      phoneNumber: phoneNumber,
+      streetName: street,
+      city: city,
+      usState: state,
+      zipCode: zip,
+    };
+
+    console.log(orgData);
+
+    try {
+      await updateOrganization(orgId, orgData);
+      res.redirect(`/organizations/${orgId}`);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+// Complete
+app.post("/deleteOrganization/:organizationId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const orgId = req.params.organizationId;
+    console.log(orgId);
+    try {
+      await deleteOrganization(orgId);
+      res.redirect("/organizations");
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
@@ -425,438 +642,346 @@ app.post('/deleteOrganization/:organizationId', async (req, res) => {
 // --------------------------------------------------------------------------------------------------------------
 // event handlers
 
-
-
-app.get('/events', async (req, res) => {
-  try {
-    const events = await fetchAllEvents();
-    console.log(events);
-    res.render("event.ejs", {
-      events
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-  }
-});
-
-
-app.get('/events/searchEvent', async (req, res) => {
-  const searchTerm = req.query.searchTerm;
-  try {
-    const events = await fetchEventByName(searchTerm);
-    console.log(events);
-    if (events.length > 0) {
-      res.render("event.ejs", { events: events });
-    } else {
-      res.render("event.ejs", {events: []})
+app.get("/events", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const events = await fetchAllEvents();
+      res.render("event.ejs", { events });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+  } else {
+    res.redirect("/login");
   }
 });
 
+app.get("/events/searchEvent", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const searchTerm = req.query.searchTerm;
+    try {
+      const events = await fetchEventByName(searchTerm);
+      console.log(events);
+      if (events.length > 0) {
+        res.render("event.ejs", { events: events });
+      } else {
+        res.render("event.ejs", { events: [] });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
 
 // Complete
-app.get('/events/addEvent', async (req, res) => {
-  try {
-    res.render("addEvent.ejs")
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.get("/events/addEvent", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const members = await getMembers();
+      res.render("addEvent.ejs", { members });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // event stats route
-app.get('/events/eventStats', async (req, res) => {
-  try {
-    res.render("eventStats.ejs")
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-  }
-});
-
-// event stats route
-app.get('/events/year', async (req, res) => {
-  const year = req.body.year;
-  console.log(year);
-  try {
-    // const monthlyCosts = await fetchEventMonthlyCosts(2024);
-    // console.log(monthlyCosts);
-    // res.render("eventStats.ejs", {year: year, monthlyCosts: monthlyCosts})
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.get("/events/eventStats", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const stats = await fetchEventMoneyRaised();
+      console.log(stats);
+      res.render("eventStats.ejs", { stats });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 app.post("/events/newEventForm", async (req, res) => {
-  const eventName = req.body.eventName;
-  const location = req.body.location;
-  const street = req.body.street;
-  const city = req.body.city;
-  const state = req.body.state;
-  const zip = req.body.zip;
-  const eventDate = req.body.eventDate;
-  const eventType = req.body.eventType;
-  const cost = req.body.cost;
-  const amountRaised = req.body.amountRaised;
-  
-  const newEvent = {"eventName": eventName, "eventLocation": location,
-                   "streetName": street, "city": city, "usState": state, "zipCode": zip, 
-                   "eventDate": eventDate, "eventType": eventType, "eventCost": cost, "amountRaised": amountRaised};
-  console.log(newEvent);
+  if (req.isAuthenticated()) {
+    const eventName = req.body.eventName;
+    const location = req.body.location;
+    const street = req.body.street;
+    const city = req.body.city;
+    const state = req.body.state;
+    const zip = req.body.zip;
+    const eventDate = req.body.eventDate;
+    const eventType = req.body.eventType;
+    const cost = req.body.cost;
+    const amountRaised = req.body.amountRaised;
+    const attendees = req.body.attendeeIds;
 
-  try {
-    // Step 1: Insert the new event
-    await insertEvent(newEvent);
+    const newEvent = {
+      eventName: eventName,
+      eventLocation: location,
+      streetName: street,
+      city: city,
+      usState: state,
+      zipCode: zip,
+      eventDate: eventDate,
+      eventType: eventType,
+      eventCost: cost,
+      amountRaised: amountRaised,
+    };
+    console.log(newEvent);
 
-    const result = await fetchAllEvents();
-    res.render("event.ejs", {
-      events: result
-    });
-  } catch (error) {
-    console.error('Error adding event', error);
-    res.status(500).send('Error adding event');
+    try {
+      // Step 1: Insert the new event
+      const result = await insertEvent(newEvent);
+      const eventId = result[0].eventid;
+      console.log(eventId);
+      console.log(attendees);
+      if (attendees && attendees.length > 0) {
+        for (let i = 0; i < attendees.length; i++) {
+          await addEventAttendees(eventId, attendees[i]);
+        }
+      }
+
+      const events = await fetchAllEvents();
+      res.render("event.ejs", {
+        events: events,
+      });
+    } catch (error) {
+      console.error("Error adding event", error);
+      res.status(500).send("Error adding event");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // sort events route
-app.post('/events/sortEvent', async (req, res) => {
-  const sortBy = req.body.sortBy;
-  try {
-    const result = await sortEvents(sortBy);
-    res.render("event.ejs", {
-      events: result
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+app.post("/events/sortEvent", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const sortBy = req.body.sortBy;
+    try {
+      const result = await sortEvents(sortBy);
+      res.render("event.ejs", {
+        events: result,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // new events route
-app.post('/events/newEvents', async (req, res) => {
-  const year = req.body.year;
-  console.log(year);
+app.post("/events/newEvents", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const year = req.body.year;
+    console.log(year);
 
-  try {
-    const events = await fetchNewEvents(year);
-    res.render("event.ejs", {
-      events
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
+    try {
+      const events = await fetchNewEvents(year);
+      res.render("event.ejs", {
+        events,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
 // route to each event
 app.get("/events/:eventId", async (req, res) => {
-  const eventId = req.params.eventId;
+  if (req.isAuthenticated()) {
+    const eventId = req.params.eventId;
+    if (/^\d+$/.test(eventId)) {
+      const result = await fetchEventById(eventId);
+      if (result.length > 0) {
+        const finalResult = result[0];
+        const newDate = new Date(finalResult.eventdate);
+        finalResult.eventdate = newDate.toISOString().substring(0, 10);
 
-  const result = await fetchEventById(eventId);
-  const finalResult = result[0];
-  const newDate = new Date(finalResult.eventdate);
-  finalResult.eventdate = newDate.toISOString().substring(0, 10);
+        const allMembers = await getMembers();
+        const attendees = await fetchEventAttendees(eventId);
 
-  res.render("eventInfo.ejs", {
-    event: finalResult,
-  });
+        res.render("eventInfo.ejs", {
+          event: finalResult,
+          members: allMembers,
+          attendeesList: attendees,
+        });
+      } else {
+        res.status(404).send("Invalid Event ID");
+      }
+    } else {
+      res.status(404).send("Page Not Found");
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
-app.post("/updateEventInfo/:eventId", async(req, res) => {
+app.post("/updateEventInfo/:eventId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const eventId = req.params.eventId;
+    console.log(eventId);
+    const {
+      eventName,
+      location,
+      street,
+      city,
+      state,
+      zip,
+      eventDate,
+      eventCost,
+      amountRaised,
+      eventType,
+    } = req.body;
 
-const eventId = req.params.eventId;
-console.log(eventId);
-const { eventName, location, street, city, state, zip, eventDate, eventCost, amountRaised, eventType} = req.body;
+    const newEvent = {
+      eventName: eventName,
+      eventLocation: location,
+      streetName: street,
+      city: city,
+      usState: state,
+      zipCode: zip,
+      eventDate: eventDate,
+      eventType: eventType,
+      eventCost: Number(eventCost),
+      amountRaised: Number(amountRaised),
+    };
 
+    // console.log(newEvent);
 
-const newEvent = {"eventName": eventName, "eventLocation": location,
-                "streetName": street, "city": city, "usState": state, "zipCode": zip, 
-                "eventDate": eventDate, "eventType": eventType, "eventCost": Number(eventCost), "amountRaised": Number(amountRaised)};
+    const attendees = req.body.attendeeIds;
+    console.log(attendees);
 
-console.log(newEvent);
-try {
-  await updateEvent(eventId, newEvent);
-  res.redirect(`/events/${eventId}`)
-} catch (error) {
-  console.error("Error updating the event:", error);
-  res.status(500).send("Internal Server Error");
-}
-
+    try {
+      await updateEvent(eventId, newEvent);
+      await deleteEventAttendees(eventId);
+      if (attendees && attendees.length > 0) {
+        for (let i = 0; i < attendees.length; i++) {
+          await addEventAttendees(eventId, attendees[i]);
+        }
+      }
+      res.redirect(`/events/${eventId}`);
+    } catch (error) {
+      console.error("Error updating the event:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
 app.post("/deleteEvent/:eventId", async (req, res) => {
-  const eventId = req.params.eventId;
-  console.log(eventId);
-  try {
-    await deleteEvent(eventId);
-    res.redirect("/events")
-  } catch (error) {
-    console.error("Error deleting the event:", error);
-    res.status(500).send("Internal Server Error");
+  if (req.isAuthenticated()) {
+    const eventId = req.params.eventId;
+    console.log(eventId);
+    try {
+      await deleteEvent(eventId);
+      res.redirect("/events");
+    } catch (error) {
+      console.error("Error deleting the event:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
+// ---------------------------------------------------------------------------------
 
-
-
-
-// // Complete
-// app.get('/events/amount-raised-yearly', async (req, res) => {
-//   const year = req.body.year || 2024;  
-//   try {
-//     const result = await fetchEventMoneyRaised(year);
-//     console.log(result);
-//     const moneyRaised = await fetchYearlyMoneyRaised(year);
-//     console.log(moneyRaised)
-//     res.render("event.ejs", {
-//       events: result,
-//       eventIncome: moneyRaised,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Complete
-// app.get('/events/cost-yearly', async (req, res) => {
-//   const year = req.body.year || 2024;  
-//   try {
-//     const result = await fetchEventMonthlyCosts(year);
-//     console.log(result);
-//     const moneyRaised = await fetchYearlyEventCosts(year);
-//     console.log(moneyRaised)
-//     res.render("event.ejs", {
-//       events: result,
-//       eventIncome: moneyRaised,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-
-// // Complete
-// app.get('/member-events/:id', async (req, res) => {
-//   const memberId = req.params.id;
-//   try {
-//     const events = await fetchMemberEvents(memberId);
-//     console.log(events);
-//     res.status(204).send();
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Complete
-// app.get('/event-members/:id', async (req, res) => {
-//   const eventId = req.params.id;
-//   try {
-//     const members = await fetchEventMembers(eventId);
-//     console.log(members);
-//     res.json("Success");
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // -------------------------------------------------------------
-// app.get('/donation-inflows', async (req, res) => {
-//   try {
-//     const inflows = await fetchDonationInflows();
-//     res.render('donation-inflows', { inflows });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Donation Inflow by Specific ID
-// app.get('/donation-inflows/:id', async (req, res) => {
-//   const specificId = req.params.id;
-//   try {
-//     const inflows = await fetchDonationInflowById(specificId);
-//     res.render('donation-inflow-detail', { inflow: inflows[0] });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Amount Raised Per Year
-// app.get('/donation-inflows/amount-raised/yearly', async (req, res) => {
-//   try {
-//     const yearlyTotals = await fetchAmountRaisedYearly();
-//     res.render('amount-raised-yearly', { yearlyTotals });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.post('/donation-inflows', async (req, res) => {
-//   try {
-//     const newInflow = await insertDonationInflow(req.body);
-//     res.status(201).json(newInflow);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.put('/donation-inflows/:id', async (req, res) => {
-//   const donationInflowId = req.params.id;
-//   try {
-//     const updatedInflow = await updateDonationInflow(donationInflowId, req.body);
-//     if (updatedInflow) {
-//       res.json(updatedInflow);
-//     } else {
-//       res.status(404).send('Donation Inflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.delete('/donation-inflows/:id', async (req, res) => {
-//   const donationInflowId = req.params.id;
-//   try {
-//     const deletedInflow = await deleteDonationInflow(donationInflowId);
-//     if (deletedInflow) {
-//       res.json({ message: 'Donation Inflow deleted successfully', deletedInflow });
-//     } else {
-//       res.status(404).send('Donation Inflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Fetch all donation outflows
-// app.get('/donation-outflows', async (req, res) => {
-//   try {
-//     const outflows = await fetchDonationOutflows();
-//     res.render('donation-outflows', { outflows });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Fetch a specific donation outflow by ID
-// app.get('/donation-outflows/:id', async (req, res) => {
-//   try {
-//     const outflow = await fetchDonationOutflowById(req.params.id);
-//     res.render('donation-outflow-detail', { outflow: outflow[0] });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-// // Fetch donation outflows ordered by criteria
-// ['amount', 'category', 'date'].forEach(criteria => {
-//   app.get(`/donation-outflows/${criteria}`, async (req, res) => {
-//     try {
-//       const outflows = await fetchDonationOutflowsOrderedBy(criteria);
-//       res.render(`donation-outflows-${criteria}`, { outflows });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).send('Server error');
-//     }
-//   });
-// });
-
-// // Fetch amount donated yearly
-// app.get('/donation-outflows/yearly', async (req, res) => {
-//   try {
-//     const yearlyTotals = await fetchAmountDonatedYearly();
-//     res.render('donation-outflows-yearly', { yearlyTotals });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.post('/donation-outflows', async (req, res) => {
-//   try {
-//     const newOutflow = await insertDonationOutflow(req.body);
-//     res.status(201).json(newOutflow);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.put('/donation-outflows/:id', async (req, res) => {
-//   const donationOutflowId = req.params.id;
-//   try {
-//     const updatedOutflow = await updateDonationOutflow(donationOutflowId, req.body);
-//     if (updatedOutflow) {
-//       res.json(updatedOutflow);
-//     } else {
-//       res.status(404).send('Donation Outflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-// app.delete('/donation-outflows/:id', async (req, res) => {
-//   const donationOutflowId = req.params.id;
-//   try {
-//     const deletedOutflow = await deleteDonationOutflow(donationOutflowId);
-//     if (deletedOutflow) {
-//       res.json({ message: 'Donation Outflow deleted successfully', deletedOutflow });
-//     } else {
-//       res.status(404).send('Donation Outflow not found');
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-
-
-app.get('/donationInflows', async (req, res) => {
-  try {
-    const donationInflows = await fetchDonationInflows(); // Assuming fetchDonationInflows is a function to retrieve inflows
-    // console.log(donationInflows);
-    res.render('donationInflow.ejs', { donationInflows });
-} catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-}
+app.get("/donationInflows", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const donationInflows = await fetchDonationInflows();
+      res.render("donationInflow.ejs", {
+        donationInflows,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
-
-app.get('/donationInflows/addDonationInflow', async(req, res) => {
-  const orgs = await fetchAllOrganizations();
-  res.render('addInflow.ejs', {orgs: orgs});
-  });
-  
-
-app.post('/donationInflows/create', async (req, res) => {
-  const { recordName, organization, category, amount, donationDate } = req.body;
-  const newOrg = {"recordName": recordName, "organization": organization, "category": category, "amount": amount, "donationDate": donationDate}
-  console.log(newOrg);
-  try {
-  
-    await addDonationInflow(newOrg);
-    res.redirect('/donationInflows');
-  } catch (err) {
-    console.log("failure");
-  
+app.post("/donationInflows/newInflows", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const year = req.body.year;
+    console.log(year);
+    try {
+      const donationInflows = await fetchNewInflows(year);
+      res.render("donationInflow.ejs", {
+        donationInflows,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
-  });
+});
 
-  app.get('/donationInflows/searchInflow', async (req, res) => {
+app.get("/donationInflows/inflowStats", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const stats = await fetchDonationInflowsTotal();
+      console.log(stats);
+      res.render("donationInflowStats.ejs", { stats });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/donationInflows/addDonationInflow", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const orgs = await fetchAllOrganizations();
+    res.render("addInflow.ejs", { orgs: orgs });
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.post("/donationInflows/create", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const { recordName, organization, category, amount, donationDate } =
+      req.body;
+    const newOrg = {
+      recordName: recordName,
+      organization: organization,
+      category: category,
+      amount: amount,
+      donationDate: donationDate,
+    };
+    console.log(newOrg);
+    try {
+      await addDonationInflow(newOrg);
+      res.redirect("/donationInflows");
+    } catch (err) {
+      console.log("failure");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/donationInflows/searchInflow", async (req, res) => {
+  if (req.isAuthenticated()) {
     const searchTerm = req.query.searchTerm;
     console.log(searchTerm);
     try {
@@ -864,90 +989,108 @@ app.post('/donationInflows/create', async (req, res) => {
       if (donationInflows.length > 0) {
         res.render("donationInflow.ejs", { donationInflows });
       } else {
-        res.render("donationInflow.ejs", { donationInflows: [] });      }
+        res.render("donationInflow.ejs", { donationInflows: [] });
+      }
     } catch (error) {
       console.error(error);
-      res.status(500).send('Server error');
+      res.status(500).send("Server error");
     }
-  });
+  } else {
+    res.redirect("/login");
+  }
+});
 
-  app.post('/donationInflows/sortInflows', async (req, res) => {
+app.post("/donationInflows/sortInflows", async (req, res) => {
+  if (req.isAuthenticated()) {
     const sortBy = req.body.sortBy;
     console.log(sortBy);
     try {
       const donationInflows = await sortInflows(sortBy);
       console.log(donationInflows);
       res.render("donationInflow.ejs", {
-        donationInflows
+        donationInflows,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).send('Server error');
+      res.status(500).send("Server error");
     }
-    });
-
-app.get('/donationInflows/:donationInflowId', async (req, res) => {
-  try {
-    const inflowId = req.params.donationInflowId; // Retrieve the ID from the query parameters
-    console.log(inflowId);
-    const result = await fetchDonationInflowById(inflowId);
-    const finalResult = result[0];
-    const newDate = new Date(finalResult.donationdate);
-    finalResult.donationdate = newDate.toISOString().substring(0, 10);
-    const orgs = await fetchAllOrganizations();
-    if (result.length > 0) {
-    res.render('editInflow.ejs', { donation: finalResult, orgs: orgs}); // Pass only the first element
   } else {
-    res.status(404).send('Donation inflow not found');
-  }
-
-    // Render the template with the fetched entity information
-  } catch (error) {
-    console.error('Error fetching donation inflow:', error);
-    res.render('error', { message: 'An error occurred' });
+    res.redirect("/login");
   }
 });
 
+app.get("/donationInflows/:donationInflowId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const inflowId = req.params.donationInflowId; // Retrieve the ID from the query parameters
+    if (/^\d+$/.test(inflowId)) {
+      try {
+        const result = await fetchDonationInflowById(inflowId);
+        if (result.length > 0) {
+          const finalResult = result[0];
+          const newDate = new Date(finalResult.donationdate);
+          finalResult.donationdate = newDate.toISOString().substring(0, 10);
+          const orgs = await fetchAllOrganizations();
+          res.render("editInflow.ejs", { donation: finalResult, orgs: orgs }); // Pass only the first element
+        } else {
+          res.status(404).send("Invalid Donation Inflow ID");
+        }
 
-app.post('/updateDonationInflow/:donationInflowId', async (req, res) => {
-  const inflowId = req.params.donationInflowId;
-  console.log(inflowId);
-  const {recordName, organization, category, amount, donationDate } = req.body;
-  const updatedRecord = {"recordName": recordName, "organizationID": organization, "category": category, 
-                        "amount": amount, "donationDate": donationDate};
-  console.log(updatedRecord);
-  try {
-    await updateDonationInflow(inflowId, updatedRecord);
-    res.redirect('/donationInflows')
-  } catch (error) {
-    console.error('Error executing update query', error);
-    res.status(500).send('Internal Server Error');
+        // Render the template with the fetched entity information
+      } catch (error) {
+        console.error("Error fetching donation inflow:", error);
+        res.render("error", { message: "An error occurred" });
+      }
+    } else {
+      res.status(404).send("Page Not Found");
+    }
+  } else {
+    res.redirect("/login");
   }
-  });
-  app.get('/error', (req, res) => {
-  res.status(500).send('Sorry, something went wrong.');
 });
 
+app.post("/updateDonationInflow/:donationInflowId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const inflowId = req.params.donationInflowId;
+    console.log(inflowId);
+    const { recordName, organization, category, amount, donationDate } =
+      req.body;
+    const updatedRecord = {
+      recordName: recordName,
+      organizationID: organization,
+      category: category,
+      amount: amount,
+      donationDate: donationDate,
+    };
+    console.log(updatedRecord);
+    try {
+      await updateDonationInflow(inflowId, updatedRecord);
+      res.redirect("/donationInflows");
+    } catch (error) {
+      console.error("Error executing update query", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
 
+app.post("/deleteInflow/:donationInflowId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const inflowId = req.params.donationInflowId;
+    console.log(inflowId);
 
-
-
-app.post('/deleteInflow/:donationInflowId', async (req, res) => {
-  const inflowId = req.params.donationInflowId;
-  console.log(inflowId);
-
-  try {
+    try {
       await deleteDonationInflow(inflowId);
-      res.redirect('/donationInflows');
-  } catch (error) {
-      console.error('Error executing delete query', error);
-      res.status(500).send('Internal Server Error');
+      res.redirect("/donationInflows");
+    } catch (error) {
+      console.error("Error executing delete query", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
-
-
-
 // ----------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------
@@ -956,40 +1099,88 @@ app.post('/deleteInflow/:donationInflowId', async (req, res) => {
 
 // ----------------------------------------------------------------------------------------
 
-
-app.get('/donationOutflows', async (req, res) => {
-  try {
-    const donationOutflows = await fetchDonationOutflows(); 
-    console.log(donationOutflows);
-    res.render('donationOutflow.ejs', { donationOutflows });
-} catch (error) {
-    console.error(error);
-    res.status(500).send('Server error');
-}
+app.get("/donationOutflows", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const donationOutflows = await fetchDonationOutflows();
+      console.log(donationOutflows);
+      res.render("donationOutflow.ejs", { donationOutflows });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
+  }
 });
 
-
-app.get('/donationOutflows/addDonationOutflow', async(req, res) => {
-  const orgs = await fetchAllOrganizations();
-  res.render('addOutflow.ejs', {orgs: orgs});
-  });
-  
-
-app.post('/donationOutflows/addOutflow', async (req, res) => {
-  const { recordName, organization, category, amount, donationDate } = req.body;
-  const newOrg = {"recordName": recordName, "organization": organization, "category": category, "amount": amount, "donationDate": donationDate}
-  console.log(newOrg);
-  try {
-  
-    await addDonationOutflow(newOrg);
-    res.redirect('/donationOutflows');
-  } catch (err) {
-    console.log("failure");
-  
+app.post("/donationOutflows/newOutflows", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const year = req.body.year;
+    console.log(year);
+    try {
+      const donationOutflows = await fetchNewOutflows(year);
+      res.render("donationOutflow.ejs", {
+        donationOutflows,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
   }
-  });
+});
 
-  app.get('/donationOutflows/searchOutflow', async (req, res) => {
+app.get("/donationOutflows/outflowStats", async (req, res) => {
+  if (req.isAuthenticated()) {
+    try {
+      const stats = await fetchDonationOutflowsTotal();
+      console.log(stats);
+      res.render("donationOutflowStats.ejs", { stats });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("Server error");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/donationOutflows/addDonationOutflow", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const orgs = await fetchAllOrganizations();
+    res.render("addOutflow.ejs", { orgs: orgs });
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.post("/donationOutflows/addOutflow", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const { recordName, organization, category, amount, donationDate } =
+      req.body;
+    const newOrg = {
+      recordName: recordName,
+      organization: organization,
+      category: category,
+      amount: amount,
+      donationDate: donationDate,
+    };
+    console.log(newOrg);
+    try {
+      await addDonationOutflow(newOrg);
+      res.redirect("/donationOutflows");
+    } catch (err) {
+      console.log("failure");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/donationOutflows/searchOutflow", async (req, res) => {
+  if (req.isAuthenticated()) {
     const searchTerm = req.query.searchTerm;
     console.log(searchTerm);
     try {
@@ -1001,85 +1192,142 @@ app.post('/donationOutflows/addOutflow', async (req, res) => {
       }
     } catch (error) {
       console.error(error);
-      res.status(500).send('Server error');
+      res.status(500).send("Server error");
     }
-  });
+  } else {
+    res.redirect("/login");
+  }
+});
 
-  app.post('/donationOutflows/sortOutflows', async (req, res) => {
+app.post("/donationOutflows/sortOutflows", async (req, res) => {
+  if (req.isAuthenticated()) {
     const sortBy = req.body.sortBy;
     console.log(sortBy);
     try {
       const donationOutflows = await sortOutflows(sortBy);
       console.log(donationOutflows);
       res.render("donationOutflow.ejs", {
-        donationOutflows
+        donationOutflows,
       });
     } catch (error) {
       console.error(error);
-      res.status(500).send('Server error');
+      res.status(500).send("Server error");
     }
-    });
-
-app.get('/donationOutflows/:donationOutflowId', async (req, res) => {
-  try {
-    const OutflowId = req.params.donationOutflowId; // Retrieve the ID from the query parameters
-    console.log(OutflowId);
-    const result = await fetchDonationOutflowById(OutflowId);
-    const finalResult = result[0];
-    const newDate = new Date(finalResult.donationdate);
-    finalResult.donationdate = newDate.toISOString().substring(0, 10);
-    const orgs = await fetchAllOrganizations();
-    if (result.length > 0) {
-    res.render('editOutflow.ejs', { donation: finalResult, orgs: orgs}); // Pass only the first element
   } else {
-    res.status(404).send('Donation outflow not found');
-  }
-
-    // Render the template with the fetched entity information
-  } catch (error) {
-    console.error('Error fetching donation outflow:', error);
-    res.render('error', { message: 'An error occurred' });
+    res.redirect("/login");
   }
 });
 
+app.get("/donationOutflows/:donationOutflowId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const outflowId = req.params.donationOutflowId; // Retrieve the ID from the query parameters
+    if (/^\d+$/.test(outflowId)) {
+      try {
+        const result = await fetchDonationOutflowById(outflowId);
+        if (result.length > 0) {
+          const finalResult = result[0];
+          const newDate = new Date(finalResult.donationdate);
+          finalResult.donationdate = newDate.toISOString().substring(0, 10);
+          const orgs = await fetchAllOrganizations();
+          res.render("editOutflow.ejs", { donation: finalResult, orgs: orgs }); // Pass only the first element
+        } else {
+          res.status(404).send("Invalid Donation Outflow ID");
+        }
 
-app.post('/updateDonationOutflow/:donationOutflowId', async (req, res) => {
-  const OutflowId = req.params.donationOutflowId;
-  console.log(OutflowId);
-  const {recordName, organization, category, amount, donationDate } = req.body;
-  const updatedRecord = {"recordName": recordName, "organizationID": organization, "category": category, 
-                        "amount": amount, "donationDate": donationDate};
-  console.log(updatedRecord);
-  try {
-    await updateDonationOutflow(OutflowId, updatedRecord);
-    res.redirect('/donationOutflows')
-  } catch (error) {
-    console.error('Error executing update query', error);
-    res.status(500).send('Internal Server Error');
+        // Render the template with the fetched entity information
+      } catch (error) {
+        console.error("Error fetching donation outflow:", error);
+        res.render("error", { message: "An error occurred" });
+      }
+    } else {
+      res.status(404).send("Page Not Found");
+    }
+  } else {
+    res.redirect("/login");
   }
-  });
-  app.get('/error', (req, res) => {
-  res.status(500).send('Sorry, something went wrong.');
 });
 
+app.post("/updateDonationOutflow/:donationOutflowId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const OutflowId = req.params.donationOutflowId;
+    console.log(OutflowId);
+    const { recordName, organization, category, amount, donationDate } =
+      req.body;
+    const updatedRecord = {
+      recordName: recordName,
+      organizationID: organization,
+      category: category,
+      amount: amount,
+      donationDate: donationDate,
+    };
+    console.log(updatedRecord);
+    try {
+      await updateDonationOutflow(OutflowId, updatedRecord);
+      res.redirect("/donationOutflows");
+    } catch (error) {
+      console.error("Error executing update query", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
 
+app.post("/deleteOutflow/:donationOutflowId", async (req, res) => {
+  if (req.isAuthenticated()) {
+    const OutflowId = req.params.donationOutflowId;
+    console.log(OutflowId);
 
-
-
-app.post('/deleteOutflow/:donationOutflowId', async (req, res) => {
-  const OutflowId = req.params.donationOutflowId;
-  console.log(OutflowId);
-
-  try {
+    try {
       await deleteDonationOutflow(OutflowId);
-      res.redirect('/donationOutflows');
-  } catch (error) {
-      console.error('Error executing delete query', error);
-      res.status(500).send('Internal Server Error');
+      res.redirect("/donationOutflows");
+    } catch (error) {
+      console.error("Error executing delete query", error);
+      res.status(500).send("Internal Server Error");
+    }
+  } else {
+    res.redirect("/login");
   }
 });
 
+passport.use(
+  new Strategy(async function verify(username, password, cb) {
+    // username and password are auto grabbed from our frontend.
 
+    try {
+      const result = await db.query("SELECT * FROM users WHERE email = $1", [
+        username,
+      ]);
+      if (result.rows.length > 0) {
+        const user = result.rows[0];
+        const storedHashedPassword = user.password;
+        bcrypt.compare(password, storedHashedPassword, (err, result) => {
+          if (err) {
+            return cb(err);
+          } else {
+            if (result) {
+              return cb(null, user);
+            } else {
+              return cb(null, false, { message: 'Incorrect email or password.' });
+            }
+          }
+        });
+      } else {
+        return cb("user not found");
+      }
+    } catch (err) {
+      return cb("user not found");
+    }
+  })
+);
+
+passport.serializeUser((user, cb) => {
+  cb(null, user);
+});
+
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
+});
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

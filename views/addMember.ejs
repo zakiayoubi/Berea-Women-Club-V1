@@ -3,7 +3,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Add a new member</h4>
+            <h4 class="mb-3 text-center mt-4">Add a new member</h4>
             <hr class="my-4">
             <form class="needs-validation" action="/members/newMemberForm" method="POST">
                 <div class="row g-3">
@@ -175,7 +175,7 @@
 
                     <div class="col-sm-6">
                         <label for="paymentDate" class="form-label">Payment Date <span class="text-body-secondary">(optional if not paid)</label>
-                        <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD" required>
+                        <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD">
                         <div class="invalid-feedback">
                         Please enter the date you paid.
                         </div>
@@ -189,6 +189,29 @@
     </div>
 </div>
 
-
-
 <%- include('partials/footer.ejs'); -%>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.getElementById('status');
+        const paymentDateInput = document.getElementById('paymentDate');
+    
+        function togglePaymentDateRequirement() {
+            const status = statusSelect.value;
+            if (status === 'Paid') {
+                paymentDateInput.required = true;
+                paymentDateInput.disabled = false;
+            } else {
+                paymentDateInput.required = false;
+                paymentDateInput.disabled = true;
+                paymentDateInput.value = ''; // Clear value when not required
+            }
+        }
+    
+        // Event listener for status changes
+        statusSelect.addEventListener('change', togglePaymentDateRequirement);
+    
+        // Call on page load in case the form retains values on reload
+        togglePaymentDateRequirement();
+    });
+    </script>
+    

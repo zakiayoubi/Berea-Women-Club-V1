@@ -1,5 +1,12 @@
 -- https://www.postgresqltutorial.com/
 
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(100)
+);
+
+
 CREATE TABLE member (
     memberID SERIAL PRIMARY KEY,
     firstName VARCHAR(100),
@@ -12,7 +19,8 @@ CREATE TABLE member (
     zipCode INT,
     dateOfBirth DATE,
     dateJoined DATE DEFAULT CURRENT_DATE,
-    memberType VARCHAR(50) DEFAULT 'member'
+    memberType VARCHAR(50) DEFAULT 'member',
+    UNIQUE (firstName, lastName)
 );
 
 CREATE TABLE membershipFee (
@@ -35,7 +43,7 @@ CREATE TABLE membershipFee (
 CREATE TABLE organization (
     organizationID SERIAL PRIMARY KEY,
     organizationName VARCHAR(150) UNIQUE NOT NULL,
-    email VARCHAR(100),
+    email VARCHAR(100) UNIQUE,
     phoneNumber VARCHAR(20),
     streetName VARCHAR(150),
     city VARCHAR(50),
@@ -67,7 +75,7 @@ CREATE TABLE donationOutflow ( -- Corrected table name and consistency
 
 CREATE TABLE event (
     eventID SERIAL PRIMARY KEY,
-    eventName VARCHAR(150),
+    eventName VARCHAR(150) UNIQUE,
     eventLocation VARCHAR(150),
     streetName VARCHAR(150),
     city VARCHAR(50),

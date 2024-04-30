@@ -12,7 +12,12 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">Search</button>
+                    <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                        </svg>
+                        Search
+                    </button>
                 </div>
             </div>
         </form>
@@ -45,11 +50,7 @@
             <form action="/events/newEvents" method="POST" class="dropdown-menu p-2">
                 <!-- Year selection -->
                 <label class="dropdown-item-text mt-2">Year:</label>
-                <select class="form-select" name="year">
-                    <option value="2022">2022</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
-                </select>
+                <select class="form-select" name="year" id="yearSelect"></select>
                 <!-- Submit button -->
                 <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
             </form>
@@ -85,8 +86,10 @@
                         <td><%= event.amountraised %></td>
                         <td><%= event.eventtype %></td>
                         <td>
-                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= event.eventid %>">
-                                Delete
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= event.eventid %>">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                    <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
+                                </svg>
                             </button>
                             <!-- Modal per member -->
                             <div class="modal fade" id="deleteModal<%= event.eventid %>" tabindex="-1" aria-labelledby="deleteEvent" aria-hidden="true">
@@ -118,6 +121,18 @@
     
 
 </div>
-
-
 <%- include('partials/footer.ejs'); -%>
+
+<script>
+    window.onload = function() {
+      const select = document.getElementById('yearSelect');
+      const startYear = 2022; // Starting from the year 2022
+      const currentYear = new Date().getFullYear(); // Gets the current year
+      
+      for (let year = startYear; year <= (currentYear + 1); year++) {
+        const option = new Option(year, year);
+        select.add(option);
+      }
+    };
+</script>
+

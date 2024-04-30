@@ -2,7 +2,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center">Donation Inflow Information</h4>
+            <h4 class="mb-3 text-center mt-4">Donation Inflow Information</h4>
             <hr class="my-4">
             <form class="needs-validation" id="updateForm" action="/updateDonationInflow/<%= donation.donationinflowid %>" method="POST">
                 <div class="row g-3">
@@ -86,12 +86,12 @@
     document.getElementById('editButton').style.display = 'none';
     document.getElementById('updateButton').style.display = 'block';
     document.getElementById('cancelButton').style.display = 'block';
-}
+    }
 
-function cancelEdit() {
-    // Refresh the page
-    window.location.reload();
-}
+    function cancelEdit() {
+        // Refresh the page
+        window.location.reload();
+    }
 
 
 document.addEventListener('DOMContentLoaded', function() {

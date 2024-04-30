@@ -1,5 +1,23 @@
 import db from "./db.js";
 
+async function fetchNewInflows(year) {
+  const query = `
+      SELECT di.*, o.organizationName
+      FROM donationInflow di JOIN organization o ON di.organizationID = o.organizationID
+      WHERE donationDate >= $1 AND donationDate <= $2 ORDER BY donationDate DESC;
+  `;
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+
+  try {
+      const result = await db.query(query, [startDate, endDate]);
+      return result.rows;
+  } catch (err) {
+      console.error('Error executing fetchNewInflows query:', err);
+      throw err;
+  }
+};
+
 async function fetchDonationInflows() {
   const query = `
       select di.*, o.organizationname from donationinflow di JOIN organization o ON 
@@ -19,6 +37,27 @@ async function fetchDonationInflowById(donationInflowId) {
   const result = await db.query(query, [donationInflowId]);
   return result.rows;
 };
+
+
+async function fetchDonationInflowsTotal() {
+  const query = `
+    SELECT
+      EXTRACT(YEAR FROM donationDate) AS donationYear,
+      MIN(amount) AS donationMin,
+      MAX(amount) AS donationMax,
+      AVG(amount) AS donationAverage,
+      SUM(amount) AS totalAmountRaised
+    FROM
+      donationInflow
+    GROUP BY
+      donationYear
+    ORDER BY
+      donationYear DESC;
+  `;
+  const result = await db.query(query);
+  return result.rows;
+};
+
 
 
 
@@ -128,4 +167,6 @@ export {
   addDonationInflow,
   getDonationInflowByName,
   sortInflows,
+  fetchDonationInflowsTotal, 
+  fetchNewInflows,
 };
