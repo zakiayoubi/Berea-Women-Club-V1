@@ -1,13 +1,14 @@
 -- https://www.postgresqltutorial.com/
 
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(100)
 );
+INSERT INTO users VALUES(1,'admin@admin.com','$2b$10$5p22LZ1xgeg8MbtDRKSzTuE/NpeGddcEVvi47mGiPbHpcJq3EbGsK');
 
 
-CREATE TABLE member (
+CREATE TABLE IF NOT EXISTS member (
     memberID SERIAL PRIMARY KEY,
     firstName VARCHAR(100),
     lastName VARCHAR(100),
@@ -23,7 +24,7 @@ CREATE TABLE member (
     UNIQUE (firstName, lastName)
 );
 
-CREATE TABLE membershipFee (
+CREATE TABLE IF NOT EXISTS membershipFee (
     feeID SERIAL PRIMARY KEY,
     memberID INT,
     paymentYear INT,
@@ -40,7 +41,7 @@ CREATE TABLE membershipFee (
 
 
 
-CREATE TABLE organization (
+CREATE TABLE IF NOT EXISTS organization (
     organizationID SERIAL PRIMARY KEY,
     organizationName VARCHAR(150) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE,
@@ -52,7 +53,7 @@ CREATE TABLE organization (
     organizationType VARCHAR(100)
 );
 
-CREATE TABLE donationInflow (
+CREATE TABLE IF NOT EXISTS donationInflow (
     donationInflowId SERIAL PRIMARY KEY,
     recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
@@ -63,7 +64,7 @@ CREATE TABLE donationInflow (
     FOREIGN KEY (organizationID) REFERENCES organization(organizationID)
 );
 
-CREATE TABLE donationOutflow ( -- Corrected table name and consistency
+CREATE TABLE IF NOT EXISTS donationOutflow ( -- Corrected table name and consistency
     donationOutflowId SERIAL PRIMARY KEY,    
     recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
@@ -73,7 +74,7 @@ CREATE TABLE donationOutflow ( -- Corrected table name and consistency
     FOREIGN KEY (organizationID) REFERENCES organization(organizationID)
 );
 
-CREATE TABLE event (
+CREATE TABLE IF NOT EXISTS event (
     eventID SERIAL PRIMARY KEY,
     eventName VARCHAR(150) UNIQUE,
     eventLocation VARCHAR(150),
@@ -88,7 +89,7 @@ CREATE TABLE event (
 );
 
 -- Associative entity that connects member to event
-CREATE TABLE host (
+CREATE TABLE IF NOT EXISTS host (
     eventID INT,
     memberID INT,
     PRIMARY KEY (eventID, memberID),
