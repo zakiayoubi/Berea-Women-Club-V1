@@ -1,7 +1,7 @@
 -- https://www.postgresqltutorial.com/
 
 CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(100)
 );
@@ -9,7 +9,7 @@ INSERT INTO users VALUES(1,'admin@admin.com','$2b$10$5p22LZ1xgeg8MbtDRKSzTuE/Npe
 
 
 CREATE TABLE IF NOT EXISTS member (
-    memberID SERIAL PRIMARY KEY,
+    memberID INTEGER PRIMARY KEY,
     firstName VARCHAR(100),
     lastName VARCHAR(100),
     email VARCHAR(100) UNIQUE,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS member (
 );
 
 CREATE TABLE IF NOT EXISTS membershipFee (
-    feeID SERIAL PRIMARY KEY,
+    feeID INTEGER PRIMARY KEY,
     memberID INT,
     paymentYear INT,
     payDate DATE,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS membershipFee (
 
 
 CREATE TABLE IF NOT EXISTS organization (
-    organizationID SERIAL PRIMARY KEY,
+    organizationID INTEGER PRIMARY KEY,
     organizationName VARCHAR(150) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE,
     phoneNumber VARCHAR(20),
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS organization (
 );
 
 CREATE TABLE IF NOT EXISTS donationInflow (
-    donationInflowId SERIAL PRIMARY KEY,
+    donationInflowId INTEGER PRIMARY KEY,
     recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
     donationDate DATE DEFAULT CURRENT_DATE,
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS donationInflow (
 );
 
 CREATE TABLE IF NOT EXISTS donationOutflow ( -- Corrected table name and consistency
-    donationOutflowId SERIAL PRIMARY KEY,    
+    donationOutflowId INTEGER PRIMARY KEY,    
     recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
     donationDate DATE DEFAULT CURRENT_DATE,
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS donationOutflow ( -- Corrected table name and consist
 );
 
 CREATE TABLE IF NOT EXISTS event (
-    eventID SERIAL PRIMARY KEY,
+    eventID INTEGER PRIMARY KEY,
     eventName VARCHAR(150) UNIQUE,
     eventLocation VARCHAR(150),
     streetName VARCHAR(150),

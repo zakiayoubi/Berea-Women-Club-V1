@@ -4,14 +4,15 @@ import env from "dotenv";
 env.config();
 
 import fs from "fs";
-const dirPath = "./.data"
-if(!fs.existsSync(dirPath)) { 
-  fs.mkdirSync(dirPath);
+const dbDir = "./.data"
+if(!fs.existsSync(dbDir)) { 
+  fs.mkdirSync(dbDir);
 }
-const dbFile = `${dirPath}/bwc.db`;
+const dbFile = `${dbDir}/bwc.db`;
 const exists = fs.existsSync(dbFile);
 
 import sqlite3 from "sqlite3";
+sqlite3.verbose();
 import { open } from "sqlite";
 
 //SQLite wrapper for async / await connections https://www.npmjs.com/package/sqlite
@@ -25,17 +26,15 @@ open({
 
     try {
       if (!exists) {
-
-        // Run tables.sql
-        await db.run(
-          "CREATE TABLE Messages (id INTEGER PRIMARY KEY AUTOINCREMENT, message TEXT)"
-        );
-        // Insert data
-        await db.run(
-          "INSERT INTO Messages (message) VALUES (?)", "tmp"
-        );
+        // initialize the database
+        process.stdout.write(`Initializing database at ${dbFile} ...`);
+        let queries = fs.readFileSync("./db_init.sql", 'utf-8');
+        await db.exec(queries);
+        console.log(" done");
+      } else {
+        console.log(`Reading database at ${dbFile}`)
       }
-      console.log(await db.all("SELECT * from Messages"));
+
     } catch (dbError) {
       console.error(dbError);
     }
