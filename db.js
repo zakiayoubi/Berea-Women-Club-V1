@@ -43,10 +43,24 @@ try {
   Hack to make porting faster (hopefully) 
 */
 db.query = async function() {
+  // we need to return values
   if (arguments[0].toLowerCase().includes("select ")) {
-    return {rows: await this.all(arguments[0],arguments[1])}
+
+    // we need to lowercase all of the keys in each result row (to match what the pg library did)
+    let records = await this.all(arguments[0],arguments[1]);
+    let lowercase_records = records.map((obj) => {
+      // https://stackoverflow.com/a/54985484
+      return Object.fromEntries(Object.entries(obj).map(([k,v]) => [k.toLowerCase(),v]))
+    })
+    return {rows: lowercase_records}
   }
-  return this.exec(arguments[0],arguments[1])
+
+  // no parameters passed
+  if (arguments.length == 1 || typeof arguments[1] === 'function') {
+    return this.exec(arguments[0],arguments[1])
+  }
+  
+  return this.run(arguments[0],arguments[1])
 };
 
 // test
