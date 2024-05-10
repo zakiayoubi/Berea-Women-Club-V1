@@ -4,8 +4,12 @@ import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import session from "express-session";
+import FileStoreWrapper from "session-file-store"
+var FileStore = FileStoreWrapper(session);
 import { Strategy } from "passport-local";
+
 import env from "dotenv";
+
 import {
   getMemberById,
   getMemberDuesById,
@@ -78,8 +82,6 @@ import {
 } from "./donationOutflowQueries.js";
 
 
-
-
 const app = express();
 const port = 3000;
 const saltRounds = 10;
@@ -90,13 +92,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "ejs"); // Set the view engine to EJS
 env.config();
 
+let fileStoreOptions = {};
 app.use(
   session({
     secret: process.env.SECRET,
+    store: new FileStore(fileStoreOptions),
     resave: false,
     saveUninitialized: true,
     cookie: {
-      maxAge: 1000 * 60 * 60,
+      //  days, hours, min, sec, ms
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     }
   })
 );
@@ -133,6 +138,13 @@ app.get("/", (req, res) => {
   } else {
     res.redirect("/login");
   }
+});
+
+app.get("/logout", async (req, res, next) => {
+  req.logout(function(err) {
+    if (err) { return next(err); }
+    res.redirect('/');
+  });
 });
 
 app.get("/login", async (req, res) => {
@@ -403,25 +415,25 @@ app.post("/updatedMemberInfo/:memberId", async (req, res) => {
     };
 
     try {
-      await db.query('BEGIN'); // Start transaction
-      await updateMemberInformation(newMember);
-      const deleteQuery = `
-        DELETE FROM membershipFee
-        WHERE memberId = $1
-      `;
-      await db.query(deleteQuery, [memberId]);
-      for (let i = 0; i <= filteredPaymentYears.length - 1; i++) {
-        await addMembershipFee(
-          memberId,
-          filteredPaymentYears[i],
-          filteredPaymentDates[i],
-          filteredStatus[i],
-        );
-      }
-      await db.query('COMMIT'); // Commit transaction
+      db.serialize(async () => {
+        await updateMemberInformation(newMember);
+        const deleteQuery = `
+          DELETE FROM membershipFee
+          WHERE memberId = ?
+        `;
+        await db.query(deleteQuery, [memberId]);
+        for (let i = 0; i <= filteredPaymentYears.length - 1; i++) {
+          await addMembershipFee(
+            memberId,
+            filteredPaymentYears[i],
+            filteredPaymentDates[i],
+            filteredStatus[i],
+          );
+        }
+      });
+
       res.redirect(`/members/${memberId}`);
     } catch (error) {
-      await db.query('ROLLBACK'); // Roll back transaction
       console.error("Error updating the member:", error);
       res.status(500).send("Internal Server Error");
     }
@@ -1291,23 +1303,28 @@ app.post("/deleteOutflow/:donationOutflowId", async (req, res) => {
   }
 });
 
+passport.serializeUser((user, cb) => {
+  cb(null, {id: user.id});
+});
+
+passport.deserializeUser(async (user, cb) => {
+  cb(null, await db.get("SELECT id,email FROM users WHERE id=?",user.id));
+});
+
 passport.use(
   new Strategy(async function verify(username, password, cb) {
     // username and password are auto grabbed from our frontend.
 
     try {
-      const result = await db.query("SELECT * FROM users WHERE email = $1", [
-        username,
-      ]);
-      if (result.rows.length > 0) {
-        const user = result.rows[0];
+      const user = await db.get("SELECT * FROM users WHERE email = ?", [ username ]);
+      if (user) {
         const storedHashedPassword = user.password;
         bcrypt.compare(password, storedHashedPassword, (err, result) => {
           if (err) {
             return cb(err);
           } else {
             if (result) {
-              return cb(null, user);
+              return cb(null, {id: user.id, email: user.email});
             } else {
               return cb(null, false, { message: 'Incorrect email or password.' });
             }
@@ -1317,18 +1334,11 @@ passport.use(
         return cb("user not found");
       }
     } catch (err) {
+      console.log(err)
       return cb("user not found");
     }
   })
 );
-
-passport.serializeUser((user, cb) => {
-  cb(null, user);
-});
-
-passport.deserializeUser((user, cb) => {
-  cb(null, user);
-});
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

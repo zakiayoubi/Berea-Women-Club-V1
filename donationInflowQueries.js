@@ -20,8 +20,9 @@ async function fetchNewInflows(year) {
 
 async function fetchDonationInflows() {
   const query = `
-      select di.*, o.organizationname from donationinflow di JOIN organization o ON 
-      di.organizationID = o.organizationID ORDER BY di.donationInflowId;
+      SELECT di.*, o.organizationname from donationinflow di
+      JOIN organization o ON di.organizationID = o.organizationID
+      ORDER BY di.donationInflowId;
   `;
   const result = await db.query(query);
   return result.rows;
