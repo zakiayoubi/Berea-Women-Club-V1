@@ -534,7 +534,7 @@ app.post("/organizations/newOrgForm", async (req, res) => {
       streetName: street,
       city: city,
       usState: state,
-      zipCode: zip,
+      zipCode: zip ? zip : null,
       email: email,
       phoneNumber: phoneNumber,
     };
