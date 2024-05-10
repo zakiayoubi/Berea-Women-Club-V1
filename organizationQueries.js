@@ -29,7 +29,7 @@ async function sortOrganizations(sortBy) {
   };
 
   async function fetchOrganizationByName(searchTerm) {
-    const query = 'SELECT * FROM organization WHERE organizationName LIKE $1';
+    const query = 'SELECT * FROM organization WHERE organizationName ILIKE $1';
     const result = await db.query(query, [`%${searchTerm}%`]);
     return result.rows;
   };

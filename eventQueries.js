@@ -3,8 +3,13 @@ import db from "./db.js";
 
 
 async function fetchEventByName(searchTerm) {
-  const query = 'SELECT * FROM event WHERE eventName LIKE $1';
+  const query = 'SELECT * FROM event WHERE eventName ILIKE $1';
   const result = await db.query(query, [`%${searchTerm}%`]);
+
+  console.log(searchTerm)
+  console.log(query)
+  console.log("*******************************We Are Here******************************")
+  console.log(result)
   return result.rows;
 };
 

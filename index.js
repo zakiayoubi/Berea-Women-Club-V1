@@ -298,7 +298,7 @@ app.post("/members/newMemberForm", async (req, res) => {
   }
 });
 
-app.get("/members/search", async (req, res) => {
+app.get("/members/searchMembers", async (req, res) => {
   if (req.isAuthenticated()) {
     const searchTerm = req.query.searchTerm.trim();
     try {
