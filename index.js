@@ -727,13 +727,14 @@ app.post("/events/newEventForm", async (req, res) => {
       streetName: street,
       city: city,
       usState: state,
-      zipCode: zip,
-      eventDate: eventDate,
+      zipCode: zip ? parseInt(zip, 10) : null,
+      eventDate: eventDate ? eventDate : null,
       eventType: eventType,
-      eventCost: cost,
+      eventCost: cost ? cost > 0 : null,
       amountRaised: amountRaised,
     };
-    console.log(newEvent);
+
+    console.log(newEvent)
 
     try {
       // Step 1: Insert the new event
