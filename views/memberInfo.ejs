@@ -38,21 +38,15 @@
 
                     <div class="col-12">
                         <label for="street" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="street" name="street" value="<%= member.streetname %>" required disabled>
-                        <div class="invalid-feedback">
-                            Please enter your address.
-                        </div>
+                        <input type="text" class="form-control" id="street" name="street" value="<%= member.streetname %>" disabled>
                     </div>
                     <div class="col-md-5">
                         <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" name="city" value="<%= member.city %>" required disabled>
-                        <div class="invalid-feedback">
-                            Valid city name is required.
-                        </div>
+                        <input type="text" class="form-control" id="city" name="city" value="<%= member.city %>" disabled>
                     </div>
                     <div class="col-md-4">
                         <label for="state" class="form-label">State</label>
-                        <select class="form-select" id="state" name="state" required disabled>
+                        <select class="form-select" id="state" name="state" disabled>
                             <option value="<%= member.usstate %>"><%= member.usstate %></option>
                             <option value="Alabama">Alabama</option>
                             <option value="Alaska">Alaska</option>
@@ -105,24 +99,15 @@
                             <option value="Wisconsin">Wisconsin</option>
                             <option value="Wyoming">Wyoming</option>
                         </select>
-                        <div class="invalid-feedback">
-                            Please provide a valid state.
-                        </div>
                     </div>
                     <div class="col-md-3">
                         <label for="zip" class="form-label">Zip</label>
-                        <input type="text" class="form-control" id="zip" name="zip" value="<%= member.zipcode %>" required disabled>
-                        <div class="invalid-feedback">
-                            Zip code required.
-                        </div>
+                        <input type="text" class="form-control" id="zip" name="zip" value="<%= member.zipcode %>" disabled>
                     </div>
                     
                     <div class="col-sm-6">
                         <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                        <input type="date" class="form-control date-input" id="dateOfBirth" name="dateOfBirth" value="<%= member.dateofbirth %>" required disabled>
-                        <div class="invalid-feedback">
-                        Please enter your date of birth.
-                        </div>
+                        <input type="date" class="form-control date-input" id="dateOfBirth" name="dateOfBirth" value="<%= member.dateofbirth %>" disabled>
                     </div>
                     
                     <div class="col-sm-6">

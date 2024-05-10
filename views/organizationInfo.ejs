@@ -16,10 +16,7 @@
 
                     <div class="col-sm-6">
                         <label for="organizationType" class="form-label">Organization Type</label>
-                        <input type="text" class="form-control" id="organizationType" name="organizationType" value="<%= organization.organizationtype %>" required disabled>
-                        <div class="invalid-feedback">
-                            Valid type is required.
-                        </div>
+                        <input type="text" class="form-control" id="organizationType" name="organizationType" value="<%= organization.organizationtype %>" disabled>
                     </div>
 
 
@@ -41,24 +38,18 @@
 
                     <div class="col-12">
                         <label for="street" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="street" name="street" value="<%= organization.streetname %>"  placeholder="1234 Main St" required disabled>
-                        <div class="invalid-feedback">
-                            Please enter your address.
-                        </div>
+                        <input type="text" class="form-control" id="street" name="street" value="<%= organization.streetname %>"  placeholder="1234 Main St" disabled>
                     </div>
 
 
                     <div class="col-md-5">
                         <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" name="city" value="<%= organization.city %>" required disabled>
-                        <div class="invalid-feedback">
-                        Valid city name is required.
-                        </div>
+                        <input type="text" class="form-control" id="city" name="city" value="<%= organization.city %>" disabled>
                     </div>
 
                     <div class="col-md-4">
                     <label for="state" class="form-label">State</label>
-                    <select class="form-select" id="state" name="state" value="<%= organization.usstate %>" required disabled>
+                    <select class="form-select" id="state" name="state" value="<%= organization.usstate %>" disabled>
                         <option value="<%= organization.usstate %>"><%= organization.usstate %></option>
                         <option value="Alabama">Alabama</option>
                         <option value="Alaska">Alaska</option>
@@ -111,17 +102,11 @@
                         <option value="Wisconsin">Wisconsin</option>
                         <option value="Wyoming">Wyoming</option>
                     </select>
-                        <div class="invalid-feedback">
-                            Please provide a valid state.
-                        </div>
                     </div>
 
                     <div class="col-md-3">
                         <label for="zip" class="form-label">Zip</label>
-                        <input type="text" class="form-control" id="zip" name="zip" value="<%= organization.zipcode %>" required disabled>
-                        <div class="invalid-feedback">
-                            Zip code required.
-                        </div>
+                        <input type="text" class="form-control" id="zip" name="zip" value="<%= organization.zipcode %>" disabled>
                     </div>
                 </div>
                 <div class="d-flex justify-content-center">
