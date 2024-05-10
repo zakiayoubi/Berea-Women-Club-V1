@@ -193,6 +193,9 @@ async function updateMemberInformation(memberData) {
 
   async function addMembershipFee(memberId, paymentYear, paymentDate, status) {
     // Validate inputs
+    paymentDate = paymentDate ? status === "Paid" : null;
+
+
     if (status === 'Paid' && paymentDate === null) {
         throw new Error('Payment date must be provided when status is "Paid".');
     }

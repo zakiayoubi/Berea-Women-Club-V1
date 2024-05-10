@@ -277,7 +277,7 @@ app.post("/members/newMemberForm", async (req, res) => {
 
     const status = req.body.status;
     const paymentYear = req.body.paymentYear;
-    let paymentDate = req.body.paymentDate;
+    let paymentDate = req.body.paymentDate ? status === "Paid" : null;
     paymentDate = !paymentDate ? null : paymentDate; // This sets paymentDate to null if it is either an empty string, undefined, or null
 
     console.log(paymentDate);
@@ -325,17 +325,24 @@ app.get("/members/:memberId", async (req, res) => {
     if (/^\d+$/.test(memberId)) {
       const result = await getMemberById(memberId);
       if (result.length > 0) {
+        console.log("**********************************************************")
+        console.log("The result is", result)
         const finalResult = result[0];
+        console.log(finalResult)  
 
-        const unformattedDateOfBirth = new Date(finalResult.dateofbirth);
-        finalResult.dateofbirth = unformattedDateOfBirth
+        if (finalResult.dateofbirth) {
+          const unformattedDateOfBirth = new Date(finalResult.dateofbirth);
+          finalResult.dateofbirth = unformattedDateOfBirth
           .toISOString()
           .substring(0, 10);
+        }
 
-        const unformattedDateJoined = new Date(finalResult.datejoined);
-        finalResult.datejoined = unformattedDateJoined
+        if (finalResult.datejoined) {
+          const unformattedDateJoined = new Date(finalResult.datejoined);
+          finalResult.datejoined = unformattedDateJoined
           .toISOString()
           .substring(0, 10);
+        }
 
         const memberDues = await getMemberDuesById(memberId);
         memberDues.forEach((due) => {
