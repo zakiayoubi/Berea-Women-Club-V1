@@ -1,0 +1,125 @@
+<%- include('partials/header.ejs'); -%>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-8">
+            <h4 class="mb-3 text-center mt-4">Record a New Donation Inflow</h4>
+            <hr class="my-4">
+            <form class="needs-validation" action="/donationInflows/create" method="POST">
+                <div class="row g-3">
+
+                    <div class="col-sm-6">
+                        <label for="recordName" class="form-label">Record Name</label>
+                        <input type="text" class="form-control" id="recordName" name="recordName" required>
+                        <div class="invalid-feedback">
+                            Valid record name is required.
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label for="organizationInput" class="form-label">Organization <span class="text-body-secondary">(if not found, please add first) </label>
+                        <input type="text" class="form-control" id="organizationInput" placeholder="Select Organization" data-bs-toggle="modal" data-bs-target="#organizationModal" readonly>
+                        <input type="hidden" name="organization" id="organizationHidden">
+                    </div>
+                    
+                    <!-- Organization Selection Modal -->
+                    <div class="modal" id="organizationModal" tabindex="-1" aria-labelledby="organizationModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="organizationModalLabel">Choose an Organization</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="text" class="form-control mb-3" id="organizationSearch" placeholder="Type to search...">
+                                    <div class="list-group" id="organizationList">
+                                        <% orgs.forEach(org => { %>
+                                            <button type="button" class="list-group-item list-group-item-action" data-value="<%= org.organizationid %>"><%= org.organizationname %></button>
+                                        <% }) %>                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+  
+     
+                    <div class="col-sm-4">
+                        <label for="category" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="category" name="category" required>
+                        <div class="invalid-feedback">
+                        Please enter a category.
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" name="amount" required>
+                        <div class="invalid-feedback">
+                        Please enter an amount.
+                        </div>
+                    </div>
+                
+                    <div class="col-sm-4">
+                        <label for="donationDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="donationDate" name="donationDate" placeholder="YYYY-MM-DD" required>
+                        <div class="invalid-feedback">
+                        Please enter your donation date.
+                        </div>
+                    </div>
+                </div>
+                <hr class="my-4">
+                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('organizationSearch');
+    const organizationList = document.getElementById('organizationList');
+    const organizationInput = document.getElementById('organizationInput');
+    const hiddenInput = document.getElementById('organizationHidden');
+
+    searchInput.addEventListener('keyup', function() {
+        const searchText = searchInput.value.toLowerCase();
+
+        Array.from(organizationList.querySelectorAll('.list-group-item')).forEach(function(item) {
+            const text = item.textContent.toLowerCase();
+            item.style.display = text.includes(searchText) ? '' : 'none';
+        });
+    });
+
+    organizationList.addEventListener('click', function(e) {
+        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('list-group-item-action')) {
+            organizationInput.value = e.target.textContent; // Update the disabled input field
+            hiddenInput.value = e.target.getAttribute('data-value'); // Set the value in hidden input for form submission
+            var myModalEl = document.getElementById('organizationModal');
+            var modal = bootstrap.Modal.getInstance(myModalEl);
+            modal.hide(); // Hide the modal
+        }
+    });
+});
+
+document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
+    const hiddenInput = document.getElementById('organizationHidden');
+    
+    // Check if the hidden input has a value
+    if (!hiddenInput.value) {
+        event.preventDefault(); // Prevent the form from submitting
+        event.stopPropagation(); // Stop propagation of the event
+
+        // Provide feedback to the user that organization selection is required
+        organizationInput.classList.add('is-invalid'); // Highlight the input field
+        // alert('Please select an organization before submitting.'); // Alert or some better feedback
+    } else {
+        organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
+    }
+});
+
+
+
+</script>   
+    
+<%- include('partials/footer.ejs'); -%>

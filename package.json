@@ -1,0 +1,32 @@
+{
+  "name": "berea-women-club",
+  "version": "1.0.0",
+  "description": "Berea women club web app ",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zakiayoubi/Berea-Women-Club-V1.git"
+  },
+  "author": "Zaki Ayoubi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zakiayoubi/Berea-Women-Club-V1/issues"
+  },
+  "homepage": "https://github.com/zakiayoubi/Berea-Women-Club-V1#readme",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "body-parser": "^1.20.2",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.9",
+    "express": "^4.19.2",
+    "express-session": "^1.18.0",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.11.5"
+  }
+}

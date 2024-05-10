@@ -1,0 +1,125 @@
+<%- include('partials/header.ejs'); -%>
+<div class="container mt-5">
+    <!-- Search bar -->
+    <div class="p-5 pt-0 half-width">
+        <form action="/donationOutflows/searchOutflow" method="get">
+            <div class="row g-1 align-items-center">
+                <div class="col-md-8">
+                    <div class="form-floating">
+                        <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for a donation outflow">
+                        <label for="searchInput">Search for a donation outflow</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                        </svg>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Buttons -->
+    <div class="mb-3">
+        <a href="/donationOutflows/addDonationOutflow" class="btn btn-secondary">Add Outflow</a>
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+            Sort By
+            </button>
+            <form action="/donationOutflows/sortOutflows" method="POST" class="dropdown-menu">
+                <!-- Dropdown menu items as buttons -->
+                <button class="dropdown-item" type="submit" name="sortBy" value="recordName">Record Name</button>
+                <button class="dropdown-item" type="submit" name="sortBy" value="organization">Organization</button>
+                <button class="dropdown-item" type="submit" name="sortBy" value="category">Category</button>
+                <button class="dropdown-item" type="submit" name="sortBy" value="amount">Amount</button>
+                <button class="dropdown-item" type="submit" name="sortBy" value="donationDate">Date</button>
+            </form>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                New Outflows
+            </button>
+            <form action="/donationOutflows/newOutflows" method="POST" class="dropdown-menu p-2">
+                <!-- Year selection -->
+                <label class="dropdown-item-text mt-2">Year:</label>
+                <select class="form-select" name="year" id="yearSelect"></select>
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
+            </form>
+        </div>
+        <a href="/donationOutflows/outflowStats" class="btn btn-secondary">Outflow Stats</a>
+    </div>
+    <!-- List of donation Outflows -->
+    <table class="table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Record Name</th>
+                <th>Organization</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Donation Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% let counter = 1; %>
+            <% donationOutflows.forEach(donationOutflow => { %>
+                <tr>
+                    <td scope="row"><%= counter %></td>
+                    <td><a href="/donationOutflows/<%= donationOutflow.donationoutflowid %>"><%= donationOutflow.recordname %></a></td>
+                    <td><a href="/organizations/<%= donationOutflow.organizationid %>"><%= donationOutflow.organizationname %></a></td> 
+                    <td><%= donationOutflow.category %></td>
+                    <td>$<%= parseFloat(donationOutflow.amount).toFixed(2) %></td>
+                    <td><%= new Date(donationOutflow.donationdate).toISOString().slice(0, 10) %></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= donationOutflow.donationoutflowid %>">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
+                                <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
+                            </svg>
+                        </button>
+                        <!-- Modal per member -->
+                        <div class="modal fade" id="deleteModal<%= donationOutflow.donationoutflowid %>" tabindex="-1" aria-labelledby="deleteEvent" aria-hidden="true">
+                            <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Donation Outflow</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                Are you sure you want to delete this record?
+                                </div>
+                                <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <form action="/deleteOutflow/<%= donationOutflow.donationoutflowid %>" method="POST">
+                                    <button type="submit" class="btn btn-primary">Confirm</button>
+                                </form>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <% counter++; %>
+            <% }); %>
+        </tbody>
+    </table>
+</div>
+<%- include('partials/footer.ejs'); -%>
+
+<script>
+    window.onload = function() {
+      const select = document.getElementById('yearSelect');
+      const startYear = 2022; // Starting from the year 2022
+      const currentYear = new Date().getFullYear(); // Gets the current year
+      
+      for (let year = startYear; year <= (currentYear + 1); year++) {
+        const option = new Option(year, year);
+        select.add(option);
+      }
+    };
+</script>

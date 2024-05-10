@@ -1,0 +1,64 @@
+/* body {
+    background-color: #c5eefb;
+} */
+
+
+.half-width {
+    width: 50%;       /* Set the width to 50% of its parent, which is typically the viewport if the parent is the body */
+    margin: 0 auto;   /* Center the div horizontally */
+}
+
+.bheight {
+    height: 50px;
+}
+
+.clickable-row:hover {
+    cursor: pointer;
+    background-color: #dae0e5; /* This color is for hover effect, you can choose any color you like */
+  }
+
+  .background-image {
+    /* Set the URL of your desired background image */
+    background-image: url('/assets/Loved.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh; /* This sets the minimum height to full viewport height */
+}
+
+
+.dropdown-menu {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.disabled-badge {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Additional CSS for dropdown effect */
+#dropdownMenu {
+    position: absolute;
+    width: 28%; /* Adjust as per the alignment */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    z-index: 1000; /* Make sure it's above other content */
+}
+
+/* Custom CSS */
+.nav-item .nav-link:hover {
+    background-color: #007bff !important; /* Bootstrap primary blue */
+    color: white;
+  }
+  
+  /* Ensure that the text-primary links don't change text color on hover */
+  .nav-item .text-primary:hover {
+    color: white !important;
+  }
+  
+
+
+
+
+
+
