@@ -270,7 +270,7 @@ app.post("/members/newMemberForm", async (req, res) => {
       state: state,
       zip: zip ? zip : null,
       dateOfBirth: dateOfBirth ? dateOfBirth : null,
-      dateJoined: dateJoined,
+      dateJoined: dateJoined ? dateJoined : null,
       membershipType: membershipType,
     };
     console.log(newMember);
@@ -397,8 +397,8 @@ app.post("/updatedMemberInfo/:memberId", async (req, res) => {
       city: city,
       usState: state,
       zipCode: zip ? zip : null,
-      dateOfBirth: dateOfBirth ? dateofbirth : null,
-      dateJoined: dateJoined,
+      dateOfBirth: dateOfBirth ? dateOfBirth : null,
+      dateJoined: dateJoined ? dateJoined : null,
       memberType: membershipType,
     };
 
