@@ -8,7 +8,7 @@
             <form class="needs-validation" action="/events/newEventForm" method="POST">
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="eventName" class="form-label">Event</label>
+                        <label for="eventName" class="form-label">Event Name</label>
                         <input type="text" class="form-control" id="eventName" name="eventName" required>
                         <div class="invalid-feedback">
                             Valid event name is required.
@@ -16,33 +16,24 @@
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="location" class="form-label">Location <span class="text-body-secondary">(venune, building)</label>
-                        <input type="text" class="form-control" id="location" name="location" required>
-                        <div class="invalid-feedback">
-                            Valid location is required.
-                        </div>
+                        <label for="location" class="form-label">Location <span class="text-body-secondary">(venue, building)</label>
+                        <input type="text" class="form-control" id="location" name="location">
                     </div>
 
                     <div class="col-12">
                         <label for="street" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="street" name="street" placeholder="1234 Main St" required>
-                        <div class="invalid-feedback">
-                            Please enter your address.
-                        </div>
+                        <input type="text" class="form-control" id="street" name="street" placeholder="1234 Main St">
                     </div>
 
 
                     <div class="col-md-5">
                         <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" name="city" required>
-                        <div class="invalid-feedback">
-                        Valid city name is required.
-                        </div>
+                        <input type="text" class="form-control" id="city" name="city">
                     </div>
 
                     <div class="col-md-4">
                     <label for="state" class="form-label">State</label>
-                    <select class="form-select" id="state" name="state" required>
+                    <select class="form-select" id="state" name="state">
                         <option value="">Choose...</option>
                         <option value="Alabama">Alabama</option>
                         <option value="Alaska">Alaska</option>
@@ -95,41 +86,26 @@
                         <option value="Wisconsin">Wisconsin</option>
                         <option value="Wyoming">Wyoming</option>
                     </select>
-                    <div class="invalid-feedback">
-                        Please provide a valid state.
-                    </div>
                     </div>
 
                     <div class="col-md-3">
                     <label for="zip" class="form-label">Zip</label>
-                    <input type="text" class="form-control" id="zip" name="zip" required>
-                    <div class="invalid-feedback">
-                        Zip code required.
-                    </div>
+                    <input type="text" class="form-control" id="zip" name="zip">
                     </div>
                 
                     <div class="col-sm-6">
                         <label for="eventDate" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="eventDate" name="eventDate" placeholder="YYYY-MM-DD" required>
-                        <div class="invalid-feedback">
-                        Please enter your event date.
-                        </div>
+                        <input type="date" class="form-control" id="eventDate" name="eventDate" placeholder="YYYY-MM-DD">
                     </div>
             
                     <div class="col-sm-6">
                         <label for="eventType" class="form-label">Event Type</label>
-                        <input type="text" class="form-control" id="eventType" name="eventType" required>
-                        <div class="invalid-feedback">
-                        Please enter the event type.
-                        </div>
+                        <input type="text" class="form-control" id="eventType" name="eventType">
                     </div>
 
                     <div class="col-md-3 mt-3">
                         <label for="cost" class="form-label">Cost</label>
-                        <input type="number" class="form-control" id="cost" name="cost" required>
-                        <div class="invalid-feedback">
-                            Please provide the event cost.
-                        </div>
+                        <input type="number" class="form-control" id="cost" name="cost">
                     </div>
 
                     <div class="col-md-3">
