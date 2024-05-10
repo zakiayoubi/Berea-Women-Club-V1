@@ -175,12 +175,13 @@ async function updateMemberInformation(memberData) {
           usState = $7,
           zipCode = $8,
           dateOfBirth = $9,
-          memberType = $10
-        WHERE memberId = $11
+          dateJoined = $10,
+          memberType = $11
+        WHERE memberId = $12
       `;
       await db.query(updateMemberQuery, [memberData.firstName, memberData.lastName, memberData.email, 
         memberData.phoneNumber, memberData.streetName, memberData.city, 
-        memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.memberType, memberData.memberId]);
+        memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.dateJoined, memberData.memberType, memberData.memberId]);
 
     } catch (error) {
       console.error('Failed to update member information:', error);

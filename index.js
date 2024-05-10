@@ -415,7 +415,7 @@ app.post("/updatedMemberInfo/:memberId", async (req, res) => {
     };
 
     try {
-      db.serialize(async () => {
+      db.getDatabaseInstance().serialize(async () => {
         await updateMemberInformation(newMember);
         const deleteQuery = `
           DELETE FROM membershipFee
@@ -635,7 +635,6 @@ app.post("/updateOrganizationInfo/:organizationId", async (req, res) => {
 app.post("/deleteOrganization/:organizationId", async (req, res) => {
   if (req.isAuthenticated()) {
     const orgId = req.params.organizationId;
-    console.log(orgId);
     try {
       await deleteOrganization(orgId);
       res.redirect("/organizations");
@@ -742,21 +741,19 @@ app.post("/events/newEventForm", async (req, res) => {
       zipCode: zip ? parseInt(zip, 10) : null,
       eventDate: eventDate ? eventDate : null,
       eventType: eventType,
-      eventCost: cost ? cost > 0 : null,
+      eventCost: (cost && cost > 0) ? cost : null,
       amountRaised: amountRaised,
     };
 
+    console.log("New Event Values")
     console.log(newEvent)
 
     try {
       // Step 1: Insert the new event
-      const result = await insertEvent(newEvent);
-      const eventId = result[0].eventid;
-      console.log(eventId);
-      console.log(attendees);
+      const event = await insertEvent(newEvent);
       if (attendees && attendees.length > 0) {
         for (let i = 0; i < attendees.length; i++) {
-          await addEventAttendees(eventId, attendees[i]);
+          await addEventAttendees(event.eventID, attendees[i]);
         }
       }
 

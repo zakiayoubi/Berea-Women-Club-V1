@@ -69,6 +69,7 @@ async function sortOrganizations(sortBy) {
   async function deleteOrganization(id) {
     const query = 'DELETE FROM organization WHERE organizationID = $1';
     await db.query(query, [id]);
+    console.log(`Organization with ID ${id} successfully deleted.`)
   };
 
   export {

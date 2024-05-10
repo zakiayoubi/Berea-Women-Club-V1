@@ -156,10 +156,9 @@ async function fetchAllEvents() {
     const query = `
       INSERT INTO event (eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *;
     `;
-    const result = await db.query(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType]);
-    return result.rows;
+    const result = await db.run(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType]);
+    return db.get("SELECT * FROM event where eventID=?", result.lastID)
   };
   
   async function updateEvent(eventId, eventData) {
