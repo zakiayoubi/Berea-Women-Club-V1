@@ -268,8 +268,8 @@ app.post("/members/newMemberForm", async (req, res) => {
       street: street,
       city: city,
       state: state,
-      zip: zip,
-      dateOfBirth: dateOfBirth,
+      zip: zip ? zip : null,
+      dateOfBirth: dateOfBirth ? dateOfBirth : null,
       dateJoined: dateJoined,
       membershipType: membershipType,
     };
@@ -396,8 +396,8 @@ app.post("/updatedMemberInfo/:memberId", async (req, res) => {
       streetName: street,
       city: city,
       usState: state,
-      zipCode: zip,
-      dateOfBirth: dateOfBirth,
+      zipCode: zip ? zip : null,
+      dateOfBirth: dateOfBirth ? dateofbirth : null,
       dateJoined: dateJoined,
       memberType: membershipType,
     };
@@ -602,7 +602,7 @@ app.post("/updateOrganizationInfo/:organizationId", async (req, res) => {
       streetName: street,
       city: city,
       usState: state,
-      zipCode: zip,
+      zipCode: zip ? zip : null,
     };
 
     console.log(orgData);
@@ -727,10 +727,10 @@ app.post("/events/newEventForm", async (req, res) => {
       streetName: street,
       city: city,
       usState: state,
-      zipCode: zip ? parseInt(zip, 10) : null,
+      zipCode: zip ? zip : null,
       eventDate: eventDate ? eventDate : null,
       eventType: eventType,
-      eventCost: cost ? cost > 0 : null,
+      eventCost: cost ? cost >= 0 : null,
       amountRaised: amountRaised,
     };
 
@@ -852,10 +852,10 @@ app.post("/updateEventInfo/:eventId", async (req, res) => {
       streetName: street,
       city: city,
       usState: state,
-      zipCode: zip,
-      eventDate: eventDate,
+      zipCode: zip ? zip : null,
+      eventDate: eventDate ? eventDate : null,
       eventType: eventType,
-      eventCost: Number(eventCost),
+      eventCost: Number(eventCost) ? eventCost >= 0 : null,
       amountRaised: Number(amountRaised),
     };
 
