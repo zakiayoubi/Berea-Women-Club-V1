@@ -1,4 +1,4 @@
-import express from "express";
+import express from "express"
 import db from "./db.js";
 import bodyParser from "body-parser";
 import bcrypt from "bcrypt";
