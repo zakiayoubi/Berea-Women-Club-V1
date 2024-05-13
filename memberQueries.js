@@ -67,8 +67,8 @@ async function getMembers(orderBy) {
 
   async function getMemberByName(searchTerm) {
     const query = `SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-      FROM member m LEFT JOIN membershipFee mf ON m.memberID = mf.memberID WHERE firstName ILIKE $1 OR lastName LIKE $2`;
-    const searchPattern = `%${searchTerm}%`; 
+      FROM member m LEFT JOIN membershipFee mf ON m.memberID = mf.memberID WHERE LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $2`;
+    const searchPattern = `%${searchTerm.toLowerCase()}%`; 
   
     try {
       const result = await db.query(query, [searchPattern, searchPattern]);
@@ -190,33 +190,17 @@ async function updateMemberInformation(memberData) {
   }
 
 
-  async function addMembershipFee(memberId, paymentYear, paymentDate, status) {
-    // Validate inputs
-    paymentDate = paymentDate ? status === "Paid" : null;
-
-
-    if (status === 'Paid' && paymentDate === null) {
-        throw new Error('Payment date must be provided when status is "Paid".');
-    }
-    if (status === 'Not Paid' && paymentDate !== null) {
-        throw new Error('Payment date must be null when status is "Not Paid".');
-    }
-
-    const feeQuery = "INSERT INTO membershipFee (memberID, paymentYear, payDate, status) VALUES ($1, $2, $3, $4)";
-    const dueValues = [memberId, paymentYear, paymentDate, status];
+  async function recordDues(memberId, duesFor, paymentDate, currentUser) {
+    const feeQuery = "INSERT INTO duesPayment (memberID, forYear, paymentDate, recordedBy) VALUES (?,?,?,?)";
+    const dueValues = [memberId, duesFor, paymentDate, currentUser];
 
     try {
-        await db.query(feeQuery, dueValues);
+        await db.run(feeQuery, dueValues);
+
     } catch (error) {
-        // Handle database errors (e.g., unique constraint violations)
         throw new Error('Database error: ' + error.message);
     }
 }
-
-
-
-  
-  
 
   async function deleteMember(memberId) {
     const selectQuery = 'SELECT * FROM member WHERE memberID = $1';
@@ -284,7 +268,7 @@ export {
     fetchTotalMembers,
     fetchTotalMembersYear,
     addNewMember,
-    addMembershipFee,
+    recordDues,
     updateMemberInformation,
     deleteMember,
     fetchMemberEvents,

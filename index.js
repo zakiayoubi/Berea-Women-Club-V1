@@ -20,7 +20,7 @@ import {
   fetchTotalMembers,
   fetchTotalMembersYear,
   addNewMember,
-  addMembershipFee,
+  recordDues,
   updateMemberInformation,
   deleteMember,
   fetchMemberEvents,
@@ -272,20 +272,19 @@ app.post("/members/newMemberForm", async (req, res) => {
   };
   console.log(newMember);
 
-  const status = req.body.status;
-  const paymentYear = req.body.paymentYear;
-  let paymentDate = req.body.paymentDate ? status === "Paid" : null;
-  paymentDate = !paymentDate ? null : paymentDate; // This sets paymentDate to null if it is either an empty string, undefined, or null
 
   console.log(paymentDate);
   try {
-    // Step 1: Insert the new member and get back the auto-generated memberID
     const memberId = await addNewMember(newMember);
-    console.log(memberId);
 
-    // Step 2: Use the retrieved memberID to insert the membership fee
-    await addMembershipFee(memberId, paymentYear, paymentDate, status);
+    const duesFor = req.body.duesFor;
+    paymentDate = !paymentDate ? null : paymentDate; // This sets paymentDate to null if it is either an empty string, undefined, or null
+    if(paymentDate) {
+      await recordDues(memberId, duesFor, paymentDate, req.user.id);
+    }
+
     res.redirect(`/members/${memberId}`);
+
   } catch (error) {
     console.error("Error adding member and membership fee:", error);
     res.status(500).send("Error adding member and membership fee");
@@ -1122,11 +1121,11 @@ app.post("/deleteOutflow/:donationOutflowId", async (req, res) => {
 });
 
 passport.serializeUser((user, cb) => {
-  cb(null, {id: user.id});
+  cb(null, {memberID: user.memberID});
 });
 
 passport.deserializeUser(async (user, cb) => {
-  cb(null, await db.get("SELECT id,email FROM users WHERE id=?",user.id));
+  cb(null, await db.get("SELECT memberID FROM member WHERE memberID=?",[user.memberID]));
 });
 
 passport.use(
@@ -1134,7 +1133,7 @@ passport.use(
     // username and password are auto grabbed from our frontend.
 
     try {
-      const user = await db.get("SELECT * FROM users WHERE email = ?", [ username ]);
+      const user = await db.get("SELECT * FROM member WHERE email = ?", [ username ]);
       if (user) {
         const storedHashedPassword = user.password;
         bcrypt.compare(password, storedHashedPassword, (err, result) => {
@@ -1142,7 +1141,7 @@ passport.use(
             return cb(err);
           } else {
             if (result) {
-              return cb(null, {id: user.id, email: user.email});
+              return cb(null, {memberID: user.memberID});
             } else {
               return cb(null, false, { message: 'Incorrect email or password.' });
             }

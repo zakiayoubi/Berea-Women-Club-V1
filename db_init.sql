@@ -1,13 +1,5 @@
 -- https://www.postgresqltutorial.com/
 
-CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password VARCHAR(100)
-);
-INSERT INTO users VALUES(1,'admin@admin.com','$2b$10$5p22LZ1xgeg8MbtDRKSzTuE/NpeGddcEVvi47mGiPbHpcJq3EbGsK');
-
-
 CREATE TABLE IF NOT EXISTS member (
     memberID INTEGER PRIMARY KEY,
     firstName VARCHAR(100),
@@ -21,8 +13,9 @@ CREATE TABLE IF NOT EXISTS member (
     dateOfBirth DATE,
     dateJoined DATE DEFAULT CURRENT_DATE,
     memberType VARCHAR(50) DEFAULT 'member',
-    UNIQUE (firstName, lastName)
+    password VARCHAR(100)
 );
+INSERT INTO member (memberID, firstName, lastName, email, password) VALUES(1,'Sarah','Heggen','sarah.heggen@gmail.com','$2b$10$5p22LZ1xgeg8MbtDRKSzTuE/NpeGddcEVvi47mGiPbHpcJq3EbGsK');
 
 CREATE TABLE IF NOT EXISTS membershipFee (
     feeID INTEGER PRIMARY KEY,
@@ -38,6 +31,30 @@ CREATE TABLE IF NOT EXISTS membershipFee (
         (status = 'Not Paid' AND payDate IS NULL)
     )
 );
+
+CREATE TABLE IF NOT EXISTS duesPayment (
+    paymentID INTEGER PRIMARY KEY,
+    memberID INT,
+    forYear VARCHAR(9),
+    paymentDate DATE,
+    recordedBy INT,
+    FOREIGN KEY (memberID) REFERENCES member(memberID),
+    FOREIGN KEY (recordedBy) REFERENCES member(memberID),
+    CONSTRAINT unique_year_member UNIQUE (memberID, forYear)
+);
+
+-- view that gets all members and last paid year (whether or not they have ever paid), 
+-- and decides their current status
+CREATE VIEW IF NOT EXISTS dueStatus AS 
+    SELECT  m.memberID, 
+            m.firstName,
+            m.lastName,
+            CASE WHEN MAX(forYear) IS NOT NULL THEN MAX(forYear) ELSE 'Never' END as lastPaidYear,
+            CASE WHEN MAX(forYear) = YEAR(CURRENT_DATE) THEN 'Paid' else 'Not Paid' end as status
+    FROM member m
+    LEFT JOIN duesPayment d on d.memberID = m.memberID
+    GROUP BY m.memberID, m.firstName, m.lastName;
+
 
 
 

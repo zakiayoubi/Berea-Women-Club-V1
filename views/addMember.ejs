@@ -115,12 +115,13 @@
                     <div class="col-sm-6">
                         <label for="dateOfBirth" class="form-label">Date of Birth</label>
                         <input type="date" class="form-control" id="dateOfBirth" name="dateOfBirth" placeholder="YYYY-MM-DD">
-                        <div class="invalid-feedback">
+                        <div class="invalid-feedback"></div>
                     </div>
             
                     <div class="col-sm-6">
                         <label for="dateJoined" class="form-label">Date Joined</label>
                         <input type="date" class="form-control" id="dateJoined" name="dateJoined" placeholder="YYYY-MM-DD">
+                        <div class="invalid-feedback"></div>
                     </div>
                 </div>
                 <div class="col-md-4 mt-3">
@@ -136,32 +137,26 @@
                     </div>
                 </div>
                 <div class="row g-3 mt-1">
-                    <div class="col-md-3">
-                        <label for="status" class="form-label">Dues Status</label>
-                        <select class="form-select" id="status" name="status" required>
-                            <option value="">Choose...</option>
-                            <option value="Paid">Paid</option>
-                            <option value="Not Paid">Not Paid</option>
-                        </select>
-                        <div class="invalid-feedback">
-                            Please provide a payment status.
-                        </div>
+                    <div class="col-md-2">
+                        <label for="dues_check" class="form-label">Dues Paid</label>
+                        <input  id="dues_check" class="form-check" type="checkbox" name="currentdues" />
                     </div>
-
-                    <div class="col-sm-3">
-                        <label for="paymentYear" class="form-label">Payment Year</label>
-                        <input type="year" class="form-control" id="paymentYear" name="paymentYear" placeholder="YYYY" required>
-                        <div class="invalid-feedback">
-                        Please enter the year of payment.
+                    <div class="col-sm-10">
+                        <div class="row">
+                        <div class="col-sm-5">
+                            <label for="duesFor" class="form-label">Dues For</label>
+                            <select class="form-select" id="duesFor">
+                                <option>2024-2025</option>
+                                <option>2023-2024</option>
+                                <option>2022-2023</option>
+                            </select>
+                            <div class="invalid-feedback"> Please choose a year for the membership dues. </div>
                         </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="paymentDate" class="form-label">Payment Date <span class="text-body-secondary">(optional if not paid)</label>
-                        <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD">
-                        <div class="invalid-feedback">
-                        Please enter the date you paid.
-                        </div>
+                        <div class="col-sm-5">
+                            <label for="paymentDate" class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD">
+                            <div class="invalid-feedback"> Please enter the date you paid.  </div>
+                        </div></div>
                     </div>
                 </div>
                 <hr class="my-4">
@@ -175,23 +170,29 @@
 <%- include('partials/footer.ejs'); -%>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const statusSelect = document.getElementById('status');
         const paymentDateInput = document.getElementById('paymentDate');
-    
+        const duesForSelect = document.getElementById('duesFor');
+        const duesCheckbox = document.getElementById('dues_check');
+
         function togglePaymentDateRequirement() {
-            const status = statusSelect.value;
-            if (status === 'Paid') {
+            console.log(duesCheckbox)
+            if(duesCheckbox.checked) {
+                duesForSelect.required = true;
                 paymentDateInput.required = true;
-                paymentDateInput.disabled = false;
+                paymentDateInput.parentElement.parentElement.classList.remove("d-none");
+                paymentDateInput.parentElement.parentElement.classList.add("d-flex");
+
             } else {
+                duesForSelect.required = false;
                 paymentDateInput.required = false;
-                paymentDateInput.disabled = true;
-                paymentDateInput.value = ''; // Clear value when not required
+                paymentDateInput.parentElement.parentElement.classList.add("d-none");
+                paymentDateInput.parentElement.parentElement.classList.remove("d-flex");
             }
         }
-    
-        // Event listener for status changes
-        statusSelect.addEventListener('change', togglePaymentDateRequirement);
+
+        document.getElementById('dues_check').addEventListener('click', function(ev) {
+            togglePaymentDateRequirement()
+        });
     
         // Call on page load in case the form retains values on reload
         togglePaymentDateRequirement();
