@@ -148,7 +148,6 @@ async function addNewMember(memberData) {
       INSERT INTO member 
       (firstName, lastName, email, phoneNumber, streetName, city, usState, zipCode, dateOfBirth, dateJoined, memberType) 
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
-      RETURNING memberID
     `;
     const memberValues = [
       memberData.firstName, memberData.lastName, memberData.email, 
@@ -156,8 +155,8 @@ async function addNewMember(memberData) {
       memberData.state, memberData.zip, memberData.dateOfBirth, memberData.dateJoined, memberData.membershipType
     ];
   
-    const memberResult = await db.query(memberQuery, memberValues);
-    return memberResult.rows[0].memberid; // Return the new member's ID
+    const memberResult = await db.run(memberQuery, memberValues);
+    return memberResult.lastID; // Return the new member's ID
   }
   
 
@@ -176,15 +175,15 @@ async function updateMemberInformation(memberData) {
           usState = $7,
           zipCode = $8,
           dateOfBirth = $9,
-          memberType = $10
-        WHERE memberId = $11
+          dateJoined = $10,
+          memberType = $11
+        WHERE memberId = $12
       `;
       await db.query(updateMemberQuery, [memberData.firstName, memberData.lastName, memberData.email, 
         memberData.phoneNumber, memberData.streetName, memberData.city, 
-        memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.memberType, memberData.memberId]);
+        memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.dateJoined, memberData.memberType, memberData.memberId]);
 
     } catch (error) {
-      await db.query('ROLLBACK'); // Rollback transaction on error
       console.error('Failed to update member information:', error);
       throw error; // Rethrow the error to be handled by the caller
     }

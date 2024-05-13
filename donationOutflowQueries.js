@@ -21,8 +21,9 @@ async function fetchNewOutflows(year) {
 
 async function fetchDonationOutflows() {
   const query = `
-      select dof.*, o.organizationname from donationoutflow dof JOIN organization o ON 
-      dof.organizationID = o.organizationID ORDER BY dof.donationOutflowId;
+      SELECT dof.*, o.organizationname 
+      FROM donationoutflow dof JOIN organization o ON dof.organizationID = o.organizationID
+      ORDER BY dof.donationOutflowId;
   `;
   const result = await db.query(query);
   return result.rows;
