@@ -66,8 +66,11 @@ async function getMembers(orderBy) {
   }
 
   async function getMemberByName(searchTerm) {
-    const query = `SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-      FROM member m LEFT JOIN membershipFee mf ON m.memberID = mf.memberID WHERE LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $2`;
+    const query = `
+      SELECT m.*, mf.paymentyear, mf.paydate, mf.status
+      FROM member m 
+      LEFT JOIN dueStatus d ON m.memberID = d.memberID 
+      WHERE LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $2`;
     const searchPattern = `%${searchTerm.toLowerCase()}%`; 
   
     try {
