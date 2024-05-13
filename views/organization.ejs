@@ -66,8 +66,8 @@
                             <td><a href="/organizations/<%= org.organizationid %>"><%= org.organizationname %></a></td>
                             <td><%= org.email %></td>
                             <td><%= org.phonenumber%></td>
-                            <td><%= org.streetname %> <%= org.city %> <%= org.usstate %> <%= org.zipcode %></td>
-                            <td><%= org.organizationtype %></td>
+                            <td><%= org.streetname || org.city || org.usstate || org.zipcode ? `${org.streetname || ''} ${org.city || ''} ${org.usstate || ''} ${org.zipcode || ''}`.trim() : "None" %></td>
+                            <td><%= org.organizationtype ? org.organizationtype : "None" %></td>
                             <td>
                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= org.organizationid %>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">

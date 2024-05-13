@@ -74,8 +74,8 @@
                     <td scope="row"><%= counter %></td>
                     <td><a href="/donationInflows/<%= donationInflow.donationinflowid %>"><%= donationInflow.recordname %></a></td>
                     <td><a href="/organizations/<%= donationInflow.organizationid %>"><%= donationInflow.organizationname %></a></td> 
-                    <td><%= donationInflow.category %></td>
-                    <td>$<%= parseFloat(donationInflow.amount).toFixed(2) %></td>
+                    <td><%= donationInflow.category ? donationInflow.category : "None" %></td>
+                    <td>$ <%= parseFloat(donationInflow.amount).toFixed(2) %></td>
                     <td><%= new Date(donationInflow.donationdate).toISOString().slice(0, 10) %></td>
                     <td>
                         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= donationInflow.donationinflowid %>">

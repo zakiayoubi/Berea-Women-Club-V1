@@ -81,11 +81,11 @@
                         <tr>
                             <th scope="row"><%= counter %></th>
                             <td><a href="/events/<%= event.eventid %>"><%= event.eventname %></a></td>
-                            <td><%= event.eventlocation %></td>
-                            <td><%= event.eventdate ? new Date(event.eventdate).toLocaleDateString() : "" %></td>
-                            <td><%= event.eventcost %></td>
-                            <td><%= event.amountraised %></td>
-                            <td><%= event.eventtype %></td>
+                            <td><%= event.eventlocation ? event.eventlocation : "None" %></td>
+                            <td><%= event.eventdate ? new Date(event.eventdate).toLocaleDateString() : "None" %></td>
+                            <td><%= event.eventcost ? event.eventcost : "None" %></td>
+                            <td>$ <%= event.amountraised %></td>
+                            <td><%= event.eventtype ? event.eventtype : "None" %></td>
                             <td>
                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= event.eventid %>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
