@@ -73,8 +73,8 @@
                     <td scope="row"><%= counter %></td>
                     <td><a href="/donationOutflows/<%= donationOutflow.donationoutflowid %>"><%= donationOutflow.recordname %></a></td>
                     <td><a href="/organizations/<%= donationOutflow.organizationid %>"><%= donationOutflow.organizationname %></a></td> 
-                    <td><%= donationOutflow.category %></td>
-                    <td>$<%= parseFloat(donationOutflow.amount).toFixed(2) %></td>
+                    <td><%= donationOutflow.category ? donationOutflow.category : "None" %></td>
+                    <td>$ <%= parseFloat(donationOutflow.amount).toFixed(2) %></td>
                     <td><%= new Date(donationOutflow.donationdate).toISOString().slice(0, 10) %></td>
                     <td>
                         <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= donationOutflow.donationoutflowid %>">

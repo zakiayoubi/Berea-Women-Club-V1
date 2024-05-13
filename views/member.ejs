@@ -98,11 +98,11 @@
                             <td><a href="/members/<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></a></td>
                             <td><%= member.email %></td>
                             <td><%= member.phonenumber %></td>
-                            <td><%= member.datejoined ? new Date(member.datejoined).toLocaleDateString() : "" %></td>
+                            <td><%= member.datejoined ? new Date(member.datejoined).toLocaleDateString() : "N/A" %></td>
                             <td><%= member.membertype %></td>
                             <td><%= member.paymentyear %></td>
-                            <td><%= member.status %></td> <!-- Example placeholder for dues status -->
-                            <td><%= member.paydate ? new Date(member.paydate).toLocaleDateString() : "" %></td>
+                            <td><%= member.status ? member.status : "N/A" %></td> <!-- Example placeholder for dues status -->
+                            <td><%= member.paydate ? new Date(member.paydate).toLocaleDateString() : "N/A" %></td>
                             <td>
                                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= member.memberid %>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
