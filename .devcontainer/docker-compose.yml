@@ -25,7 +25,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_DB: BereaWomenClub
+      POSTGRES_DB: BereaWomansClub
       POSTGRES_PASSWORD: "Love1212@@"
 
     # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.

@@ -15,7 +15,7 @@
     "remoteEnv": {
         "PGHOST": "db",
         "PGUSER": "postgres",
-        "PGDATABASE": "BereaWomenClub",
+        "PGDATABASE": "BereaWomansClub",
         "PGPASSWORD": "Love1212@@",
     },
 	// Use 'postCreateCommand' to run commands after the container is created.

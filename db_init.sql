@@ -45,18 +45,26 @@ CREATE TABLE IF NOT EXISTS duesPayment (
 
 -- view that gets all members and last paid year (whether or not they have ever paid), 
 -- and decides their current status
+--
+-- NOTE: Currently doesn't show the current status properly if they have paid for NEXT year but not this year
 CREATE VIEW IF NOT EXISTS dueStatus AS 
     SELECT  m.memberID, 
             m.firstName,
             m.lastName,
-            CASE WHEN MAX(forYear) IS NOT NULL THEN MAX(forYear) ELSE 'Never' END as lastPaidYear,
-            CASE WHEN MAX(forYear) = YEAR(CURRENT_DATE) THEN 'Paid' else 'Not Paid' end as status
+            CASE WHEN MAX(d.forYear) IS NOT NULL THEN MAX(d.forYear) ELSE 'Never' END as lastPaidYear,
+            -- spring
+            CASE WHEN CAST(strftime('%m',CURRENT_DATE) as INTEGER) < 8 THEN
+                CASE WHEN MAX(d.forYear) =  strftime('%Y', DATE(CURRENT_DATE,'-1 year')) || '-' || strftime('%Y', CURRENT_DATE) 
+                     THEN 'Paid' else 'Not Paid' END
+            -- fall
+            ELSE
+                CASE WHEN MAX(d.forYear) =  strftime('%Y', CURRENT_DATE) || '-' || strftime('%Y', DATE(CURRENT_DATE,'+1 year')) 
+                     THEN 'Paid' else 'Not Paid' END
+            END as status
+            --CASE WHEN MAX(d.forYear) = strftime('%Y', CURRENT_DATE) THEN 'Paid' else 'Not Paid' end as status
     FROM member m
     LEFT JOIN duesPayment d on d.memberID = m.memberID
     GROUP BY m.memberID, m.firstName, m.lastName;
-
-
-
 
 CREATE TABLE IF NOT EXISTS organization (
     organizationID INTEGER PRIMARY KEY,

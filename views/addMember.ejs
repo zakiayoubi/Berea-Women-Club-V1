@@ -8,7 +8,7 @@
             <form class="needs-validation" action="/members/newMemberForm" method="POST">
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="firstName" class="form-label">First name</label>
+                        <label for="firstName" class="form-label required">First name</label>
                         <input type="text" class="form-control" id="firstName" name="firstName" required>
                         <div class="invalid-feedback">
                             Valid first name is required.
@@ -16,7 +16,7 @@
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="lastName" class="form-label">Last name</label>
+                        <label for="lastName" class="form-label required">Last name</label>
                         <input type="text" class="form-control" id="lastName" name="lastName" required>
                         <div class="invalid-feedback">
                             Valid last name is required.
@@ -24,7 +24,7 @@
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="email" class="form-label">Email</span></label>
+                        <label for="email" class="form-label required">Email</span></label>
                         <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
                         <div class="invalid-feedback">
                             Please enter a valid email address.
@@ -32,7 +32,7 @@
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="phone" class="form-label">Phone</label>
+                        <label for="phone" class="form-label required">Phone</label>
                         <input type="text" class="form-control" id="phone" name="phone" placeholder="8599865432" required>
                         <div class="invalid-feedback">
                         Please enter a valid phone number .
@@ -125,7 +125,7 @@
                     </div>
                 </div>
                 <div class="col-md-4 mt-3">
-                    <label for="membershipType" class="form-label">Role</label>
+                    <label for="membershipType" class="form-label required">Role</label>
                     <select class="form-select" id="membershipType" name="membershipType" required>
                         <option value="">Choose...</option>
                         <option value="member">Member</option>
@@ -144,7 +144,7 @@
                     <div class="col-sm-10">
                         <div class="row">
                         <div class="col-sm-5">
-                            <label for="duesFor" class="form-label">Dues For</label>
+                            <label for="duesFor" class="form-label required">Dues For</label>
                             <select class="form-select" id="duesFor">
                                 <option>2024-2025</option>
                                 <option>2023-2024</option>
@@ -153,7 +153,7 @@
                             <div class="invalid-feedback"> Please choose a year for the membership dues. </div>
                         </div>
                         <div class="col-sm-5">
-                            <label for="paymentDate" class="form-label">Payment Date</label>
+                            <label for="paymentDate" class="form-label required">Payment Date</label>
                             <input type="date" class="form-control" id="paymentDate" name="paymentDate" placeholder="YYYY-MM-DD">
                             <div class="invalid-feedback"> Please enter the date you paid.  </div>
                         </div></div>

@@ -55,6 +55,11 @@
   .nav-item .text-primary:hover {
     color: white !important;
   }
+
+  .required::after {
+    content: " *";
+    color: red;
+  }
   
 
 

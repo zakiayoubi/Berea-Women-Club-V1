@@ -1,7 +1,7 @@
 {
-  "name": "berea-women-club",
+  "name": "gfwc-berea-womans-club",
   "version": "1.0.0",
-  "description": "Berea women club web app ",
+  "description": "GFWC Berea Woman's Club web app ",
   "main": "index.js",
   "type": "module",
   "scripts": {

@@ -1,16 +1,20 @@
 import db from "./db.js";
 
+function baseQuery() {
+  return `
+      SELECT m.*, mf.paymentyear, mf.paydate, mf.status
+      FROM member m 
+      LEFT JOIN dueStatus d ON m.memberID = d.memberID 
+      `;
+}
 
 async function getMemberById(memberId) {
-
-  const query = `
-  SELECT * from member
-  WHERE memberId = ${memberId};
-`;
+  let query = baseQuery() + `WHERE memberId = ${memberId}`
 
   try {
     const result = await db.query(query);
     return result.rows;
+
   } catch (err) {
     console.error(err);
   }
@@ -33,54 +37,49 @@ async function getMemberDuesById(memberId) {
 
 
 async function getMembers(orderBy) {
-    let column = 'memberid'; // default ordering
-    switch (orderBy) {
-      case 'firstname':
-        column = 'firstname';
-        break;
-      case 'lastname':
-        column = 'lastname';
-        break;
-      case 'datejoined':
-        column = 'datejoined DESC';
-        break;
-      case 'membertype':
-        column = 'membertype';
-        break;
-      // Add more cases as needed
-    }
-  
-    const query = `
-    SELECT * from member
-    ORDER BY ${column};
-`;
-
-  
-    try {
-      const result = await db.query(query);
-      return result.rows;
-    } catch (err) {
-      console.error(err);
-      return [];
-    }
+  let column = 'memberid'; // default ordering
+  switch (orderBy) {
+    case 'firstname':
+      column = 'firstname';
+      break;
+    case 'lastname':
+      column = 'lastname';
+      break;
+    case 'datejoined':
+      column = 'datejoined DESC';
+      break;
+    case 'membertype':
+      column = 'membertype';
+      break;
+    // Add more cases as needed
   }
-
-  async function getMemberByName(searchTerm) {
-    const query = `
-      SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-      FROM member m 
-      LEFT JOIN dueStatus d ON m.memberID = d.memberID 
-      WHERE LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $2`;
-    const searchPattern = `%${searchTerm.toLowerCase()}%`; 
   
-    try {
-      const result = await db.query(query, [searchPattern, searchPattern]);
-      return result.rows; // Return the member details
-    } catch (error) {
-      console.error('Error executing getMemberByName query:', error);
-      throw error;
-    }
+  const query = baseQuery() + `ORDER BY ${column}`
+  
+  try {
+    const result = await db.query(query);
+    return result.rows;
+
+  } catch (err) {
+    console.error(err);
+    return [];
   }
+}
+
+async function getMemberByName(searchTerm) {
+  const query = baseQuery() + ` WHERE LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $2`;
+  //const query = baseQuery() + `ORDER BY ${column}`
+  const searchPattern = `%${searchTerm.toLowerCase()}%`; 
+
+  try {
+    const result = await db.query(query, [searchPattern, searchPattern]);
+    return result.rows; // Return the member details
+
+  } catch (error) {
+    console.error('Error executing getMemberByName query:', error);
+    throw error;
+  }
+}
   
 
 async function getMemberDues(year, status) {
@@ -101,23 +100,19 @@ async function getMemberDues(year, status) {
 }
 
 async function fetchNewMembers(year) {
-    const query = `
-        SELECT *
-        FROM member 
-        WHERE datejoined >= $1 AND datejoined <= $2 ORDER BY firstName
-    `;
+    const query = baseQuery() + `WHERE datejoined >= $1 AND datejoined <= $2 ORDER BY firstName`;
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
 
     try {
         const result = await db.query(query, [startDate, endDate]);
         return result.rows;
+
     } catch (err) {
         console.error('Error executing fetchNewMembers query:', err);
         throw err;
     }
 }
-
 async function fetchTotalMembers() {
     const query = "SELECT COUNT(*) FROM member;";
 
