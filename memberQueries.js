@@ -2,36 +2,31 @@ import db from "./db.js";
 
 function baseQuery() {
   return `
-      SELECT m.*, mf.paymentyear, mf.paydate, mf.status
+      SELECT m.*, d.lastPaidYear, d.status
       FROM member m 
-      LEFT JOIN dueStatus d ON m.memberID = d.memberID 
+      LEFT JOIN duesStatus d ON m.memberID = d.memberID 
       `;
 }
 
 async function getMemberById(memberId) {
-  let query = baseQuery() + `WHERE memberId = ${memberId}`
-
-  try {
-    const result = await db.query(query);
-    return result.rows;
-
-  } catch (err) {
-    console.error(err);
-  }
+  return await db.get(baseQuery() + `WHERE m.memberId = ?`, [memberId]);
 }
 
 async function getMemberDuesById(memberId) {
 
   const query = `
-  SELECT * from membershipFee
-  WHERE memberId = ${memberId};
-`;
+    SELECT d.*, r.firstName, r.lastName
+    FROM duesPayment d
+    JOIN member r ON r.memberID = d.recordedBy
+    WHERE d.memberID = ?
+    ORDER BY d.forYear DESC;`;
 
   try {
-    const result = await db.query(query);
-    return result.rows;
+    return await db.all(query, [memberId]);
+
   } catch (err) {
     console.error(err);
+    return []
   }
 }
 
@@ -54,7 +49,7 @@ async function getMembers(orderBy) {
     // Add more cases as needed
   }
   
-  const query = baseQuery() + `ORDER BY ${column}`
+  const query = baseQuery() + `ORDER BY m.${column}`
   
   try {
     const result = await db.query(query);
@@ -67,7 +62,7 @@ async function getMembers(orderBy) {
 }
 
 async function getMemberByName(searchTerm) {
-  const query = baseQuery() + ` WHERE LOWER(firstName) LIKE $1 OR LOWER(lastName) LIKE $2`;
+  const query = baseQuery() + ` WHERE LOWER(m.firstName) LIKE $1 OR LOWER(m.lastName) LIKE $2`;
   //const query = baseQuery() + `ORDER BY ${column}`
   const searchPattern = `%${searchTerm.toLowerCase()}%`; 
 
@@ -83,6 +78,7 @@ async function getMemberByName(searchTerm) {
   
 
 async function getMemberDues(year, status) {
+  return []
   const query = `
     SELECT m.*, mf.paymentyear, mf.paydate, mf.status
     FROM member m
@@ -100,7 +96,7 @@ async function getMemberDues(year, status) {
 }
 
 async function fetchNewMembers(year) {
-    const query = baseQuery() + `WHERE datejoined >= $1 AND datejoined <= $2 ORDER BY firstName`;
+    const query = baseQuery() + `WHERE m.datejoined >= $1 AND m.datejoined <= $2 ORDER BY m.firstName`;
     const startDate = `${year}-01-01`;
     const endDate = `${year}-12-31`;
 
@@ -188,6 +184,10 @@ async function updateMemberInformation(memberData) {
   }
 
 
+  async function removeDues(memberId, duesFor) {
+    db.run("DELETE FROM duesPayment WHERE memberID=? AND forYear=?",[memberId,duesFor])
+  }
+
   async function recordDues(memberId, duesFor, paymentDate, currentUser) {
     const feeQuery = "INSERT INTO duesPayment (memberID, forYear, paymentDate, recordedBy) VALUES (?,?,?,?)";
     const dueValues = [memberId, duesFor, paymentDate, currentUser];
@@ -267,6 +267,7 @@ export {
     fetchTotalMembersYear,
     addNewMember,
     recordDues,
+    removeDues,
     updateMemberInformation,
     deleteMember,
     fetchMemberEvents,
