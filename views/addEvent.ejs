@@ -8,7 +8,7 @@
             <form class="needs-validation" action="/events/newEventForm" method="POST">
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="eventName" class="form-label">Event Name</label>
+                        <label for="eventName" class="form-label required">Event Name</label>
                         <input type="text" class="form-control" id="eventName" name="eventName" required>
                         <div class="invalid-feedback">
                             Valid event name is required.
@@ -110,7 +110,7 @@
 
                     <div class="col-md-3">
                         <label for="amountRaised" class="form-label">Amount Raised</label>
-                        <input type="number" class="form-control" id="amountRaised" name="amountRaised" required>
+                        <input type="number" class="form-control" id="amountRaised" name="amountRaised" >
                         <div class="invalid-feedback">
                             Please provide the amount raised.
                         </div>

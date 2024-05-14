@@ -7,7 +7,7 @@
             <form class="needs-validation" id="updateForm" action="/updateOrganizationInfo/<%= organization.organizationid %>" method="POST" novalidate>
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="organizationName" class="form-label">Organization</label>
+                        <label for="organizationName" class="form-label required">Organization</label>
                         <input type="text" class="form-control" id="organizationName" name="organizationName" value="<%= organization.organizationname %>" required disabled>
                         <div class="invalid-feedback">
                             Valid organization name is required.
@@ -21,7 +21,7 @@
 
 
                     <div class="col-sm-6">
-                        <label for="email" class="form-label">Email</label>
+                        <label for="email" class="form-label required">Email</label>
                         <input type="email" class="form-control" id="email" name="email" value="<%= organization.email %>" required disabled>
                         <div class="invalid-feedback">
                             Valid organization email is required.
@@ -29,7 +29,7 @@
                     </div>
 
                     <div class="col-sm-6">
-                        <label for="phoneNumber" class="form-label">Phone</label>
+                        <label for="phoneNumber" class="form-label required">Phone</label>
                         <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= organization.phonenumber %>" required disabled>
                         <div class="invalid-feedback">
                             Valid phone number is required.

@@ -7,7 +7,7 @@
             <form class="needs-validation" id="updateForm" action="/updateEventInfo/<%= event.eventid %>" method="POST">
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label for="eventName" class="form-label">Event Name</label>
+                        <label for="eventName" class="form-label required">Event Name</label>
                         <input type="text" class="form-control" id="eventName" name="eventName" value="<%= event.eventname %>" required disabled>
                         <div class="invalid-feedback">
                             Valid event name is required.
@@ -104,7 +104,7 @@
 
                     <div class="col-md-4 mt-3">
                         <label for="amountRaised" class="form-label">Amount Raised</label>
-                        <input type="number" class="form-control" id="amountRaised" name="amountRaised" value="<%= event.amountraised %>" required disabled>
+                        <input type="number" class="form-control" id="amountRaised" name="amountRaised" value="<%= event.amountraised %>" disabled>
                         <div class="invalid-feedback">
                             Please provide the amount raised.
                         </div>
