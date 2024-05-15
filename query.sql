@@ -165,27 +165,27 @@ LEFT JOIN organization o
 ON di.organizationid = o.organizationid ORDER BY category;
 
 
--- SELECT di.*, o.memberName 
--- FROM donationinflow di LEFT JOIN member o ON di.memberid = o.memberid 
--- ORDER BY donationdate;
+SELECT di.*, o.organizationName 
+FROM donationinflow di LEFT JOIN organization o ON di.organizationid = o.organizationid 
+ORDER BY donationdate;
 
--- SELECT di.*, o.memberName FROM donationinflow di LEFT JOIN member o ON di.memberid = o.memberid;
--- SELECT di.*, o.memberName FROM donationinflow di 
--- LEFT JOIN member o ON di.memberid = o.memberid WHERE donationinflow = specificid;
+SELECT di.*, m.firstName, m.lastName FROM donationinflow di LEFT JOIN member m ON di.memberid = m.memberid;
+SELECT di.*, m.firstName, m.lastName FROM donationinflow di 
+LEFT JOIN member m ON di.memberid = m.memberid WHERE donationinflow = specificid;
 
--- SELECT di.*, o.memberName 
--- FROM donationinflow di LEFT JOIN member o ON di.memberid = o.memberid
--- ORDER BY amount DESC;
-
-
--- SELECT di.*, o.memberName FROM donationinflow di 
--- LEFT JOIN member o 
--- ON di.memberid = o.memberid ORDER BY category;
+SELECT di.*, m.firstName, m.lastName 
+FROM donationinflow di LEFT JOIN member m ON di.memberid = m.memberid
+ORDER BY amount DESC;
 
 
--- SELECT di.*, o.memberName 
--- FROM donationinflow di LEFT JOIN member o ON di.memberid = o.memberid 
--- ORDER BY donationdate;
+SELECT di.*, m.firstName, m.lastName FROM donationinflow di 
+LEFT JOIN member m 
+ON di.memberid = m.memberid ORDER BY category;
+
+
+SELECT di.*, m.firstName, m.lastName
+FROM donationinflow di LEFT JOIN member o ON di.memberid = m.memberid 
+ORDER BY donationdate;
 
 -- amount raised per year: 
 SELECT EXTRACT(YEAR FROM donationdate) AS donationdate, SUM(amount) AS totalRaised

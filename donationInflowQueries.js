@@ -20,8 +20,10 @@ async function fetchNewInflows(year) {
 
 async function fetchDonationInflows() {
   const query = `
-      SELECT di.*, o.organizationname from donationInflow di
-      JOIN organization o ON di.organizationID = o.organizationID
+      SELECT di.*, o.organizationname, m.firstName, m.lastName
+      from donationInflow di
+      LEFT JOIN organization o ON di.organizationID = o.organizationID
+      LEFT JOIN member m ON di.memberID = m.memberID
       ORDER BY di.donationInflowId;
   `;
   const result = await db.query(query);
@@ -31,8 +33,10 @@ async function fetchDonationInflows() {
 
 async function fetchDonationInflowById(donationInflowId) {
   const query = `
-    select di.*, o.organizationname from donationinflow di JOIN organization o ON 
-    di.organizationID = o.organizationID WHERE di.donationinflowID = $1;
+    select di.*, o.organizationname 
+    from donationinflow di 
+    JOIN organization o ON di.organizationID = o.organizationID 
+    WHERE di.donationinflowID = $1;
     
   `;
   const result = await db.query(query, [donationInflowId]);
@@ -117,24 +121,9 @@ async function addDonationInflow(newDonor) {
     values = [recordName, null, null, donationDate, category, amount];
   }
 
-//   const query = `
-//   INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
-//   VALUES ($1, $2, $3, $4, $5, $6, $7)
-// `;
-//   const values = [recordName, donor, null, donationDate, category, amount, createdDonor];
-
-
-
-  // const query = `
-  //   INSERT INTO donationInflow (recordName, organizationID, donationDate, category, amount)
-  //   VALUES ($1, $2, $3, $4, $5)
-  // `;
-  // const values = [recordName, organizationID, donationDate, category, amount];
-
   try {
-    console.log("loooooooooooooooooooooooooooooooooook at thatttttttttttttttttttttttttttttttttt", query, values)
     const res = await db.query(query, values);
-    console.log("thiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiis", res)
+    console.log("my queeeeeeeeeeeeerrrrrrrrrrrrrrrrrry is ", values)
     
     return res// or another appropriate response depending on your need
   } catch (err) {

@@ -791,6 +791,7 @@ app.post("/deleteEvent/:eventId", async (req, res) => {
 app.get("/donationInflows", async (req, res) => {
   try {
     const donationInflows = await fetchDonationInflows();
+    console.log("here we go", donationInflows )
     res.render("donationInflow.ejs", {
       donationInflows,
     });
