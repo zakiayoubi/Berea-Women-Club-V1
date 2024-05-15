@@ -13,28 +13,67 @@
                             Valid record name is required.
                         </div>
                     </div>
-
-
                     <div class="col-sm-6">
-                        <label for="organizationInput" class="form-label">Organization <span class="text-body-secondary">(if not found, please add first) </label>
-                        <input type="text" class="form-control" id="organizationInput" value="<%= donation.organizationname %>" placeholder="Select an Organization" data-bs-toggle="modal" data-bs-target="#organizationModal" readonly disabled>
-                        <input type="hidden" name="organization" id="organizationHidden" value="<%= donation.organizationid %>">
+                        <label for="donorInput" class="form-label">Donor<span class="text-body-secondary"></label>
+                        <input type="text" class="form-control" id="donorInput" placeholder="Select or type donor" data-bs-toggle="modal" data-bs-target="#donorModal" required disabled readonly>
+                        <input type="hidden" name="donor" id="donorHidden" data-type="">
+                        <input type="hidden" name="donorType" id="donorTypeHidden" data-type="">
                     </div>
                     
-                    <!-- Organization Selection Modal -->
-                    <div class="modal" id="organizationModal" tabindex="-1" aria-labelledby="organizationModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <!-- Donor Selection Modal -->
+                    <div class="modal" id="donorModal" tabindex="-1" aria-labelledby="donorModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-md">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="organizationModalLabel">Choose an Organization</h5>
+                                    <h5 class="modal-title" id="donorModalLabel">Choose a donor or register a new one</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <input type="text" class="form-control mb-3" id="organizationSearch" placeholder="Type to search...">
-                                    <div class="list-group" id="organizationList">
-                                        <% orgs.forEach(org => { %>
-                                            <button type="button" class="list-group-item list-group-item-action" data-value="<%= org.organizationid %>"><%= org.organizationname %></button>
-                                        <% }) %>                                        
+                                    <div class="d-block mb-3">
+                                        <div class="dropdown">
+                                            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" 
+                                            data-bs-toggle="dropdown" aria-expanded="false">Organizations 
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                <% if (orgs && orgs.length > 0) { %>
+                                                    <% orgs.forEach(org => { %>
+                                                        <li><a class="dropdown-item" href="#" data-value="<%= org.organizationid %>" data-type="organization"><%= org.organizationname %></a></li>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <li><a class="dropdown-item non-clickable" aria-readonly="true">No organization found</a></li>
+                                                <% } %>
+                                            </ul>
+                                        </div>  
+                                    </div>
+
+                                    <div class="d-block mb-3">
+                                        <div class="dropdown">
+                                            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton2" 
+                                            data-bs-toggle="dropdown" aria-expanded="false">Members
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
+                                                <% if (members && members.length > 0) { %>'
+                                                    <% members.forEach(member => { %> 
+                                                        <li><a class="dropdown-item" href="#" data-value="<%= member.memberid %>" data-type="member"><%= member.firstname %> <%= member.lastname %></a></li>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <li><a class="dropdown-item non-clickable" aria-readonly="true">No member found</a></li>
+                                                <% } %>
+                                            </ul>
+                                        </div>  
+                                    </div>
+
+                                    <div class="d-block mb-3">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-light" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                Other
+                                                <input id="newDonor" data-type="newDonor"/>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="d-block mb-3">
+                                        <button class="btn btn-primary" type="button" id="submittedDonor">Select Donor</button>
+                                        <span class="mb-5" id="selectedDonor" data-type="" style="margin-left: 10px;"></span>
                                     </div>
                                 </div>
                             </div>
@@ -43,7 +82,7 @@
 
 
 
-
+                    
 
                     <div class="col-sm-4">
                         <label for="category" class="form-label">Category</label>
@@ -75,6 +114,12 @@
 </div>
 
 <script>
+    function selectDonor(donorName, donorID, donorType) {
+        document.getElementById('selectedDonor').textContent = donorName; 
+        document.getElementById('selectedDonor').dataset.value = donorID; 
+        document.getElementById('selectedDonor').dataset.type = donorType;
+    }
+
     function toggleEdit() {
     const formElements = document.querySelectorAll('#updateForm input, #updateForm select');
     formElements.forEach(element => {
@@ -133,7 +178,29 @@ document.querySelector('form.needs-validation').addEventListener('submit', funct
     }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById("submittedDonor").addEventListener('click', function() {
+        const donorName = document.getElementById('selectedDonor').textContent;
+        const donorID = document.getElementById('selectedDonor').dataset.value;
+        const donorType = document.getElementById('selectedDonor').dataset.type;
 
+        document.getElementById('donorInput').value = donorName;
+        document.getElementById('donorHidden').value = donorID;
+        document.getElementById('donorTypeHidden').value = donorType;
+
+        var modalElement = document.getElementById('donorModal');
+        var modalInstance = bootstrap.Modal.getInstance(modalElement);
+        modalInstance.hide();
+    })
+})
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
+        item.addEventListener('click', function() {
+            selectDonor(this.textContent, this.dataset.value, this.dataset.type);
+        });
+    });
+});
 
 </script>
 

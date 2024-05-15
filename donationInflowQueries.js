@@ -2,8 +2,10 @@ import db from "./db.js";
 
 async function fetchNewInflows(year) {
   const query = `
-      SELECT di.*, o.organizationName
-      FROM donationInflow di JOIN organization o ON di.organizationID = o.organizationID
+      SELECT di.*, o.organizationName, m.firstName, m.lastName
+      FROM donationInflow di 
+      LEFT JOIN organization o ON di.organizationID = o.organizationID
+      LEFT JOIN member m ON di.memberID = m.memberID
       WHERE donationDate >= $1 AND donationDate <= $2 ORDER BY donationDate DESC;
   `;
   const startDate = `${year}-01-01`;
@@ -11,6 +13,7 @@ async function fetchNewInflows(year) {
 
   try {
       const result = await db.query(query, [startDate, endDate]);
+      console.log("Heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerrrrrrrrrrr", query, startDate, endDate)
       return result.rows;
   } catch (err) {
       console.error('Error executing fetchNewInflows query:', err);
@@ -33,9 +36,10 @@ async function fetchDonationInflows() {
 
 async function fetchDonationInflowById(donationInflowId) {
   const query = `
-    select di.*, o.organizationname 
+    select di.*, o.organizationname, m.firstName, m.lastName 
     from donationinflow di 
-    JOIN organization o ON di.organizationID = o.organizationID 
+    LEFT JOIN organization o ON di.organizationID = o.organizationID 
+    LEFT JOIN member m ON di.memberID = m.memberID
     WHERE di.donationinflowID = $1;
     
   `;
@@ -60,6 +64,7 @@ async function fetchDonationInflowsTotal() {
       donationYear DESC;
   `;
   const result = await db.query(query);
+  console.log("Theeeeeeeeeeeeeeee roooooooooooooooowwwwwwwwwwwwww is", result)
   return result.rows;
 };
 
@@ -134,20 +139,73 @@ async function addDonationInflow(newDonor) {
 
 
 async function updateDonationInflow(donationInflowId, donationData) {
-  const { organizationID, category, amount, donationDate, recordName } = donationData;
-  const query = `
-    UPDATE donationinflow
-    SET 
-    recordName = $1,
-    organizationID = $2,
-    donationdate = $3, 
-    category = $4, 
-    amount = $5
-    WHERE donationInflowId = $6
-    ;
-  `;
-  const { rows } = await db.query(query, [recordName, organizationID, donationDate, category, amount, donationInflowId]);
-  return rows[0];
+  // const { recordName, donor, donorType, category, amount, donationDate } = donationData;
+  // const createdDonor = "";
+
+  const recordName = donationData.recordName;
+  const donor = donationData.donor;
+  const category = donationData.category;
+  const amount = donationData.amount;
+  const donationDate = donationData.donationDate;
+  const donorType = donationData.donorType;
+  const createdDonor = "";
+  const donationId = donationInflowId;
+
+
+  let query;
+  let values;
+
+  if (donorType === "organization") {
+    query = `
+    UPDATE donationInflow
+    SET recordName = $1,
+        organizationID = $2,
+        memberID = $3,
+        donationDate = $4,
+        category = $5,
+        amount = $6,
+        createdDonor = $7
+    WHERE donationInflowId = $8
+    `;
+    values = [recordName, donor, null, donationDate, category, amount, createdDonor, donationId];
+
+  } else if (donorType === "member") {
+    query = `
+    UPDATE donationInflow
+    SET recordName = $1,
+        organizationID = $2,
+        memberID = $3,
+        donationDate = $4,
+        category = $5,
+        amount = $6,
+        createdDonor = $7
+    WHERE donationInflowId = $8
+    `;
+    values = [recordName, null, donor, donationDate, category, amount, createdDonor, donationId];
+  } else {
+    query = `
+    UPDATE donationInflow
+    SET recordName = $1,
+        organizationID = $2,
+        memberID = $3,
+        donationDate = $4,
+        category = $5,
+        amount = $6,
+        createdDonor = $7
+    WHERE donationInflowId = $8
+    `;
+    values = [recordName, null, null, donationDate, category, amount, createdDonor, donationId];
+  }
+  
+  try {
+    const res = await db.query(query, values);
+    console.log("my queeeeeeeeeeeeerrrrrrrrrrrrrrrrrry is ", values)
+    
+    return res// or another appropriate response depending on your need
+  } catch (err) {
+    console.error('Error inserting donation inflow:', err);
+    throw err; // Re-throwing the error is often useful in a larger application context
+  }
 };
 
 

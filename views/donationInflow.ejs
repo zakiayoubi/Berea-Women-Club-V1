@@ -74,7 +74,13 @@
                     <tr>
                         <td scope="row"><%= counter %></td>
                         <td><a href="/donationInflows/<%= donationInflow.donationinflowid %>"><%= donationInflow.recordname %></a></td>
-                        <td><a href="/organizations/<%= donationInflow.organizationid %>"><%= donationInflow.organizationname %></a></td> 
+                        <% if (donationInflow.organizationid && !donationInflow.memberid) { %>
+                            <td><a href="/organizations/<%= donationInflow.organizationid %>"><%= donationInflow.organizationname %></a></td>
+                        <% } else if (donationInflow.memberid && !donationInflow.organizationid) { %>
+                            <td><a href="/members/<%= donationInflow.memberid %>"><%= donationInflow.firstname %> <%= donationInflow.lastname %></a></td>
+                        <% } else { %>
+                            <td><a href=""><%= donationInflow.createddonor %></a></td> 
+                        <% } %>
                         <td><%= donationInflow.category ? donationInflow.category : "None" %></td>
                         <td>$ <%= parseFloat(donationInflow.amount).toFixed(2) %></td>
                         <td><%= new Date(donationInflow.donationdate).toISOString().slice(0, 10) %></td>
