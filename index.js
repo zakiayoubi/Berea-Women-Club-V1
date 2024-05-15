@@ -21,6 +21,7 @@ import {
   fetchTotalMembersYear,
   addNewMember,
   recordDues,
+  removeDues,
   updateMemberInformation,
   deleteMember,
   fetchMemberEvents,
@@ -273,14 +274,14 @@ app.post("/members/newMemberForm", async (req, res) => {
   console.log(newMember);
 
 
-  console.log(paymentDate);
   try {
     const memberId = await addNewMember(newMember);
 
+    const paymentDate = req.body.paymentDate;
     const duesFor = req.body.duesFor;
     paymentDate = !paymentDate ? null : paymentDate; // This sets paymentDate to null if it is either an empty string, undefined, or null
     if(paymentDate) {
-      await recordDues(memberId, duesFor, paymentDate, req.user.id);
+      await recordDues(memberId, duesFor, paymentDate, req.user.memberID);
     }
 
     res.redirect(`/members/${memberId}`);
@@ -310,39 +311,26 @@ app.get("/members/searchMembers", async (req, res) => {
 // Complete
 app.get("/members/:memberId", async (req, res) => {
   const memberId = req.params.memberId;
-  if (/^\d+$/.test(memberId)) {
-    const result = await getMemberById(memberId);
-    if (result.length > 0) {
-      console.log("**********************************************************")
-      console.log("The result is", result)
-      const finalResult = result[0];
-      console.log(finalResult)  
-
-      if (finalResult.dateofbirth) {
-        const unformattedDateOfBirth = new Date(finalResult.dateofbirth);
-        finalResult.dateofbirth = unformattedDateOfBirth
-        .toISOString()
-        .substring(0, 10);
+  if (/^\d+$/.test(memberId)) { // make sure it's a number
+    const member = await getMemberById(memberId);
+    console.log(member)
+    if (member) {
+      if (member.dateofbirth) {
+        const unformattedDateOfBirth = new Date(member.dateofbirth);
+        member.dateofbirth = unformattedDateOfBirth.toISOString().substring(0, 10);
       }
 
-      if (finalResult.datejoined) {
-        const unformattedDateJoined = new Date(finalResult.datejoined);
-        finalResult.datejoined = unformattedDateJoined
-        .toISOString()
-        .substring(0, 10);
+      if (member.datejoined) {
+        const unformattedDateJoined = new Date(member.datejoined);
+        member.datejoined = unformattedDateJoined.toISOString().substring(0, 10);
       }
 
       const memberDues = await getMemberDuesById(memberId);
-      memberDues.forEach((due) => {
-        if (due.paydate) {
-          const newDate = new Date(due.paydate);
-          due.paydate = newDate.toISOString().substring(0, 10);
-        }
-      });
       res.render("memberInfo.ejs", {
-        member: finalResult,
+        member: member,
         dues: memberDues,
       });
+      
     } else {
       res.status(404).send("Invalid Member ID");
     }
@@ -352,17 +340,6 @@ app.get("/members/:memberId", async (req, res) => {
 });
 
 app.post("/updatedMemberInfo/:memberId", async (req, res) => {
-  // Filter out empty dues before processing
-  const filteredStatus = []
-    .concat(req.body.status || [])
-    .filter((s) => s !== "");
-  const filteredPaymentYears = []
-    .concat(req.body.paymentYear || [])
-    .filter((y) => y !== "");
-  const filteredPaymentDates = []
-    .concat(req.body.paymentDate || [])
-    .filter((d) => d !== "");
-  console.log(filteredStatus);
   const memberId = req.params.memberId;
   const {
     firstName,
@@ -394,28 +371,30 @@ app.post("/updatedMemberInfo/:memberId", async (req, res) => {
   };
 
   try {
-    db.getDatabaseInstance().serialize(async () => {
-      await updateMemberInformation(newMember);
-      const deleteQuery = `
-        DELETE FROM membershipFee
-        WHERE memberId = ?
-      `;
-      await db.query(deleteQuery, [memberId]);
-      for (let i = 0; i <= filteredPaymentYears.length - 1; i++) {
-        await addMembershipFee(
-          memberId,
-          filteredPaymentYears[i],
-          filteredPaymentDates[i],
-          filteredStatus[i],
-        );
-      }
-    });
-
+    await updateMemberInformation(newMember);
     res.redirect(`/members/${memberId}`);
+
   } catch (error) {
     console.error("Error updating the member:", error);
     res.status(500).send("Internal Server Error");
   }
+});
+
+// Complete
+app.get("/removeDues/:memberId/:duesFor", async (req, res) => {
+  const memberId = req.params.memberId;
+  const duesFor = req.params.duesFor;
+  await removeDues(memberId, duesFor);
+  res.redirect(`/members/${memberId}`);
+});
+
+app.post("/recordDues/:memberId", async (req, res) => {
+  const memberId = req.params.memberId;
+  const duesFor = req.body.duesFor;
+  let paymentDate = req.body.paymentDate;
+  paymentDate = !paymentDate ? null : paymentDate; // This sets paymentDate to null if it is either an empty string, undefined, or null
+  await recordDues(memberId, duesFor, paymentDate, req.user.memberID);
+  res.redirect(`/members/${memberId}`);
 });
 
 // Complete

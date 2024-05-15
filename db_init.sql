@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS duesPayment (
 -- and decides their current status
 --
 -- NOTE: Currently doesn't show the current status properly if they have paid for NEXT year but not this year
-CREATE VIEW IF NOT EXISTS dueStatus AS 
+CREATE VIEW IF NOT EXISTS duesStatus AS 
     SELECT  m.memberID, 
             m.firstName,
             m.lastName,
