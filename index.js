@@ -853,7 +853,11 @@ app.get("/donationInflows/:donationInflowId", async (req, res) => {
         finalResult.donationdate = newDate.toISOString().substring(0, 10);
         const orgs = await fetchAllOrganizations();
         const members = await getMembers();
-        res.render("editInflow.ejs", { donation: finalResult, orgs: orgs, members: members }); // Pass only the first element
+        const donor = finalResult.organizationname ? finalResult.organizationname : finalResult.firstname + " " + finalResult.lastname
+
+
+        console.log("wwwwwwwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaiiiiiiiiiiiiiiiiiiiiiiii", finalResult);
+        res.render("editInflow.ejs", { donation: finalResult, orgs: orgs, members: members, donor: donor}); // Pass only the first element
       } else {
         res.status(404).send("Invalid Donation Inflow ID");
       }
