@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS event (
 );
 
 -- Associative entity that connects member to event
-CREATE TABLE IF NOT EXISTS host (
+CREATE TABLE IF NOT EXISTS eventAttendee (
     eventID INT,
     memberID INT,
     PRIMARY KEY (eventID, memberID),

@@ -1,47 +1,10 @@
 <%- include('partials/header.ejs'); -%>
 
 <div class="container mt-5">
-    <!-- search bar -->
-    <div class="p-5 pt-0 half-width">
-        <form action="/events/searchEvent" method="get">
-            <div class="row g-1 align-items-center">
-                <div class="col-md-8">
-                    <div class="form-floating">
-                        <input type="search" class="form-control rounded-3" id="searchInput" name="searchTerm" placeholder="Search for an event">
-                        <label for="searchInput">Search for an event</label>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <button class="w-100 btn btn-lg rounded-3 btn-primary" type="submit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                        </svg>
-                        Search
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-
     <!-- buttons -->
     <div class="mb-3">
         <!-- Add event Button -->
         <a href="/events/addevent" class="btn btn-secondary">Add Event</a>
-
-        <!-- Sort By Button with Dropdown -->
-        <div class="btn-group">
-            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            Sort By
-            </button>
-            <form action="/events/sortEvent" method="POST" class="dropdown-menu">
-                <!-- Dropdown menu items as buttons -->
-                <button class="dropdown-item" type="submit" name="sortBy" value="eventDate">Date</button>
-                <button class="dropdown-item" type="submit" name="sortBy" value="eventType">Type</button>
-                <button class="dropdown-item" type="submit" name="sortBy" value="eventCost">Cost</button>
-                <button class="dropdown-item" type="submit" name="sortBy" value="amountRaised">Amount Raised</button>
-            </form>
-        </div>
 
         <div class="btn-group">
             <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
@@ -50,7 +13,9 @@
             <form action="/events/newEvents" method="POST" class="dropdown-menu p-2">
                 <!-- Year selection -->
                 <label class="dropdown-item-text mt-2">Year:</label>
-                <select class="form-select" name="year" id="yearSelect"></select>
+                <select class="form-select" name="year" id="yearSelect">
+
+                </select>
                 <!-- Submit button -->
                 <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
             </form>
@@ -61,39 +26,35 @@
 
     <!-- list of events -->
     <div>
-        <table class="table">
+        <table id="events" class="table table-striped">
         <thead>
             <tr>
-            <th scope="col">No</th>
-            <th scope="col">Event</th>
-            <th scope="col">Location</th>
-            <th scope="col">Date</th>
-            <th scope="col">Cost</th>
-            <th scope="col">Amount Raised</th>
-            <th scope="col">Type</th>
-            <th scope="col">Action</th>
+            <th>Event</th>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Cost</th>
+            <th>Amount Raised</th>
+            <th>Type</th>
+            <th>Action</th>
             </tr>
         </thead>
-            <% if (events && events.length > 0) { %>
                 <tbody>
-                    <% let counter = 1; %>
                     <% events.forEach(event => { %>
                         <tr>
-                            <th scope="row"><%= counter %></th>
-                            <td><a href="/events/<%= event.eventid %>"><%= event.eventname %></a></td>
-                            <td><%= event.eventlocation ? event.eventlocation : "None" %></td>
-                            <td><%= event.eventdate ? new Date(event.eventdate).toLocaleDateString() : "None" %></td>
-                            <td><%= event.eventcost ? event.eventcost : "None" %></td>
-                            <td>$ <%= event.amountraised %></td>
-                            <td><%= event.eventtype ? event.eventtype : "None" %></td>
+                            <td><a href="/events/<%= event.eventID %>"><%= event.eventName %></a></td>
+                            <td><%= event.eventLocation ? event.eventLocation : "None" %></td>
+                            <td><%= event.eventDate ? new Date(event.eventDate).toLocaleDateString() : "None" %></td>
+                            <td><%= event.eventCost ? event.eventCost : "None" %></td>
+                            <td>$ <%= event.amountRaised %></td>
+                            <td><%= event.eventType ? event.eventType : "None" %></td>
                             <td>
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#deleteModal<%= event.eventid %>">
+                                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= event.eventID %>">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
                                         <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
                                     </svg>
                                 </button>
                                 <!-- Modal per member -->
-                                <div class="modal fade" id="deleteModal<%= event.eventid %>" tabindex="-1" aria-labelledby="deleteEvent" aria-hidden="true">
+                                <div class="modal fade" id="deleteModal<%= event.eventID %>" tabindex="-1" aria-labelledby="deleteEvent" aria-hidden="true">
                                     <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -105,7 +66,7 @@
                                         </div>
                                         <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                        <form action="/deleteEvent/<%= event.eventid %>" method="POST">
+                                        <form action="/deleteEvent/<%= event.eventID %>" method="POST">
                                             <button type="submit" class="btn btn-primary">Confirm</button>
                                         </form>
                                         </div>
@@ -114,16 +75,8 @@
                                 </div>
                             </td>
                         </tr>
-                    <% counter++; %>
                 <% }) %>
                 </tbody>
-            <% } else { %>
-                <tbody>
-                    <tr>
-                        <td colspan="9">No result found</td>
-                    </tr>
-                </tbody> 
-            <% } %>
         </table>
     </div>
     
@@ -133,14 +86,7 @@
 
 <script>
     window.onload = function() {
-      const select = document.getElementById('yearSelect');
-      const startYear = 2022; // Starting from the year 2022
-      const currentYear = new Date().getFullYear(); // Gets the current year
-      
-      for (let year = startYear; year <= (currentYear + 1); year++) {
-        const option = new Option(year, year);
-        select.add(option);
-      }
+      new DataTable('#events', { order: [2,'desc'] });
     };
 </script>
 
