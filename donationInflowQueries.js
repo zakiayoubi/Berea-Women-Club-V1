@@ -20,7 +20,7 @@ async function fetchNewInflows(year) {
 
 async function fetchDonationInflows() {
   const query = `
-      SELECT di.*, o.organizationname from donationinflow di
+      SELECT di.*, o.organizationname from donationInflow di
       JOIN organization o ON di.organizationID = o.organizationID
       ORDER BY di.donationInflowId;
   `;
@@ -81,22 +81,59 @@ async function getDonationInflowByName(searchTerm) {
 }
 
 
-async function addDonationInflow(newOrg) {
-  const recordName = newOrg.recordName;
-  const organizationID = newOrg.organization;
-  const category = newOrg.category;
-  const amount = newOrg.amount;
-  const donationDate = newOrg.donationDate;
+async function addDonationInflow(newDonor) {
+  const recordName = newDonor.recordName;
+  const donor = newDonor.donor;
+  const category = newDonor.category;
+  const amount = newDonor.amount;
+  const donationDate = newDonor.donationDate;
+  const donorType = newDonor.donorType;
+  const createdDonor = "";
+
+  console.log("Inside addDonationInflow we havvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvve", newDonor)
+  
+  if (donorType === "organization") {
+    const query = `
+    INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
+    VALUES ($1, $2, $3, $4, $5, $6)
+  `;
+    const values = [recordName, donor, null, donationDate, category, amount, createdDonor];
+
+  } else if (donorType === "member") {
+    const query = `
+    INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
+    VALUES ($1, $2, $3, $4, $5, $6)
+  `;
+    const values = [recordName, null, donor, donationDate, category, amount, createdDonor];
+
+  } else {
+    const query = `
+    INSERT INTO donationInflow (recordName, organizationID, donationDate, category, amount)
+    VALUES ($1, $2, $3, $4, $5, $6)
+  `;
+    const values = [recordName, null, null, donationDate, category, amount];
+  }
 
   const query = `
-    INSERT INTO donationInflow (recordName, organizationID, donationDate, category, amount)
-    VALUES ($1, $2, $3, $4, $5)
-  `;
-  const values = [recordName, organizationID, donationDate, category, amount];
+  INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
+  VALUES ($1, $2, $3, $4, $5, $6, $7)
+`;
+  const values = [recordName, donor, null, donationDate, category, amount, createdDonor];
+
+
+
+  // const query = `
+  //   INSERT INTO donationInflow (recordName, organizationID, donationDate, category, amount)
+  //   VALUES ($1, $2, $3, $4, $5)
+  // `;
+  // const values = [recordName, organizationID, donationDate, category, amount];
 
   try {
+    console.log("loooooooooooooooooooooooooooooooooook at thatttttttttttttttttttttttttttttttttt", query, values)
     const res = await db.query(query, values);
-    return res.rows[0]; // or another appropriate response depending on your need
+    console.log("thiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiis", res)
+    
+    return res// or another appropriate response depending on your need
   } catch (err) {
     console.error('Error inserting donation inflow:', err);
     throw err; // Re-throwing the error is often useful in a larger application context

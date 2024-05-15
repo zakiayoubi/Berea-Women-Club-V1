@@ -82,11 +82,14 @@ CREATE TABLE IF NOT EXISTS donationInflow (
     donationInflowId INTEGER PRIMARY KEY,
     recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
+    memberID INT, -- Added this column for the foreign key reference
     donationDate DATE DEFAULT CURRENT_DATE,
     category VARCHAR(100),
     amount NUMERIC(12, 2),
+    createdDonor VARCHAR(100),
     
-    FOREIGN KEY (organizationID) REFERENCES organization(organizationID)
+    FOREIGN KEY (organizationID) REFERENCES organization(organizationID),
+    FOREIGN KEY (memberID) REFERENCES member(memberID)
 );
 
 CREATE TABLE IF NOT EXISTS donationOutflow ( -- Corrected table name and consistency

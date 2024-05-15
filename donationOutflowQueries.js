@@ -96,7 +96,8 @@ async function addDonationOutflow(newOrg) {
 
   try {
     const res = await db.query(query, values);
-    return res.rows[0]; // or another appropriate response depending on your need
+    console.log("litttttttttttttttttttttttttttttt", res)
+    return res; // or another appropriate response depending on your need
   } catch (err) {
     console.error('Error inserting donation Outflow:', err);
     throw err; // Re-throwing the error is often useful in a larger application context

@@ -45,6 +45,12 @@
     z-index: 1000; /* Make sure it's above other content */
 }
 
+.non-clickable {
+    pointer-events: none; /* This prevents the link from being clickable */
+    cursor: default;     /* Changes the cursor to the default style */
+    color: gray;         /* Optional: change the color to indicate it is disabled */
+}
+
 /* Custom CSS */
 .nav-item .nav-link:hover {
     background-color: #007bff !important; /* Bootstrap primary blue */

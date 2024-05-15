@@ -848,22 +848,27 @@ app.get("/donationInflows/inflowStats", async (req, res) => {
 
 app.get("/donationInflows/addDonationInflow", async (req, res) => {
   const orgs = await fetchAllOrganizations();
-  res.render("addInflow.ejs", { orgs: orgs });
+  const members = await getMembers('firstname');
+
+  res.render("addInflow.ejs", { orgs: orgs, members: members });
 });
 
 app.post("/donationInflows/create", async (req, res) => {
-  const { recordName, organization, category, amount, donationDate } =
+  const { recordName, donor, donorType, category, amount, donationDate } =
     req.body;
-  const newOrg = {
+  const newDonor = {
     recordName: recordName,
-    organization: organization,
+    donor: req.body.donor,
+    donorType: req.body.donorType,
     category: category,
     amount: amount,
     donationDate: donationDate,
   };
-  console.log(newOrg);
+  console.log(req.body);
+  console.log("sqqqqqqqqqqqqqqqqqqqqqqqqqqqwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaasssssssssssssssshhhhhhhhhhhhhhhhhhhhhhh")
+  console.log(newDonor);
   try {
-    await addDonationInflow(newOrg);
+    await addDonationInflow(newDonor);
     res.redirect("/donationInflows");
   } catch (err) {
     console.log("failure");
