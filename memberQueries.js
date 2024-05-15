@@ -31,25 +31,8 @@ async function getMemberDuesById(memberId) {
 }
 
 
-async function getMembers(orderBy) {
-  let column = 'memberid'; // default ordering
-  switch (orderBy) {
-    case 'firstname':
-      column = 'firstname';
-      break;
-    case 'lastname':
-      column = 'lastname';
-      break;
-    case 'datejoined':
-      column = 'datejoined DESC';
-      break;
-    case 'membertype':
-      column = 'membertype';
-      break;
-    // Add more cases as needed
-  }
-  
-  const query = baseQuery() + `ORDER BY m.${column}`
+async function getMembers() {
+  const query = baseQuery() + `ORDER BY m.memberid`
   
   try {
     const result = await db.query(query);
@@ -61,47 +44,13 @@ async function getMembers(orderBy) {
   }
 }
 
-async function getMemberByName(searchTerm) {
-  const query = baseQuery() + ` WHERE LOWER(m.firstName) LIKE $1 OR LOWER(m.lastName) LIKE $2`;
-  //const query = baseQuery() + `ORDER BY ${column}`
-  const searchPattern = `%${searchTerm.toLowerCase()}%`; 
-
-  try {
-    const result = await db.query(query, [searchPattern, searchPattern]);
-    return result.rows; // Return the member details
-
-  } catch (error) {
-    console.error('Error executing getMemberByName query:', error);
-    throw error;
-  }
-}
-  
-
-async function getMemberDues(year, status) {
-  return []
-  const query = `
-    SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-    FROM member m
-    LEFT JOIN membershipFee mf ON m.memberID = mf.memberID
-    WHERE mf.paymentyear = $1 AND mf.status = $2
-  `;
-
-  try {
-    const result = await db.query(query, [year, status]);
-    return result.rows; // Return the fetched rows
-  } catch (err) {
-    console.error('Error executing fetchMemberDues query:', err);
-    throw err; // Rethrow or handle as needed
-  }
-}
-
 async function fetchNewMembers(year) {
-    const query = baseQuery() + `WHERE m.datejoined >= $1 AND m.datejoined <= $2 ORDER BY m.firstName`;
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
+    const startDate = `${year.split('-')[0]}-08-01`;
+    const query = baseQuery() + `WHERE m.datejoined >= $1 ORDER BY m.firstName`;
+    []
 
     try {
-        const result = await db.query(query, [startDate, endDate]);
+        const result = await db.query(query, [startDate]);
         return result.rows;
 
     } catch (err) {
@@ -260,8 +209,6 @@ export {
     getMemberById,
     getMemberDuesById,
     getMembers,
-    getMemberByName,
-    getMemberDues,
     fetchNewMembers,
     fetchTotalMembers,
     fetchTotalMembersYear,

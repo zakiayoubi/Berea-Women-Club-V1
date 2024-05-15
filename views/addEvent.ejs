@@ -94,8 +94,8 @@
                     </div>
                 
                     <div class="col-sm-6">
-                        <label for="eventDate" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="eventDate" name="eventDate" placeholder="YYYY-MM-DD">
+                        <label for="eventDate" class="form-label required">Date</label>
+                        <input type="date" class="form-control" id="eventDate" name="eventDate" placeholder="YYYY-MM-DD" required>
                     </div>
             
                     <div class="col-sm-6">
@@ -120,7 +120,7 @@
                     <h4 class="mb-3 text-center">Add the members who attended this event</h4>
                     <div class="row">
                         <div class="col-6 col-md-4"> <!-- Adjust the column size as needed -->
-                            <button type="button" id="toggleMemberButton" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#memberModal">Add an attendee</button>
+                            <button type="button" id="toggleMemberButton" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#memberModal">Add Attendees</button>
                         </div>
                     </div>
                     <div id="selectedMembers" class="mt-4 p-3 border rounded shadow-sm" style="display: none;"></div> <!-- Container for selected members -->
@@ -141,6 +141,7 @@
                                             <button type="button" class="list-group-item list-group-item-action" data-value="<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></button>
                                         <% }) %>                                        
                                     </div>
+                                    <button type="button" class="btn btn-primary mt-4" data-bs-dismiss="modal" aria-label="Done">Done</button>
                                 </div>
                             </div>
                         </div>
@@ -176,6 +177,7 @@
         // Handle the member search filter
         searchInput.addEventListener('keyup', function() {
             const searchText = searchInput.value.toLowerCase();
+            console.log(searchText)
             Array.from(memberList.querySelectorAll('.list-group-item')).forEach(function(item) {
                 const text = item.textContent.toLowerCase();
                 item.style.display = text.includes(searchText) ? '' : 'none';
@@ -187,7 +189,12 @@
             if (e.target.tagName === 'BUTTON' && e.target.classList.contains('list-group-item-action')) {
                 const memberId = e.target.getAttribute('data-value');
                 // Check if the member is already selected
-                if (!selectedMemberIds.has(memberId)) {
+                if (selectedMemberIds.has(memberId)) {
+                    // if so, remove the badge (using our onclick callback)
+                    document.getElementById(`removebtn-${memberId}`).dispatchEvent(new Event("click", { bubbles: true }))
+                } else {
+                    e.target.classList.toggle('selected'); // update the list to indicate selection
+
                     selectedMemberIds.add(memberId); // Add member ID to the set
         
                     const memberName = e.target.textContent;
@@ -196,9 +203,11 @@
                     memberBadge.textContent = memberName;
         
                     const removeBtn = document.createElement('button');
+                    removeBtn.id = `removebtn-${memberId}`
                     removeBtn.type = 'button';
                     removeBtn.className = 'btn-close ms-2 p-2';
                     removeBtn.onclick = function() {
+                        e.target.classList.remove('selected')
                         selectedMemberIds.delete(memberId); // Remove the member ID from the set upon removal
                         memberBadge.remove();
                         // Hide the div if there are no more members listed
@@ -216,8 +225,8 @@
                     hiddenInput.setAttribute('name', 'attendeeIds[]');
                     hiddenInput.value = memberId;
                     memberBadge.appendChild(hiddenInput);
-        
-                    modal.hide();
+
+                    //modal.hide();
                 }
             }
         });

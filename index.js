@@ -14,8 +14,6 @@ import {
   getMemberById,
   getMemberDuesById,
   getMembers,
-  getMemberByName,
-  getMemberDues,
   fetchNewMembers,
   fetchTotalMembers,
   fetchTotalMembersYear,
@@ -31,7 +29,6 @@ import {
 import {
   fetchAllEvents,
   fetchEventById,
-  sortEvents,
   fetchEventMoneyRaised,
   fetchEventMonthlyCosts,
   fetchYearlyEventCosts,
@@ -174,25 +171,7 @@ app.post(
 // Complete
 app.get("/members", async (req, res) => {
   try {
-    const result = await getMembers();
-    res.render("member.ejs", {
-      members: result,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// Route to handle POST request
-app.post("/members/sort", async (req, res) => {
-  const orderBy = req.body.sortby;
-  console.log(orderBy);
-  try {
-    const result = await getMembers(orderBy);
-    res.render("member.ejs", {
-      members: result,
-    });
+    res.render("member.ejs", { members: await getMembers() });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -202,13 +181,11 @@ app.post("/members/sort", async (req, res) => {
 // Complete
 app.post("/members/dues", async (req, res) => {
   const year = req.body.year;
-  console.log(year);
   const status = req.body.status;
-  console.log(status);
   try {
     const result = await getMemberDues(year, status);
-    console.log(result);
     res.render("member.ejs", { members: result });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -220,16 +197,8 @@ app.post("/members/newMembers", async (req, res) => {
   const year = req.body.year;
   try {
     const members = await fetchNewMembers(year);
-    console.log(members);
-    // const totalMembers = await fetchTotalMembers();
-    // console.log(totalMembers.count);
-    // const totalMembersYear = await fetchTotalMembersYear(year);
-    // console.log(totalMembersYear.count);
-    res.render("member.ejs", {
-      members,
-      // totalMembers: totalMembers.count,
-      // totalMembersYear: totalMembersYear.count
-    });
+    res.render("member.ejs", { members, });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -277,9 +246,8 @@ app.post("/members/newMemberForm", async (req, res) => {
   try {
     const memberId = await addNewMember(newMember);
 
-    const paymentDate = req.body.paymentDate;
     const duesFor = req.body.duesFor;
-    paymentDate = !paymentDate ? null : paymentDate; // This sets paymentDate to null if it is either an empty string, undefined, or null
+    const paymentDate = !req.body.paymentDate ? null : req.body.paymentDate;
     if(paymentDate) {
       await recordDues(memberId, duesFor, paymentDate, req.user.memberID);
     }
@@ -289,22 +257,6 @@ app.post("/members/newMemberForm", async (req, res) => {
   } catch (error) {
     console.error("Error adding member and membership fee:", error);
     res.status(500).send("Error adding member and membership fee");
-  }
-});
-
-app.get("/members/searchMembers", async (req, res) => {
-  const searchTerm = req.query.searchTerm.trim();
-  try {
-    const result = await getMemberByName(searchTerm);
-    console.log(result);
-    if (result.length > 0) {
-      res.render("member.ejs", { members: result });
-    } else {
-      res.render("member.ejs", { members: [] });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
   }
 });
 
@@ -575,6 +527,7 @@ app.post("/deleteOrganization/:organizationId", async (req, res) => {
 app.get("/events", async (req, res) => {
   try {
     const events = await fetchAllEvents();
+    console.log(events)
     res.render("event.ejs", { events });
   } catch (error) {
     console.error(error);
@@ -659,27 +612,10 @@ app.post("/events/newEventForm", async (req, res) => {
       }
     }
 
-    const events = await fetchAllEvents();
-    res.render("event.ejs", {
-      events: events,
-    });
+    res.redirect("/events");
   } catch (error) {
     console.error("Error adding event", error);
     res.status(500).send("Error adding event");
-  }
-});
-
-// sort events route
-app.post("/events/sortEvent", async (req, res) => {
-  const sortBy = req.body.sortBy;
-  try {
-    const result = await sortEvents(sortBy);
-    res.render("event.ejs", {
-      events: result,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
   }
 });
 
@@ -706,8 +642,10 @@ app.get("/events/:eventId", async (req, res) => {
     const result = await fetchEventById(eventId);
     if (result.length > 0) {
       const finalResult = result[0];
-      const newDate = new Date(finalResult.eventdate);
-      finalResult.eventdate = newDate.toISOString().substring(0, 10);
+      if(finalResult.eventdate) {
+        const newDate = new Date(finalResult.eventdate);
+        finalResult.eventdate = newDate.toISOString().substring(0, 10);
+      }
 
       const allMembers = await getMembers();
       const attendees = await fetchEventAttendees(eventId);
@@ -715,13 +653,32 @@ app.get("/events/:eventId", async (req, res) => {
       res.render("eventInfo.ejs", {
         event: finalResult,
         members: allMembers,
-        attendeesList: attendees,
+        attendees: attendees,
       });
     } else {
       res.status(404).send("Invalid Event ID");
     }
   } else {
     res.status(404).send("Page Not Found");
+  }
+});
+
+app.post("/events/:eventId/addAttendees", async (req, res) => {
+  const eventId = req.params.eventId;
+  const attendees = req.body.attendeeIds;
+
+  try {
+    await deleteEventAttendees(eventId);
+    if (attendees && attendees.length > 0) {
+      for (let i = 0; i < attendees.length; i++) {
+        await addEventAttendees(eventId, attendees[i]);
+      }
+    }
+    res.redirect(`/events/${eventId}`);
+
+  } catch (error) {
+    console.error("Error updating the event:", error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
