@@ -864,9 +864,7 @@ app.post("/donationInflows/create", async (req, res) => {
     amount: amount,
     donationDate: donationDate,
   };
-  console.log(req.body);
-  console.log("sqqqqqqqqqqqqqqqqqqqqqqqqqqqwwwwwwwwwwwwwwwwwwaaaaaaaaaaaaaaaaaasssssssssssssssshhhhhhhhhhhhhhhhhhhhhhh")
-  console.log(newDonor);
+  
   try {
     await addDonationInflow(newDonor);
     res.redirect("/donationInflows");

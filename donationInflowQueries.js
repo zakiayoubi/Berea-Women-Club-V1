@@ -90,35 +90,38 @@ async function addDonationInflow(newDonor) {
   const donorType = newDonor.donorType;
   const createdDonor = "";
 
+  let query;
+  let values;
+
   console.log("Inside addDonationInflow we havvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvve", newDonor)
   
   if (donorType === "organization") {
-    const query = `
+    query = `
     INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
   `;
-    const values = [recordName, donor, null, donationDate, category, amount, createdDonor];
+    values = [recordName, donor, null, donationDate, category, amount, createdDonor];
 
   } else if (donorType === "member") {
-    const query = `
+    query = `
     INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
   `;
-    const values = [recordName, null, donor, donationDate, category, amount, createdDonor];
+    values = [recordName, null, donor, donationDate, category, amount, createdDonor];
 
   } else {
-    const query = `
+    query = `
     INSERT INTO donationInflow (recordName, organizationID, donationDate, category, amount)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
   `;
-    const values = [recordName, null, null, donationDate, category, amount];
+    values = [recordName, null, null, donationDate, category, amount];
   }
 
-  const query = `
-  INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
-  VALUES ($1, $2, $3, $4, $5, $6, $7)
-`;
-  const values = [recordName, donor, null, donationDate, category, amount, createdDonor];
+//   const query = `
+//   INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
+//   VALUES ($1, $2, $3, $4, $5, $6, $7)
+// `;
+//   const values = [recordName, donor, null, donationDate, category, amount, createdDonor];
 
 
 
