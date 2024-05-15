@@ -12,25 +12,10 @@ CREATE TABLE IF NOT EXISTS member (
     zipCode INT,
     dateOfBirth DATE,
     dateJoined DATE DEFAULT CURRENT_DATE,
-    memberType VARCHAR(50) DEFAULT 'member',
+    memberType VARCHAR(50) DEFAULT 'Member',
     password VARCHAR(100)
 );
 INSERT INTO member (memberID, firstName, lastName, email, password) VALUES(1,'Sarah','Heggen','sarah.heggen@gmail.com','$2b$10$5p22LZ1xgeg8MbtDRKSzTuE/NpeGddcEVvi47mGiPbHpcJq3EbGsK');
-
-CREATE TABLE IF NOT EXISTS membershipFee (
-    feeID INTEGER PRIMARY KEY,
-    memberID INT,
-    paymentYear INT,
-    payDate DATE,
-    status VARCHAR(10),
-    FOREIGN KEY (memberID) REFERENCES member(memberID) ON DELETE CASCADE,
-    CONSTRAINT status_check CHECK (status IN ('Paid', 'Not Paid')),
-    CONSTRAINT unique_year_member UNIQUE (memberID, paymentYear),
-    CONSTRAINT paydate_status_check CHECK (
-        (status = 'Paid' AND payDate IS NOT NULL) OR
-        (status = 'Not Paid' AND payDate IS NULL)
-    )
-);
 
 CREATE TABLE IF NOT EXISTS duesPayment (
     paymentID INTEGER PRIMARY KEY,

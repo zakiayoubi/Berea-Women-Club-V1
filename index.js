@@ -14,8 +14,6 @@ import {
   getMemberById,
   getMemberDuesById,
   getMembers,
-  getMemberByName,
-  getMemberDues,
   fetchNewMembers,
   fetchTotalMembers,
   fetchTotalMembersYear,
@@ -174,25 +172,7 @@ app.post(
 // Complete
 app.get("/members", async (req, res) => {
   try {
-    const result = await getMembers();
-    res.render("member.ejs", {
-      members: result,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-// Route to handle POST request
-app.post("/members/sort", async (req, res) => {
-  const orderBy = req.body.sortby;
-  console.log(orderBy);
-  try {
-    const result = await getMembers(orderBy);
-    res.render("member.ejs", {
-      members: result,
-    });
+    res.render("member.ejs", { members: await getMembers() });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -202,13 +182,11 @@ app.post("/members/sort", async (req, res) => {
 // Complete
 app.post("/members/dues", async (req, res) => {
   const year = req.body.year;
-  console.log(year);
   const status = req.body.status;
-  console.log(status);
   try {
     const result = await getMemberDues(year, status);
-    console.log(result);
     res.render("member.ejs", { members: result });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -220,16 +198,8 @@ app.post("/members/newMembers", async (req, res) => {
   const year = req.body.year;
   try {
     const members = await fetchNewMembers(year);
-    console.log(members);
-    // const totalMembers = await fetchTotalMembers();
-    // console.log(totalMembers.count);
-    // const totalMembersYear = await fetchTotalMembersYear(year);
-    // console.log(totalMembersYear.count);
-    res.render("member.ejs", {
-      members,
-      // totalMembers: totalMembers.count,
-      // totalMembersYear: totalMembersYear.count
-    });
+    res.render("member.ejs", { members, });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -289,22 +259,6 @@ app.post("/members/newMemberForm", async (req, res) => {
   } catch (error) {
     console.error("Error adding member and membership fee:", error);
     res.status(500).send("Error adding member and membership fee");
-  }
-});
-
-app.get("/members/searchMembers", async (req, res) => {
-  const searchTerm = req.query.searchTerm.trim();
-  try {
-    const result = await getMemberByName(searchTerm);
-    console.log(result);
-    if (result.length > 0) {
-      res.render("member.ejs", { members: result });
-    } else {
-      res.render("member.ejs", { members: [] });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Internal server error" });
   }
 });
 
