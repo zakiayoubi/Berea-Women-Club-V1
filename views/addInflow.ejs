@@ -18,7 +18,7 @@
 
                     <div class="col-sm-6">
                         <label for="donorInput" class="form-label">Donor<span class="text-body-secondary"></label>
-                        <input type="text" class="form-control" id="donorInput" placeholder="Select or type donor" data-bs-toggle="modal" data-bs-target="#donorModal" readonly>
+                        <input type="text" class="form-control" id="donorInput" name="donorInput" placeholder="Select or type donor" data-bs-toggle="modal" data-bs-target="#donorModal" readonly>
                         <input type="hidden" name="donor" id="donorHidden" data-type="">
                         <input type="hidden" name="donorType" id="donorTypeHidden" data-type="">
                     </div>
@@ -68,9 +68,13 @@
 
                                     <div class="d-block mb-3">
                                         <div class="btn-group">
-                                            <button type="button" class="btn btn-light" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                Other
-                                                <input id="newDonor" data-type="newDonor"/>
+                                            <!-- <input class="btn" placeholder="Other" id="newDonor" data-type="newDonor"/> -->
+                                            <div class="input-group" style="width: 300px;">
+                                                <span class="input-group-text">Other</span>
+                                                <input type="text" id="inputDonor" aria-label="Created Donor"  class="form-control">
+                                            </div>
+                                            <button type="button" class="btn btn-light" id="addDonor" data-type="newDonor" style="margin-left: 10px;">
+                                                Add donor
                                             </button>
                                         </div>
                                     </div>
@@ -92,7 +96,7 @@
                         <label for="amount" class="form-label required">Amount</label>
                         <input type="number" class="form-control" id="amount" name="amount" required>
                         <div class="invalid-feedback">
-                        Please enter an amount.
+                            Please enter an amount.
                         </div>
                     </div>
                 
@@ -170,6 +174,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById("addDonor").addEventListener('click', function() {
+        const newDonorName = document.getElementById('inputDonor').value;
+        selectDonor(newDonorName, 0, this.dataset.type);
+    })
+
+})
 
 
 

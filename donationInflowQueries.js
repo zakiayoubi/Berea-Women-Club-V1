@@ -93,18 +93,20 @@ async function getDonationInflowByName(searchTerm) {
 async function addDonationInflow(newDonor) {
   const recordName = newDonor.recordName;
   const donor = newDonor.donor;
+  const donorInput = newDonor.donorInput;
   const category = newDonor.category;
   const amount = newDonor.amount;
   const donationDate = newDonor.donationDate;
   const donorType = newDonor.donorType;
-  const createdDonor = "";
 
   let query;
   let values;
+  let createdDonor;
 
   console.log("Inside addDonationInflow we havvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvve", newDonor)
   
   if (donorType === "organization") {
+    createdDonor = "";
     query = `
     INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -112,6 +114,7 @@ async function addDonationInflow(newDonor) {
     values = [recordName, donor, null, donationDate, category, amount, createdDonor];
 
   } else if (donorType === "member") {
+    createdDonor = "";
     query = `
     INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -119,11 +122,12 @@ async function addDonationInflow(newDonor) {
     values = [recordName, null, donor, donationDate, category, amount, createdDonor];
 
   } else {
+    createdDonor = donorInput;
     query = `
-    INSERT INTO donationInflow (recordName, organizationID, donationDate, category, amount)
+    INSERT INTO donationInflow (recordName, organizationID, memberID, donationDate, category, amount, createdDonor)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
   `;
-    values = [recordName, null, null, donationDate, category, amount];
+    values = [recordName, null, null, donationDate, category, amount, createdDonor];
   }
 
   try {

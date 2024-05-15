@@ -792,16 +792,19 @@ app.get("/donationInflows/addDonationInflow", async (req, res) => {
 });
 
 app.post("/donationInflows/create", async (req, res) => {
-  const { recordName, donor, donorType, category, amount, donationDate } =
+  const { recordName, donor, donorInput, donorType, category, amount, donationDate } =
     req.body;
   const newDonor = {
     recordName: recordName,
     donor: req.body.donor,
+    donorInput: req.body.donorInput,
     donorType: req.body.donorType,
     category: category,
     amount: amount,
     donationDate: donationDate,
   };
+
+  console.log("yyyyyyyeeeeeeeeeeeeeeeeeeeeeee", req.body)
   
   try {
     await addDonationInflow(newDonor);

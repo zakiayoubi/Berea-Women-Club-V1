@@ -79,7 +79,7 @@
                         <% } else if (donationInflow.memberid && !donationInflow.organizationid) { %>
                             <td><a href="/members/<%= donationInflow.memberid %>"><%= donationInflow.firstname %> <%= donationInflow.lastname %></a></td>
                         <% } else { %>
-                            <td><a href=""><%= donationInflow.createddonor %></a></td> 
+                            <td><%= donationInflow.createddonor %></td> 
                         <% } %>
                         <td><%= donationInflow.category ? donationInflow.category : "None" %></td>
                         <td>$ <%= parseFloat(donationInflow.amount).toFixed(2) %></td>
