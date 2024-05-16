@@ -426,26 +426,7 @@ app.get("/organizations/searchOrganization", async (req, res) => {
 
 // Complete
 app.get("/organizations/addOrganization", async (req, res) => {
-  try {
-    res.render("addOrganization.ejs");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
-  }
-});
-
-// sort org route
-app.post("/organizations/sortOrg", async (req, res) => {
-  const sortBy = req.body.sortBy;
-  try {
-    const result = await sortOrganizations(sortBy);
-    res.render("organization.ejs", {
-      organizations: result,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
-  }
+  res.render("addOrganization.ejs");
 });
 
 app.post("/organizations/newOrgForm", async (req, res) => {
@@ -472,15 +453,14 @@ app.post("/organizations/newOrgForm", async (req, res) => {
   try {
     // Step 1: Insert the new event
     await addOrganization(newOrg);
+    res.flash("success","Organization successfully added!")
 
-    const result = await fetchAllOrganizations();
-    res.render("organization.ejs", {
-      organizations: result,
-    });
   } catch (error) {
     console.error("Error adding organization", error);
-    res.status(500).send("Error adding organization");
+    res.flash("failures","Error adding organization")
   }
+
+  res.redirect("/organizations");
 });
 
 // route to each organization
@@ -540,14 +520,15 @@ app.post("/updateOrganizationInfo/:organizationId", async (req, res) => {
 
 // Complete
 app.post("/deleteOrganization/:organizationId", async (req, res) => {
-  const orgId = req.params.organizationId;
   try {
-    await deleteOrganization(orgId);
-    res.redirect("/organizations");
+    await deleteOrganization(req.params.organizationId);
+    res.flash("success","Organization successfully deleted!")
+
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.flash("failure","Unknown error")
   }
+  res.redirect("/organizations");
 });
 
 // --------------------------------------------------------------------------------------------------------------
