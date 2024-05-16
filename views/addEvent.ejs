@@ -1,159 +1,152 @@
 <%- include('partials/header.ejs'); -%>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-8">
-            <h4 class="mb-3 text-center mt-4">Add a new event</h4>
-            <hr class="my-4">
-            <form class="needs-validation" action="/events/newEventForm" method="POST">
-                <div class="row g-3">
-                    <div class="col-sm-6">
-                        <label for="eventName" class="form-label required">Event Name</label>
-                        <input type="text" class="form-control" id="eventName" name="eventName" required>
-                        <div class="invalid-feedback">
-                            Valid event name is required.
+<h4 class="mb-3 text-center mt-4">Add a new event</h4>
+<hr class="my-4" />
+<form class="needs-validation" action="/events/newEventForm" method="POST">
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label for="eventName" class="form-label required">Event Name</label>
+            <input type="text" class="form-control" id="eventName" name="eventName" required>
+            <div class="invalid-feedback">
+                Valid event name is required.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="location" class="form-label">Location <span class="text-body-secondary">(venue, building)</label>
+            <input type="text" class="form-control" id="location" name="location">
+        </div>
+
+        <div class="col-12">
+            <label for="street" class="form-label">Address</label>
+            <input type="text" class="form-control" id="street" name="street" placeholder="1234 Main St">
+        </div>
+
+
+        <div class="col-md-5">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city">
+        </div>
+
+        <div class="col-md-4">
+        <label for="state" class="form-label">State</label>
+        <select class="form-select" id="state" name="state">
+            <option value="">Choose...</option>
+            <option value="Alabama">Alabama</option>
+            <option value="Alaska">Alaska</option>
+            <option value="Arizona">Arizona</option>
+            <option value="Arkansas">Arkansas</option>
+            <option value="California">California</option>
+            <option value="Colorado">Colorado</option>
+            <option value="Connecticut">Connecticut</option>
+            <option value="Delaware">Delaware</option>
+            <option value="Florida">Florida</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Hawaii">Hawaii</option>
+            <option value="Idaho">Idaho</option>
+            <option value="Illinois">Illinois</option>
+            <option value="Indiana">Indiana</option>
+            <option value="Iowa">Iowa</option>
+            <option value="Kansas">Kansas</option>
+            <option value="Kentucky">Kentucky</option>
+            <option value="Louisiana">Louisiana</option>
+            <option value="Maine">Maine</option>
+            <option value="Maryland">Maryland</option>
+            <option value="Massachusetts">Massachusetts</option>
+            <option value="Michigan">Michigan</option>
+            <option value="Minnesota">Minnesota</option>
+            <option value="Mississippi">Mississippi</option>
+            <option value="Missouri">Missouri</option>
+            <option value="Montana">Montana</option>
+            <option value="Nebraska">Nebraska</option>
+            <option value="Nevada">Nevada</option>
+            <option value="New Hampshire">New Hampshire</option>
+            <option value="New Jersey">New Jersey</option>
+            <option value="New Mexico">New Mexico</option>
+            <option value="New York">New York</option>
+            <option value="North Carolina">North Carolina</option>
+            <option value="North Dakota">North Dakota</option>
+            <option value="Ohio">Ohio</option>
+            <option value="Oklahoma">Oklahoma</option>
+            <option value="Oregon">Oregon</option>
+            <option value="Pennsylvania">Pennsylvania</option>
+            <option value="Rhode Island">Rhode Island</option>
+            <option value="South Carolina">South Carolina</option>
+            <option value="South Dakota">South Dakota</option>
+            <option value="Tennessee">Tennessee</option>
+            <option value="Texas">Texas</option>
+            <option value="Utah">Utah</option>
+            <option value="Vermont">Vermont</option>
+            <option value="Virginia">Virginia</option>
+            <option value="Washington">Washington</option>
+            <option value="West Virginia">West Virginia</option>
+            <option value="Wisconsin">Wisconsin</option>
+            <option value="Wyoming">Wyoming</option>
+        </select>
+        </div>
+
+        <div class="col-md-3">
+        <label for="zip" class="form-label">Zip</label>
+        <input type="text" class="form-control" id="zip" name="zip">
+        </div>
+    
+        <div class="col-sm-6">
+            <label for="eventDate" class="form-label required">Date</label>
+            <input type="date" class="form-control" id="eventDate" name="eventDate" placeholder="YYYY-MM-DD" required>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="eventType" class="form-label">Event Type</label>
+            <input type="text" class="form-control" id="eventType" name="eventType">
+        </div>
+
+        <div class="col-md-3 mt-3">
+            <label for="cost" class="form-label">Cost</label>
+            <input type="number" class="form-control" id="cost" name="cost">
+        </div>
+
+        <div class="col-md-3">
+            <label for="amountRaised" class="form-label">Amount Raised</label>
+            <input type="number" class="form-control" id="amountRaised" name="amountRaised" >
+            <div class="invalid-feedback">
+                Please provide the amount raised.
+            </div>
+        </div>
+        <hr class="mt-4">
+        
+        <h4 class="mb-3 text-center">Add the members who attended this event</h4>
+        <div class="row">
+            <div class="col-6 col-md-4"> <!-- Adjust the column size as needed -->
+                <button type="button" id="toggleMemberButton" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#memberModal">Add Attendees</button>
+            </div>
+        </div>
+        <div id="selectedMembers" class="mt-4 p-3 border rounded shadow-sm" style="display: none;"></div> <!-- Container for selected members -->
+
+
+        <!-- Member Selection Modal -->
+        <div class="modal" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="memberModalLabel">Choose a Member <span class="fs-6 small text-body-secondary">(if you can't find a member, please add that member first)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="text" class="form-control mb-3" id="memberSearch" placeholder="Type to search...">
+                        <div class="list-group" id="memberList">
+                            <% members.forEach(member => { %>
+                                <button type="button" class="list-group-item list-group-item-action" data-value="<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></button>
+                            <% }) %>                                        
                         </div>
-                    </div>
-
-                    <div class="col-sm-6">
-                        <label for="location" class="form-label">Location <span class="text-body-secondary">(venue, building)</label>
-                        <input type="text" class="form-control" id="location" name="location">
-                    </div>
-
-                    <div class="col-12">
-                        <label for="street" class="form-label">Address</label>
-                        <input type="text" class="form-control" id="street" name="street" placeholder="1234 Main St">
-                    </div>
-
-
-                    <div class="col-md-5">
-                        <label for="city" class="form-label">City</label>
-                        <input type="text" class="form-control" id="city" name="city">
-                    </div>
-
-                    <div class="col-md-4">
-                    <label for="state" class="form-label">State</label>
-                    <select class="form-select" id="state" name="state">
-                        <option value="">Choose...</option>
-                        <option value="Alabama">Alabama</option>
-                        <option value="Alaska">Alaska</option>
-                        <option value="Arizona">Arizona</option>
-                        <option value="Arkansas">Arkansas</option>
-                        <option value="California">California</option>
-                        <option value="Colorado">Colorado</option>
-                        <option value="Connecticut">Connecticut</option>
-                        <option value="Delaware">Delaware</option>
-                        <option value="Florida">Florida</option>
-                        <option value="Georgia">Georgia</option>
-                        <option value="Hawaii">Hawaii</option>
-                        <option value="Idaho">Idaho</option>
-                        <option value="Illinois">Illinois</option>
-                        <option value="Indiana">Indiana</option>
-                        <option value="Iowa">Iowa</option>
-                        <option value="Kansas">Kansas</option>
-                        <option value="Kentucky">Kentucky</option>
-                        <option value="Louisiana">Louisiana</option>
-                        <option value="Maine">Maine</option>
-                        <option value="Maryland">Maryland</option>
-                        <option value="Massachusetts">Massachusetts</option>
-                        <option value="Michigan">Michigan</option>
-                        <option value="Minnesota">Minnesota</option>
-                        <option value="Mississippi">Mississippi</option>
-                        <option value="Missouri">Missouri</option>
-                        <option value="Montana">Montana</option>
-                        <option value="Nebraska">Nebraska</option>
-                        <option value="Nevada">Nevada</option>
-                        <option value="New Hampshire">New Hampshire</option>
-                        <option value="New Jersey">New Jersey</option>
-                        <option value="New Mexico">New Mexico</option>
-                        <option value="New York">New York</option>
-                        <option value="North Carolina">North Carolina</option>
-                        <option value="North Dakota">North Dakota</option>
-                        <option value="Ohio">Ohio</option>
-                        <option value="Oklahoma">Oklahoma</option>
-                        <option value="Oregon">Oregon</option>
-                        <option value="Pennsylvania">Pennsylvania</option>
-                        <option value="Rhode Island">Rhode Island</option>
-                        <option value="South Carolina">South Carolina</option>
-                        <option value="South Dakota">South Dakota</option>
-                        <option value="Tennessee">Tennessee</option>
-                        <option value="Texas">Texas</option>
-                        <option value="Utah">Utah</option>
-                        <option value="Vermont">Vermont</option>
-                        <option value="Virginia">Virginia</option>
-                        <option value="Washington">Washington</option>
-                        <option value="West Virginia">West Virginia</option>
-                        <option value="Wisconsin">Wisconsin</option>
-                        <option value="Wyoming">Wyoming</option>
-                    </select>
-                    </div>
-
-                    <div class="col-md-3">
-                    <label for="zip" class="form-label">Zip</label>
-                    <input type="text" class="form-control" id="zip" name="zip">
-                    </div>
-                
-                    <div class="col-sm-6">
-                        <label for="eventDate" class="form-label required">Date</label>
-                        <input type="date" class="form-control" id="eventDate" name="eventDate" placeholder="YYYY-MM-DD" required>
-                    </div>
-            
-                    <div class="col-sm-6">
-                        <label for="eventType" class="form-label">Event Type</label>
-                        <input type="text" class="form-control" id="eventType" name="eventType">
-                    </div>
-
-                    <div class="col-md-3 mt-3">
-                        <label for="cost" class="form-label">Cost</label>
-                        <input type="number" class="form-control" id="cost" name="cost">
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="amountRaised" class="form-label">Amount Raised</label>
-                        <input type="number" class="form-control" id="amountRaised" name="amountRaised" >
-                        <div class="invalid-feedback">
-                            Please provide the amount raised.
-                        </div>
-                    </div>
-                    <hr class="mt-4">
-                    
-                    <h4 class="mb-3 text-center">Add the members who attended this event</h4>
-                    <div class="row">
-                        <div class="col-6 col-md-4"> <!-- Adjust the column size as needed -->
-                            <button type="button" id="toggleMemberButton" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#memberModal">Add Attendees</button>
-                        </div>
-                    </div>
-                    <div id="selectedMembers" class="mt-4 p-3 border rounded shadow-sm" style="display: none;"></div> <!-- Container for selected members -->
-
-
-                    <!-- Member Selection Modal -->
-                    <div class="modal" id="memberModal" tabindex="-1" aria-labelledby="memberModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="memberModalLabel">Choose a Member <span class="fs-6 small text-body-secondary">(if you can't find a member, please add that member first)</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <input type="text" class="form-control mb-3" id="memberSearch" placeholder="Type to search...">
-                                    <div class="list-group" id="memberList">
-                                        <% members.forEach(member => { %>
-                                            <button type="button" class="list-group-item list-group-item-action" data-value="<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></button>
-                                        <% }) %>                                        
-                                    </div>
-                                    <button type="button" class="btn btn-primary mt-4" data-bs-dismiss="modal" aria-label="Done">Done</button>
-                                </div>
-                            </div>
-                        </div>
+                        <button type="button" class="btn btn-primary mt-4" data-bs-dismiss="modal" aria-label="Done">Done</button>
                     </div>
                 </div>
-                <button class="w-100 btn btn-primary btn-lg my-5" type="submit">Add Event</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
-</div>
-
+    <button class="w-100 btn btn-primary btn-lg my-5" type="submit">Add Event</button>
+    </div>
+</form>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('memberSearch');
@@ -233,8 +226,4 @@
     });
 </script>
     
-    
-    
-    
-
 <%- include('partials/footer.ejs'); -%>

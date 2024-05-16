@@ -1,7 +1,6 @@
 <%- include('partials/header.ejs'); -%>
-<div class="container mt-5">
     <!-- Search bar -->
-    <div class="p-5 pt-0 half-width">
+    <div class="p-5 pt-0">
         <form action="/donationOutflows/searchOutflow" method="get">
             <div class="row g-1 align-items-center">
                 <div class="col-md-8">
@@ -21,7 +20,6 @@
             </div>
         </form>
     </div>
-
 
     <!-- Buttons -->
     <div class="mb-3">
@@ -116,7 +114,6 @@
             </tbody>
         <% } %>
     </table>
-</div>
 <%- include('partials/footer.ejs'); -%>
 
 <script>

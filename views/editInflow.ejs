@@ -1,7 +1,4 @@
 <%- include("partials/header.ejs"); %>
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-8">
             <h4 class="mb-3 text-center mt-4">Donation Inflow Information</h4>
             <hr class="my-4">
             <form class="needs-validation" id="updateForm" action="/updateDonationInflow/<%= donation.donationinflowid %>" method="POST">
@@ -70,9 +67,6 @@
                     <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" onclick="cancelEdit()" style="display:none;" id="cancelButton">Cancel Changes</button>
                 </div>                
             </form>
-        </div>
-    </div>
-</div>
 
 <script>
     function toggleEdit() {
@@ -132,12 +126,6 @@ document.querySelector('form.needs-validation').addEventListener('submit', funct
         organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
     }
 });
-
-
-
 </script>
-
-    
-
 <%- include('partials/footer.ejs'); %>
 
