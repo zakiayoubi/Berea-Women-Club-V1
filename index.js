@@ -748,7 +748,6 @@ app.post("/deleteEvent/:eventId", async (req, res) => {
 app.get("/donationInflows", async (req, res) => {
   try {
     const donationInflows = await fetchDonationInflows();
-    // console.log("here we go", donationInflows )
     res.render("donationInflow.ejs", {
       donationInflows,
     });
@@ -856,10 +855,15 @@ app.get("/donationInflows/:donationInflowId", async (req, res) => {
         finalResult.donationdate = newDate.toISOString().substring(0, 10);
         const orgs = await fetchAllOrganizations();
         const members = await getMembers();
-        const donor = finalResult.organizationname ? finalResult.organizationname : finalResult.firstname + " " + finalResult.lastname
+        let donor;
+        if (finalResult.organizationid && !finalResult.memberid) {
+          donor = finalResult.organizationname;
+        } else if (finalResult.memberid && !finalResult.organizationid) {
+          donor = finalResult.firstname + " " + finalResult.lastname;
+        } else {
+          donor = finalResult.createddonor;
+        }
 
-
-        console.log("wwwwwwwwaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaiiiiiiiiiiiiiiiiiiiiiiii", finalResult);
         res.render("editInflow.ejs", { donation: finalResult, orgs: orgs, members: members, donor: donor}); // Pass only the first element
       } else {
         res.status(404).send("Invalid Donation Inflow ID");
@@ -876,21 +880,21 @@ app.get("/donationInflows/:donationInflowId", async (req, res) => {
 });
 
 app.post("/updateDonationInflow/:donationInflowId", async (req, res) => {
-  
   const inflowId = req.params.donationInflowId;
-  console.log(inflowId);
+
   const { recordName, donor, donorType, category, amount, donationDate } =
     req.body;
+    
   const updatedRecord = {
     recordName: recordName,
     donor: req.body.donor,
+    donorInput: req.body.donorInput,
     donorType: req.body.donorType,
     category: category,
     amount: amount,
     donationDate: donationDate,
   };
-  console.log("innnnnnnnnnnnnnnnnnnnnffffffffffffffffffffffllllllooooooowwwwwww")
-  console.log(updatedRecord);
+
   try {
     await updateDonationInflow(inflowId, updatedRecord);
     res.redirect("/donationInflows");

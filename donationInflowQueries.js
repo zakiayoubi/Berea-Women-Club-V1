@@ -13,7 +13,6 @@ async function fetchNewInflows(year) {
 
   try {
       const result = await db.query(query, [startDate, endDate]);
-      console.log("Heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeerrrrrrrrrrr", query, startDate, endDate)
       return result.rows;
   } catch (err) {
       console.error('Error executing fetchNewInflows query:', err);
@@ -64,7 +63,6 @@ async function fetchDonationInflowsTotal() {
       donationYear DESC;
   `;
   const result = await db.query(query);
-  console.log("Theeeeeeeeeeeeeeee roooooooooooooooowwwwwwwwwwwwww is", result)
   return result.rows;
 };
 
@@ -102,8 +100,6 @@ async function addDonationInflow(newDonor) {
   let query;
   let values;
   let createdDonor;
-
-  console.log("Inside addDonationInflow we havvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvve", newDonor)
   
   if (donorType === "organization") {
     createdDonor = "";
@@ -132,8 +128,6 @@ async function addDonationInflow(newDonor) {
 
   try {
     const res = await db.query(query, values);
-    console.log("my queeeeeeeeeeeeerrrrrrrrrrrrrrrrrry is ", values)
-    
     return res// or another appropriate response depending on your need
   } catch (err) {
     console.error('Error inserting donation inflow:', err);
@@ -143,23 +137,22 @@ async function addDonationInflow(newDonor) {
 
 
 async function updateDonationInflow(donationInflowId, donationData) {
-  // const { recordName, donor, donorType, category, amount, donationDate } = donationData;
-  // const createdDonor = "";
 
   const recordName = donationData.recordName;
   const donor = donationData.donor;
+  const donorInput = donationData.donorInput;
   const category = donationData.category;
   const amount = donationData.amount;
   const donationDate = donationData.donationDate;
   const donorType = donationData.donorType;
-  const createdDonor = "";
   const donationId = donationInflowId;
-
-
+ 
   let query;
   let values;
+  let createdDonor;
 
   if (donorType === "organization") {
+    createdDonor = "";
     query = `
     UPDATE donationInflow
     SET recordName = $1,
@@ -174,6 +167,7 @@ async function updateDonationInflow(donationInflowId, donationData) {
     values = [recordName, donor, null, donationDate, category, amount, createdDonor, donationId];
 
   } else if (donorType === "member") {
+    createdDonor = "";
     query = `
     UPDATE donationInflow
     SET recordName = $1,
@@ -187,6 +181,7 @@ async function updateDonationInflow(donationInflowId, donationData) {
     `;
     values = [recordName, null, donor, donationDate, category, amount, createdDonor, donationId];
   } else {
+    createdDonor = donorInput;
     query = `
     UPDATE donationInflow
     SET recordName = $1,
@@ -203,8 +198,6 @@ async function updateDonationInflow(donationInflowId, donationData) {
   
   try {
     const res = await db.query(query, values);
-    console.log("my queeeeeeeeeeeeerrrrrrrrrrrrrrrrrry is ", values)
-    
     return res// or another appropriate response depending on your need
   } catch (err) {
     console.error('Error inserting donation inflow:', err);
