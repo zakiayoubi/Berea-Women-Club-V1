@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS donationOutflow ( -- Corrected table name and consist
     donationOutflowId INTEGER PRIMARY KEY,    
     recordName VARCHAR(100) UNIQUE,
     organizationID INT, -- Added this column for the foreign key reference
+    organizationContact, VARCHAR(100),
     donationDate DATE DEFAULT CURRENT_DATE,
     category VARCHAR(100),
     amount NUMERIC(12, 2),
