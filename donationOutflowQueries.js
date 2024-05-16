@@ -85,16 +85,16 @@ async function getDonationOutflowByName(searchTerm) {
 async function addDonationOutflow(newOrg) {
   const recordName = newOrg.recordName;
   const organizationID = newOrg.organization;
-  const organizationContact = newOrg.organizationContact;
+  const contactPerson = newOrg.contactPerson;
   const category = newOrg.category;
   const amount = newOrg.amount;
   const donationDate = newOrg.donationDate;
 
   const query = `
-    INSERT INTO donationOutflow (recordName, organizationID, organizationContact, donationDate, category, amount)
+    INSERT INTO donationOutflow (recordName, organizationID, contactPerson, donationDate, category, amount)
     VALUES ($1, $2, $3, $4, $5, $6)
   `;
-  const values = [recordName, organizationID, organizationContact, donationDate, category, amount];
+  const values = [recordName, organizationID, contactPerson, donationDate, category, amount];
 
   try {
     const res = await db.query(query, values);
@@ -107,20 +107,20 @@ async function addDonationOutflow(newOrg) {
 
 
 async function updateDonationOutflow(donationOutflowId, donationData) {
-  const { organizationID, organizationContact, category, amount, donationDate, recordName } = donationData;
+  const { organizationID, contactPerson, category, amount, donationDate, recordName } = donationData;
   const query = `
     UPDATE donationOutflow
     SET 
     recordName = $1,
     organizationID = $2,
-    organizationContact = $3,
+    contactPerson = $3,
     donationdate = $4, 
     category = $5, 
     amount = $6
     WHERE donationOutflowId = $7
     ;
   `;
-  const { rows } = await db.query(query, [recordName, organizationID, organizationContact, donationDate, category, amount, donationOutflowId]);
+  const { rows } = await db.query(query, [recordName, organizationID, contactPerson, donationDate, category, amount, donationOutflowId]);
   return rows;
 };
 
@@ -134,8 +134,8 @@ async function sortOutflows(sortBy) {
     case 'organizationName':
       orderBy = 'o.organizationName';
       break;
-    case 'organizationContact':
-      orderBy = 'dof.organizationContact';
+    case 'contactPerson':
+      orderBy = 'dof.contactPerson';
       break;
     case 'category':
       orderBy = 'dof.category';

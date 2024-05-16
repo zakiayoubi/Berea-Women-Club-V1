@@ -34,7 +34,7 @@
                 <!-- Dropdown menu items as buttons -->
                 <button class="dropdown-item" type="submit" name="sortBy" value="recordName">Record Name</button>
                 <button class="dropdown-item" type="submit" name="sortBy" value="organization">Organization</button>
-                <button class="dropdown-item" type="submit" name="sortBy" value="organizationContact">Organization Contact</button>
+                <button class="dropdown-item" type="submit" name="sortBy" value="contactPerson">Contact Person</button>
                 <button class="dropdown-item" type="submit" name="sortBy" value="category">Category</button>
                 <button class="dropdown-item" type="submit" name="sortBy" value="amount">Amount</button>
                 <button class="dropdown-item" type="submit" name="sortBy" value="donationDate">Date</button>
@@ -61,7 +61,7 @@
                 <th>No</th>
                 <th>Record Name</th>
                 <th>Organization</th>
-                <th>Organization Contact</th>
+                <th>Contact Person</th>
                 <th>Category</th>
                 <th>Amount</th>
                 <th>Donation Date</th>
@@ -76,7 +76,7 @@
                         <td scope="row"><%= counter %></td>
                         <td><a href="/donationOutflows/<%= donationOutflow.donationoutflowid %>"><%= donationOutflow.recordname %></a></td>
                         <td><a href="/organizations/<%= donationOutflow.organizationid %>"><%= donationOutflow.organizationname %></a></td> 
-                        <td><%= donationOutflow.organizationcontact ? donationOutflow.organizationcontact : "None" %></td>
+                        <td><%= donationOutflow.contactperson ? donationOutflow.contactperson : "None" %></td>
                         <td><%= donationOutflow.category ? donationOutflow.category : "None" %></td>
                         <td>$ <%= parseFloat(donationOutflow.amount).toFixed(2) %></td>
                         <td><%= new Date(donationOutflow.donationdate).toISOString().slice(0, 10) %></td>

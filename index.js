@@ -968,12 +968,12 @@ app.get("/donationOutflows/addDonationOutflow", async (req, res) => {
 });
 
 app.post("/donationOutflows/addOutflow", async (req, res) => {
-  const { recordName, organization, category, amount, donationDate, organizationContact } =
+  const { recordName, organization, category, amount, donationDate, contactPerson } =
     req.body;
   const newOrg = {
     recordName: recordName,
     organization: organization,
-    organizationContact: organizationContact,
+    contactPerson: contactPerson,
     category: category,
     amount: amount,
     donationDate: donationDate,
@@ -1047,12 +1047,12 @@ app.get("/donationOutflows/:donationOutflowId", async (req, res) => {
 app.post("/updateDonationOutflow/:donationOutflowId", async (req, res) => {
   const OutflowId = req.params.donationOutflowId;
   console.log(OutflowId);
-  const { recordName, organization, organizationContact, category, amount, donationDate } =
+  const { recordName, organization, contactPerson, category, amount, donationDate } =
     req.body;
   const updatedRecord = {
     recordName: recordName,
     organizationID: organization,
-    organizationContact: organizationContact,
+    contactPerson: contactPerson,
     category: category,
     amount: amount,
     donationDate: donationDate,
