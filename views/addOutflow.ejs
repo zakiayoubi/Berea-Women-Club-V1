@@ -1,8 +1,5 @@
 <%- include('partials/header.ejs'); -%>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-8">
             <h4 class="mb-3 text-center mt-4">Record a New Donation Outflow</h4>
             <hr class="my-4">
             <form class="needs-validation" action="/donationOutflows/addOutflow" method="POST">
@@ -73,10 +70,6 @@
                 <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Submit</button>
                 </div>
             </form>
-        </div>
-    </div>
-</div>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('organizationSearch');

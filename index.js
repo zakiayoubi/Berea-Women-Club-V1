@@ -7,6 +7,7 @@ import session from "express-session";
 import FileStoreWrapper from "session-file-store"
 var FileStore = FileStoreWrapper(session);
 import { Strategy } from "passport-local";
+import flash from "express-flash-message";
 
 import env from "dotenv";
 
@@ -104,6 +105,9 @@ app.use(
   })
 );
 
+// setup flash messages
+app.use( flash({ sessionKeyName: 'express-flash-message', }));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -117,27 +121,9 @@ app.use(function(req, res, next) {
     res.redirect('/login')
 });
 
-// async function hashingPassword(password) {
-//   try {
-//       bcrypt.hash(password, saltRounds, async(err, hash) => {
-//       if (err) {
-//         console.log("Error hasing password", err);
-//       } else {
-//         console.log(hash);
-//       }
-//     });
-//     } catch (err) {
-//       console.log(err);
-//     }
-// }
-
-// (async () => {
-//   try {
-//     await hashingPassword("123456");
-//   } catch (err) {
-//     console.error("An error occurred:", err);
-//   }
-// })();
+async function hashPassword(password) {
+  return await bcrypt.hash(password, saltRounds);
+}
 
 // Complete
 app.get("/", (req, res) => {
@@ -160,13 +146,50 @@ app.get("/login", async (req, res) => {
   }
 });
 
-app.post(
-  "/login",
-  passport.authenticate("local", {
+app.post( "/login", passport.authenticate("local", {
     successRedirect: "/",
     failureRedirect: "/login",
   })
 );
+
+app.post("/updatePassword/:memberID", async (req, res) => {
+  const password = req.body.password;
+  const newPass = req.body.newPass;
+  const confirmPass = req.body.confirmPass;
+  const memberID = req.params.memberID;
+
+  if (newPass !== confirmPass) {
+    // DOESN'T MATCH
+    //return res.status(200).json({error: "Password confirmation doesn't match new password."})
+    res.flash("failure","Password confirmation doesn't match new password.")
+    res.redirect(`/members/${memberID}`);
+    return;
+  }
+  const loggedInUser = await db.get("SELECT password FROM member WHERE memberID = ?", [ req.user.memberID ]);
+
+  if (!loggedInUser || !loggedInUser.password) {
+    // No logged in user found, or there's not a valid password somehow
+    res.redirect(`/members/${memberID}`);
+    //return "ERROR2";
+  }
+
+  bcrypt.compare(password, loggedInUser.password, async (err, result) => {
+    if (err) {
+      res.redirect(`/members/${memberID}`);
+      //return "ERROR3";
+    } else {
+      if (result) {
+        // TODO hash password and set for user
+        let newHash = hashPassword(password);
+        await db.run(`UPDATE member SET password=? WHERE memberID=?`,[newHash,memberID])
+        res.redirect(`/members/${memberID}`);
+      } else {
+        res.redirect(`/members/${memberID}`);
+        return 'Incorrect email or password.';
+      }
+    }
+  });
+});
 
 // Complete
 app.get("/members", async (req, res) => {
@@ -281,6 +304,7 @@ app.get("/members/:memberId", async (req, res) => {
       res.render("memberInfo.ejs", {
         member: member,
         dues: memberDues,
+        currentUser: req.user,
       });
       
     } else {

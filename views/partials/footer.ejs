@@ -1,8 +1,30 @@
 
-            </main>
+                    </div> <!-- col width -->
+                </div> <!-- justify-content-center -->
+            </div> <!-- container -->
+        </main>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
         <script src="https://cdn.datatables.net/2.0.7/js/dataTables.js" crossorigin="anonymous"></script>
         <script src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js" crossorigin="anonymous"></script>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // Get current URL path and assign 'active' class
+          var path = window.location.pathname;
+          var navLinks = document.querySelectorAll('.nav .nav-link');
+      
+          navLinks.forEach(function(link) {
+            if (link.getAttribute('href') === '/' && path === '/') {
+              // Exact match for 'Home' link
+              link.classList.add('active');
+            } else if (link.getAttribute('href') !== '/' && path.startsWith(link.getAttribute('href')) && path.length > 1) {
+              // Match all other links only if the path is not just '/'
+              link.classList.add('active');
+            }
+          });
+        });
+      </script>
+      
     </body>
 </html> 
