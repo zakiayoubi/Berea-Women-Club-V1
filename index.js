@@ -927,8 +927,9 @@ app.post("/deleteInflow/:donationInflowId", async (req, res) => {
 
 app.get("/donationOutflows", async (req, res) => {
   try {
+    console.log("We have hit endpoint")
     const donationOutflows = await fetchDonationOutflows();
-    console.log(donationOutflows);
+    console.log("yooooooooooooooooooooo", donationOutflows);
     res.render("donationOutflow.ejs", { donationOutflows });
   } catch (error) {
     console.error(error);
@@ -967,11 +968,12 @@ app.get("/donationOutflows/addDonationOutflow", async (req, res) => {
 });
 
 app.post("/donationOutflows/addOutflow", async (req, res) => {
-  const { recordName, organization, category, amount, donationDate } =
+  const { recordName, organization, category, amount, donationDate, organizationContact } =
     req.body;
   const newOrg = {
     recordName: recordName,
     organization: organization,
+    organizationContact: organizationContact,
     category: category,
     amount: amount,
     donationDate: donationDate,
@@ -1025,6 +1027,7 @@ app.get("/donationOutflows/:donationOutflowId", async (req, res) => {
         const finalResult = result[0];
         const newDate = new Date(finalResult.donationdate);
         finalResult.donationdate = newDate.toISOString().substring(0, 10);
+        console.log("last checked is ", finalResult)
         const orgs = await fetchAllOrganizations();
         res.render("editOutflow.ejs", { donation: finalResult, orgs: orgs }); // Pass only the first element
       } else {
@@ -1044,11 +1047,12 @@ app.get("/donationOutflows/:donationOutflowId", async (req, res) => {
 app.post("/updateDonationOutflow/:donationOutflowId", async (req, res) => {
   const OutflowId = req.params.donationOutflowId;
   console.log(OutflowId);
-  const { recordName, organization, category, amount, donationDate } =
+  const { recordName, organization, organizationContact, category, amount, donationDate } =
     req.body;
   const updatedRecord = {
     recordName: recordName,
     organizationID: organization,
+    organizationContact: organizationContact,
     category: category,
     amount: amount,
     donationDate: donationDate,
