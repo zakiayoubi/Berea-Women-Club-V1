@@ -813,6 +813,7 @@ app.post("/donationInflows/create", async (req, res) => {
 
   try {
     await addDonationInflow(newDonor);
+    res.flash("success","Donation inflow successfully added")
     res.redirect("/donationInflows");
   } catch (err) {
     console.log("failure");
@@ -855,7 +856,7 @@ app.get("/donationInflows/:donationInflowId", async (req, res) => {
           donor = finalResult.createddonor;
         }
 
-        res.render("editInflow.ejs", { donation: finalResult, orgs: orgs, members: members, donor: donor}); // Pass only the first element
+        res.render("inflow.ejs", { donation: finalResult, orgs: orgs, members: members, donor: donor}); // Pass only the first element
       } else {
         res.status(404).send("Invalid Donation Inflow ID");
       }
@@ -926,6 +927,12 @@ app.get("/donationOutflows", async (req, res) => {
   }
 });
 
+app.get("/donationOutflows/addOutflow", async (req, res) => {
+  const orgs = await fetchAllOrganizations();
+  const members = await getMembers('firstname');
+  res.render("addOutflow.ejs", { orgs: orgs, members: members });
+});
+
 app.post("/donationOutflows/newOutflows", async (req, res) => {
   const year = req.body.year;
   try {
@@ -950,7 +957,7 @@ app.get("/donationOutflows/outflowStats", async (req, res) => {
   }
 });
 
-app.post("/donationOutflows/addOutflow", async (req, res) => {
+app.post("/donationOutflows/create", async (req, res) => {
   const { recordName, organization, category, amount, donationDate, contactPerson } =
     req.body;
   const newOrg = {
@@ -964,6 +971,7 @@ app.post("/donationOutflows/addOutflow", async (req, res) => {
   console.log(newOrg);
   try {
     await addDonationOutflow(newOrg);
+    res.flash("Success","Donation outflow successfully created.")
     res.redirect("/donationOutflows");
   } catch (err) {
     console.log("failure");
@@ -997,7 +1005,7 @@ app.get("/donationOutflows/:donationOutflowId", async (req, res) => {
         finalResult.donationdate = newDate.toISOString().substring(0, 10);
         console.log("last checked is ", finalResult)
         const orgs = await fetchAllOrganizations();
-        res.render("editOutflow.ejs", { donation: finalResult, orgs: orgs }); // Pass only the first element
+        res.render("outflow.ejs", { donation: finalResult, orgs: orgs }); // Pass only the first element
       } else {
         res.status(404).send("Invalid Donation Outflow ID");
       }

@@ -2,7 +2,7 @@
 
             <h4 class="mb-3 text-center mt-4">Record a New Donation Outflow</h4>
             <hr class="my-4">
-            <form class="needs-validation" action="/donationOutflows/addOutflow" method="POST">
+            <form class="needs-validation" action="/donationOutflows/create" method="POST">
                 <div class="row g-3">
 
                     <div class="col-sm-6">
@@ -21,24 +21,39 @@
                     
                     <!-- Organization Selection Modal -->
                     <div class="modal" id="organizationModal" tabindex="-1" aria-labelledby="organizationModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-dialog modal-dialog-centered modal-md">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="organizationModalLabel">Choose an Organization</h5>
+                                    <h5 class="modal-title" id="organizationModalLabel">Choose an organization</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <input type="text" class="form-control mb-3" id="organizationSearch" placeholder="Type to search...">
-                                    <div class="list-group" id="organizationList">
-                                        <% orgs.forEach(org => { %>
-                                            <button type="button" class="list-group-item list-group-item-action" data-value="<%= org.organizationid %>"><%= org.organizationname %></button>
-                                        <% }) %>                                        
+                                    <div class="d-block mb-3">
+                                        <div class="dropdown">
+                                            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton1" 
+                                            data-bs-toggle="dropdown" aria-expanded="false">Organizations 
+                                            </button>
+                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                                <% if (orgs && orgs.length > 0) { %>
+                                                    <% orgs.forEach(org => { %>
+                                                        <li><a class="dropdown-item" href="#" data-value="<%= org.organizationid %>" data-type="organization"><%= org.organizationname %></a></li>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <li><a class="dropdown-item non-clickable" aria-readonly="true">No organization found</a></li>
+                                                <% } %>
+                                            </ul>
+                                        </div>  
+                                    </div>
+
+                                    <div class="d-block mb-3">
+                                        <button class="btn btn-primary" type="button" id="submittedOrganization">Select Organization</button>
+                                        <span class="mb-5" id="selectedOrganization" data-type="" style="margin-left: 10px;"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-  
+     
                     <div class="col-sm-6">
                         <label for="contactPerson" class="form-label required">Contact Person</label>
                         <input type="text" class="form-control" id="contactPerson" name="contactPerson">
@@ -71,47 +86,53 @@
                 </div>
             </form>
 <script>
+
+
+function selectOrganization(organizationName, organizationID) {
+    document.getElementById('selectedOrganization').textContent = organizationName; 
+    document.getElementById('selectedOrganization').dataset.value = organizationID; 
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('organizationSearch');
-    const organizationList = document.getElementById('organizationList');
-    const organizationInput = document.getElementById('organizationInput');
-    const hiddenInput = document.getElementById('organizationHidden');
 
-    searchInput.addEventListener('keyup', function() {
-        const searchText = searchInput.value.toLowerCase();
+    // Clicking on the organization shows the modal
+    document.getElementById("submittedOrganization").addEventListener('click', function() {
+        const organizationName = document.getElementById('selectedOrganization').textContent;
+        const organizationID = document.getElementById('selectedOrganization').dataset.value;
 
-        Array.from(organizationList.querySelectorAll('.list-group-item')).forEach(function(item) {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(searchText) ? '' : 'none';
+        document.getElementById('organizationInput').value = organizationName;
+        document.getElementById('organizationHidden').value = organizationID;
+
+        var modalElement = document.getElementById('organizationModal');
+        var modalInstance = bootstrap.Modal.getInstance(modalElement);
+        modalInstance.hide();
+    })
+
+    // Choose an organization from the dropdown in the modal
+    document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
+        item.addEventListener('click', function() {
+            selectOrganization(this.textContent, this.dataset.value);
         });
     });
 
-    organizationList.addEventListener('click', function(e) {
-        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('list-group-item-action')) {
-            organizationInput.value = e.target.textContent; // Update the disabled input field
-            hiddenInput.value = e.target.getAttribute('data-value'); // Set the value in hidden input for form submission
-            var myModalEl = document.getElementById('organizationModal');
-            var modal = bootstrap.Modal.getInstance(myModalEl);
-            modal.hide(); // Hide the modal
+    document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
+        const organizationInput = document.getElementById('organizationInput');
+        const hiddenInput = document.getElementById('organizationHidden');
+        
+        // Check if the hidden input has a value
+        if (!hiddenInput.value) {
+            event.preventDefault(); // Prevent the form from submitting
+            event.stopPropagation(); // Stop propagation of the event
+
+            // Provide feedback to the user that organization selection is required
+            organizationInput.classList.add('is-invalid'); // Highlight the input field
+            // alert('Please select an organization before submitting.'); // Alert or some better feedback
+        } else {
+            organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
         }
     });
-});
-
-document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
-    const hiddenInput = document.getElementById('organizationHidden');
-    
-    // Check if the hidden input has a value
-    if (!hiddenInput.value) {
-        event.preventDefault(); // Prevent the form from submitting
-        event.stopPropagation(); // Stop propagation of the event
-
-        // Provide feedback to the user that organization selection is required
-        organizationInput.classList.add('is-invalid'); // Highlight the input field
-        // alert('Please select an organization before submitting.'); // Alert or some better feedback
-    } else {
-        organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
-    }
-});
+})
 
 
 
