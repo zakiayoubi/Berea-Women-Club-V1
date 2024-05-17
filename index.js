@@ -855,7 +855,7 @@ app.get("/donationInflows/:donationInflowId", async (req, res) => {
           donor = finalResult.createddonor;
         }
 
-        res.render("editInflow.ejs", { donation: finalResult, orgs: orgs, members: members, donor: donor}); // Pass only the first element
+        res.render("inflow.ejs", { donation: finalResult, orgs: orgs, members: members, donor: donor}); // Pass only the first element
       } else {
         res.status(404).send("Invalid Donation Inflow ID");
       }
@@ -997,7 +997,7 @@ app.get("/donationOutflows/:donationOutflowId", async (req, res) => {
         finalResult.donationdate = newDate.toISOString().substring(0, 10);
         console.log("last checked is ", finalResult)
         const orgs = await fetchAllOrganizations();
-        res.render("editOutflow.ejs", { donation: finalResult, orgs: orgs }); // Pass only the first element
+        res.render("outflow.ejs", { donation: finalResult, orgs: orgs }); // Pass only the first element
       } else {
         res.status(404).send("Invalid Donation Outflow ID");
       }
