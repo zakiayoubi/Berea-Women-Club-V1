@@ -23,7 +23,7 @@ async function fetchDonationOutflows() {
   const query = `
       SELECT dof.*, o.organizationname 
       FROM donationoutflow dof JOIN organization o ON dof.organizationID = o.organizationID
-      ORDER BY dof.donationOutflowId;
+      ORDER BY dof.donationDate DESC;
   `;
 
   const result = await db.query(query);

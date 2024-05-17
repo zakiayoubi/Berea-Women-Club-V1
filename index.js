@@ -426,26 +426,7 @@ app.get("/organizations/searchOrganization", async (req, res) => {
 
 // Complete
 app.get("/organizations/addOrganization", async (req, res) => {
-  try {
-    res.render("addOrganization.ejs");
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
-  }
-});
-
-// sort org route
-app.post("/organizations/sortOrg", async (req, res) => {
-  const sortBy = req.body.sortBy;
-  try {
-    const result = await sortOrganizations(sortBy);
-    res.render("organization.ejs", {
-      organizations: result,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
-  }
+  res.render("addOrganization.ejs");
 });
 
 app.post("/organizations/newOrgForm", async (req, res) => {
@@ -472,15 +453,14 @@ app.post("/organizations/newOrgForm", async (req, res) => {
   try {
     // Step 1: Insert the new event
     await addOrganization(newOrg);
+    res.flash("success","Organization successfully added!")
 
-    const result = await fetchAllOrganizations();
-    res.render("organization.ejs", {
-      organizations: result,
-    });
   } catch (error) {
     console.error("Error adding organization", error);
-    res.status(500).send("Error adding organization");
+    res.flash("failures","Error adding organization")
   }
+
+  res.redirect("/organizations");
 });
 
 // route to each organization
@@ -540,14 +520,15 @@ app.post("/updateOrganizationInfo/:organizationId", async (req, res) => {
 
 // Complete
 app.post("/deleteOrganization/:organizationId", async (req, res) => {
-  const orgId = req.params.organizationId;
   try {
-    await deleteOrganization(orgId);
-    res.redirect("/organizations");
+    await deleteOrganization(req.params.organizationId);
+    res.flash("success","Organization successfully deleted!")
+
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    res.flash("failure","Unknown error")
   }
+  res.redirect("/organizations");
 });
 
 // --------------------------------------------------------------------------------------------------------------
@@ -805,9 +786,7 @@ app.post("/donationInflows/newInflows", async (req, res) => {
 
 app.get("/donationInflows/inflowStats", async (req, res) => {
   try {
-    console.log("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeessssssssssssssssss")
     const stats = await fetchDonationInflowsTotal();
-    console.log(stats);
     res.render("donationInflowStats.ejs", { stats });
   } catch (error) {
     console.error(error);
@@ -835,8 +814,6 @@ app.post("/donationInflows/create", async (req, res) => {
     donationDate: donationDate,
   };
 
-  console.log("yyyyyyyeeeeeeeeeeeeeeeeeeeeeee", req.body)
-  
   try {
     await addDonationInflow(newDonor);
     res.redirect("/donationInflows");
@@ -959,9 +936,7 @@ app.post("/deleteInflow/:donationInflowId", async (req, res) => {
 
 app.get("/donationOutflows", async (req, res) => {
   try {
-    console.log("We have hit endpoint")
     const donationOutflows = await fetchDonationOutflows();
-    console.log("yooooooooooooooooooooo", donationOutflows);
     res.render("donationOutflow.ejs", { donationOutflows });
   } catch (error) {
     console.error(error);
