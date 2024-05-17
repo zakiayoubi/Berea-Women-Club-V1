@@ -153,45 +153,53 @@ app.post( "/login", passport.authenticate("local", {
 );
 
 app.post("/updatePassword/:memberID", async (req, res) => {
-  const password = req.body.password;
+  const currentPass = req.body.currentPass;
   const newPass = req.body.newPass;
   const confirmPass = req.body.confirmPass;
   const memberID = req.params.memberID;
 
+  // Passwords don't match. Should check this client-side as well.
   if (newPass !== confirmPass) {
-    // DOESN'T MATCH
-    //return res.status(200).json({error: "Password confirmation doesn't match new password."})
     res.flash("failure","Password confirmation doesn't match new password.")
     res.redirect(`/members/${memberID}`);
     return;
   }
   const loggedInUser = await db.get("SELECT password FROM member WHERE memberID = ?", [ req.user.memberID ]);
 
+  // No logged in user found, or there's not a valid password somehow
   if (!loggedInUser || !loggedInUser.password) {
-    // No logged in user found, or there's not a valid password somehow
+    res.flash("failure","No logged in user (somehow).")
     res.redirect(`/members/${memberID}`);
-    //return "ERROR2";
+    return;
   }
 
-  bcrypt.compare(password, loggedInUser.password, async (err, result) => {
+  // check logged in user's password and if successful, update the member's password
+  bcrypt.compare(currentPass, loggedInUser.password, async (err, result) => {
     if (err) {
+      console.log(err);
+      res.flash("failure","Unknown error changing passwords");
       res.redirect(`/members/${memberID}`);
-      //return "ERROR3";
+      return;
+
     } else {
       if (result) {
-        // TODO hash password and set for user
-        let newHash = hashPassword(password);
+        // hash password and set for user
+        let newHash = await hashPassword(newPass);
         await db.run(`UPDATE member SET password=? WHERE memberID=?`,[newHash,memberID])
+
+        res.flash("success","Password changed successfully!");
         res.redirect(`/members/${memberID}`);
+        return;
+
       } else {
+        res.flash("failure","Incorrect authorization password.");
         res.redirect(`/members/${memberID}`);
-        return 'Incorrect email or password.';
+        return;
       }
     }
   });
 });
 
-// Complete
 app.get("/members", async (req, res) => {
   try {
     res.render("member.ejs", { members: await getMembers() });
@@ -1122,11 +1130,14 @@ passport.use(
         const storedHashedPassword = user.password;
         bcrypt.compare(password, storedHashedPassword, (err, result) => {
           if (err) {
+            console.log("Unknown bcrypt error")
             return cb(err);
           } else {
             if (result) {
+              console.log(`Login succesful for ${user.firstName} ${user.lastName}`)
               return cb(null, {memberID: user.memberID});
             } else {
+              console.log("Incorrect email or password")
               return cb(null, false, { message: 'Incorrect email or password.' });
             }
           }
