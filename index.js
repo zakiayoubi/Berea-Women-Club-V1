@@ -786,9 +786,7 @@ app.post("/donationInflows/newInflows", async (req, res) => {
 
 app.get("/donationInflows/inflowStats", async (req, res) => {
   try {
-    console.log("yeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeessssssssssssssssss")
     const stats = await fetchDonationInflowsTotal();
-    console.log(stats);
     res.render("donationInflowStats.ejs", { stats });
   } catch (error) {
     console.error(error);
@@ -816,8 +814,6 @@ app.post("/donationInflows/create", async (req, res) => {
     donationDate: donationDate,
   };
 
-  console.log("yyyyyyyeeeeeeeeeeeeeeeeeeeeeee", req.body)
-  
   try {
     await addDonationInflow(newDonor);
     res.redirect("/donationInflows");
@@ -940,9 +936,7 @@ app.post("/deleteInflow/:donationInflowId", async (req, res) => {
 
 app.get("/donationOutflows", async (req, res) => {
   try {
-    console.log("We have hit endpoint")
     const donationOutflows = await fetchDonationOutflows();
-    console.log("yooooooooooooooooooooo", donationOutflows);
     res.render("donationOutflow.ejs", { donationOutflows });
   } catch (error) {
     console.error(error);

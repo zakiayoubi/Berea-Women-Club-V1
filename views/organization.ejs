@@ -4,18 +4,6 @@
 <div class="mb-3">
     <!-- Add organization Button -->
     <a href="/organizations/addOrganization" class="btn btn-primary">Add Organization</a>
-
-    <!-- Sort By Button with Dropdown -->
-    <div class="btn-group">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        Sort By
-        </button>
-        <form action="/organizations/sortOrg" method="POST" class="dropdown-menu">
-            <!-- Dropdown menu items as buttons -->
-            <button class="dropdown-item" type="submit" name="sortBy" value="organizationName">Name</button>
-            <button class="dropdown-item" type="submit" name="sortBy" value="organizationType">Type</button>
-        </form>
-    </div>
 </div>
 
 <!-- list of organizations -->

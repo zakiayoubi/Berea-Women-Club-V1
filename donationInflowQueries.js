@@ -26,7 +26,7 @@ async function fetchDonationInflows() {
       from donationInflow di
       LEFT JOIN organization o ON di.organizationID = o.organizationID
       LEFT JOIN member m ON di.memberID = m.memberID
-      ORDER BY di.donationInflowId;
+      ORDER BY di.donationDate DESC;
   `;
   const result = await db.query(query);
   return result.rows;
