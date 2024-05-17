@@ -538,7 +538,7 @@ app.get("/events", async (req, res) => {
   try {
     const events = await fetchAllEvents();
     console.log(events)
-    res.render("event.ejs", { events });
+    res.render("events.ejs", { events });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
@@ -551,9 +551,9 @@ app.get("/events/searchEvent", async (req, res) => {
     const events = await fetchEventByName(searchTerm);
     console.log(events);
     if (events.length > 0) {
-      res.render("event.ejs", { events: events });
+      res.render("events.ejs", { events: events });
     } else {
-      res.render("event.ejs", { events: [] });
+      res.render("events.ejs", { events: [] });
     }
   } catch (error) {
     console.error(error);
@@ -636,7 +636,7 @@ app.post("/events/newEvents", async (req, res) => {
 
   try {
     const events = await fetchNewEvents(year);
-    res.render("event.ejs", {
+    res.render("events.ejs", {
       events,
     });
   } catch (error) {
@@ -660,7 +660,7 @@ app.get("/events/:eventId", async (req, res) => {
       const allMembers = await getMembers();
       const attendees = await fetchEventAttendees(eventId);
 
-      res.render("eventInfo.ejs", {
+      res.render("event.ejs", {
         event: finalResult,
         members: allMembers,
         attendees: attendees,
