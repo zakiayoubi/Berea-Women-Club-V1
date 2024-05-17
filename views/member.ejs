@@ -1,85 +1,246 @@
-<%- include('partials/header.ejs'); -%>
+<%- include("partials/header.ejs"); %>
+<h4 class="mb-3 text-center mt-4">Member Information</h4>
+<hr class="my-4">
+<form class="needs-validation" id="updateForm" action="/updatedMemberInfo/<%= member.memberID %>" method="POST" >
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label for="firstName" class="form-label required">First name</label>
+            <input type="text" class="form-control" id="firstName" name="firstName" value="<%= member.firstName %>" required disabled>
+            <div class="invalid-feedback">
+                Valid first name is required.
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label for="lastName" class="form-label required">Last name</label>
+            <input type="text" class="form-control" id="lastName" name="lastName" value="<%= member.lastName %>" required disabled>
+            <div class="invalid-feedback">
+                Valid last name is required.
+            </div>
+        </div>
+        
+        <div class="col-sm-6">
+            <label for="email" class="form-label required">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= member.email %>" required disabled>
+            <div class="invalid-feedback">
+                Please enter a valid email address.
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <label for="phone" class="form-label required">Phone</label>
+            <input type="text" class="form-control" id="phone" name="phone" value="<%= member.phoneNumber %>" required disabled>
+            <div class="invalid-feedback">
+                Please enter a valid phone number.
+            </div>
+        </div>
 
-<!-- buttons -->
-<div class="mb-3">
-    <!-- Add Member Button -->
-    <a href="/members/addmember" class="btn btn-primary">Add Member</a>
-    <div class="btn-group">
-        <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">New Members</button>
-        <form action="/members/newMembers" method="POST" class="dropdown-menu p-2">
-            <!-- Status selection -->
-            <label class="dropdown-item-text mt-2">Since:</label>
-            <select class="form-select" name="year">
-                <option>2021-2022</option>
-                <option>2022-2023</option>
-                <option>2023-2024</option>
+        <div class="col-12">
+            <label for="street" class="form-label">Address</label>
+            <input type="text" class="form-control" id="street" name="street" value="<%= member.streetName %>" disabled>
+        </div>
+        <div class="col-md-5">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="<%= member.city %>" disabled>
+        </div>
+        <div class="col-md-4">
+            <label for="state" class="form-label">State</label>
+            <select class="form-select" id="state" name="state" disabled>
+                <option value="<%= member.usstate %>"><%= member.usstate %></option>
+                <option value="Alabama">Alabama</option>
+                <option value="Alaska">Alaska</option>
+                <option value="Arizona">Arizona</option>
+                <option value="Arkansas">Arkansas</option>
+                <option value="California">California</option>
+                <option value="Colorado">Colorado</option>
+                <option value="Connecticut">Connecticut</option>
+                <option value="Delaware">Delaware</option>
+                <option value="Florida">Florida</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Hawaii">Hawaii</option>
+                <option value="Idaho">Idaho</option>
+                <option value="Illinois">Illinois</option>
+                <option value="Indiana">Indiana</option>
+                <option value="Iowa">Iowa</option>
+                <option value="Kansas">Kansas</option>
+                <option value="Kentucky">Kentucky</option>
+                <option value="Louisiana">Louisiana</option>
+                <option value="Maine">Maine</option>
+                <option value="Maryland">Maryland</option>
+                <option value="Massachusetts">Massachusetts</option>
+                <option value="Michigan">Michigan</option>
+                <option value="Minnesota">Minnesota</option>
+                <option value="Mississippi">Mississippi</option>
+                <option value="Missouri">Missouri</option>
+                <option value="Montana">Montana</option>
+                <option value="Nebraska">Nebraska</option>
+                <option value="Nevada">Nevada</option>
+                <option value="New Hampshire">New Hampshire</option>
+                <option value="New Jersey">New Jersey</option>
+                <option value="New Mexico">New Mexico</option>
+                <option value="New York">New York</option>
+                <option value="North Carolina">North Carolina</option>
+                <option value="North Dakota">North Dakota</option>
+                <option value="Ohio">Ohio</option>
+                <option value="Oklahoma">Oklahoma</option>
+                <option value="Oregon">Oregon</option>
+                <option value="Pennsylvania">Pennsylvania</option>
+                <option value="Rhode Island">Rhode Island</option>
+                <option value="South Carolina">South Carolina</option>
+                <option value="South Dakota">South Dakota</option>
+                <option value="Tennessee">Tennessee</option>
+                <option value="Texas">Texas</option>
+                <option value="Utah">Utah</option>
+                <option value="Vermont">Vermont</option>
+                <option value="Virginia">Virginia</option>
+                <option value="Washington">Washington</option>
+                <option value="West Virginia">West Virginia</option>
+                <option value="Wisconsin">Wisconsin</option>
+                <option value="Wyoming">Wyoming</option>
             </select>
-
-            <!-- Submit button -->
-            <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
-        </form>
+        </div>
+        <div class="col-md-3">
+            <label for="zip" class="form-label">Zip</label>
+            <input type="text" class="form-control" id="zip" name="zip" value="<%= member.zipCode %>" disabled>
+        </div>
+        
+        <div class="col-sm-6">
+            <label for="dateOfBirth" class="form-label">Date of Birth</label>
+            <input type="date" class="form-control date-input" id="dateOfBirth" name="dateOfBirth" value="<%= member.dateOfBirth %>" disabled>
+        </div>
+        
+        <div class="col-sm-6">
+            <label for="dateJoined" class="form-label required">Date Joined</label>
+            <input type="date" class="form-control date-input" id="dateJoined" name="dateJoined" value="<%= member.dateJoined %>" required disabled>
+        </div>
+        <div class="col-md-4 mt-3">
+            <label for="membershipType" class="form-label required">Role</label>
+            <select class="form-select" id="membershipType" name="membershipType" required disabled>
+                <option value="Member" <%=member.memberType == 'Member' ? 'selected' : ''%>>Member</option>
+                <option value="Officer" <%=member.memberType == 'Officer' ? 'selected' : ''%>>Officer</option>
+                <option value="Board Member" <%=member.memberType == 'Board Member' ? 'selected' : ''%>>Board Member</option>
+            </select>
+            <div class="invalid-feedback">
+                Please provide a membership type.
+            </div>
+        </div>
     </div>
-</div>
-<!-- list of members -->
-<table id="members" class="table table-striped">
-    <thead>
+    <div class="d-flex justify-content-center">
+        <button type="button" class="btn btn-primary btn-lg my-4 mx-1" onclick="toggleEdit()" id="editButton">Edit Member</button>
+        <button type="submit" class="btn btn-primary btn-lg my-4 mx-1" style="display:none;" id="updateButton">Save Changes</button>
+        <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" onclick="cancelEdit()" style="display:none;" id="cancelButton">Cancel Changes</button>
+        <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" data-bs-toggle="modal" data-bs-target="#passwordmodal">Change Password</button>
+    </div>
+</form>
+<hr class="my-4">
+<h4 class="mb-3 text-center">Dues</h4>
+<div class="row g-3 mt-1">
+    <table style="width:75%;margin:auto">
         <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Date Joined</th>
-        <th>Role</th>
-        <th>Dues Status</th>
-        <th>Last Year Paid</th>
-        <th></th>
+            <th>Year</th>
+            <th>Payment Date</th>
+            <th>Recorded By</th>
+            <th></th>
         </tr>
-    </thead>
-    <tbody>
-        <% members.forEach(member => { %>
-            <% console.log(member) %>
+        <% dues.forEach(due => { %>
             <tr>
-                <td nowrap><a href="/members/<%= member.memberid %>"><%= member.firstname %> <%= member.lastname %></a></td>
-                <td><%= member.email %></td>
-                <td nowrap><%= member.phonenumber %></td>
-                <td><%= member.datejoined ? new Date(member.datejoined).toLocaleDateString() : "N/A" %></td>
-                <td><%= member.membertype %></td>
-                <td class="<%=member.status=='Paid' ? 'text-success' : 'text-danger'%>"><%= member.status %></td>
-                <td><%= member.lastpaidyear %></td>
-                <td>
-                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= member.memberid %>">
+                <td><%=due.forYear%></td>
+                <td><%=new Date(due.paymentDate).toLocaleDateString() %></td>
+                <td><%=due.firstName%> <%=due.lastName%></td>
+                <td><a class="btn btn-outline-danger" href="/removeDues/<%=member.memberID%>/<%=due.forYear%>">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
                             <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
-                        </svg>
-                    </button>
-                    <!-- Modal per member -->
-                    <div class="modal fade" id="deleteModal<%= member.memberid %>" tabindex="-1" aria-labelledby="deleteMember" aria-hidden="true">
-                        <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Member</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                            Are you sure you want to delete this member?
-                            </div>
-                            <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <form action="/deleteMember/<%= member.memberid %>" method="POST">
-                                <button type="submit" class="btn btn-primary">Confirm</button>
-                            </form>
-                            </div>
-                        </div>
-                        </div>
-                    </div>
-                </td>
+                        </svg></a></td>
             </tr>
         <% }) %>
-    </tbody>
-</table>
+    </table>
+</div>
+
+<!-- Hidden dues inputs -->
+<form class="needs-validation" action="/recordDues/<%= member.memberID %>" method="POST" novalidate>
+<div class="row g-3 mt-1">
+    <div class="col-sm-2">
+        <label class="form-label">&nbsp;</label>
+        <input type="submit" class="btn btn-primary" style="margin-top:2rem" value="Add Dues" />
+    </div>
+    <div class="col-sm-10">
+        <div class="row">
+        <div class="col-sm-5">
+            <label for="duesFor" class="form-label required">Dues For</label>
+            <select class="form-select" name="duesFor" id="duesFor">
+                <option>2024-2025</option>
+                <option>2023-2024</option>
+                <option>2022-2023</option>
+            </select>
+            <div class="invalid-feedback"> Please choose a year for the membership dues. </div>
+        </div>
+        <div class="col-sm-5">
+            <label for="paymentDate" class="form-label required">Payment Date</label>
+            <input type="date" class="form-control" id="paymentDate" name="paymentDate">
+            <div class="invalid-feedback"> Please enter the date you paid.  </div>
+        </div></div>
+    </div>
+</div>
+</form>
+
+<!-- Password modal -->
+<div class="modal fade" id="passwordmodal" tabindex="-1" aria-labelledby="Update Password" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <form action="/updatePassword/<%= member.memberID %>" method="POST">
+
+        <div class="modal-header">
+            <h1 class="modal-title fs-5">Update Password</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <% var other = (currentUser.memberID != member.memberID) 
+               if (other) { %>
+                <div class="alert alert-danger" role="alert">You are updating the password for another user!</div>
+            <% } %>
+            <div class="row mb-5">
+                <div class="col-5"><label class="col-form-label" for="currentPass"><%=other ? "Your " : ""%>Current Password</label></div>
+                <div class="col-7"><input class="form-control" type="password" name="currentPass" /></div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-5"><label class="col-form-label" for="newPass">Enter New Password</label></div>
+                <div class="col-7"><input class="form-control form-password" type="password" name="newPass" /></div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-5"><label class="col-form-label" for="confirmPass">Confirm New Password</label></div>
+                <div class="col-7"><input class="form-control form-password" type="password" name="confirmPass" /></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Change Password</button>
+        </div>
+
+        </form>
+    </div>
+    </div>
+</div>
 
 <script>
-    window.onload = function() {
-      new DataTable('#members', { order: false });
+    function toggleEdit() {
+        // Enable all input and select fields
+        const formElements = document.querySelectorAll('#updateForm input, #updateForm select');
+        formElements.forEach(element => {
+            element.disabled = false; // Remove the 'disabled' attribute
+        });
+        
+        // Hide the edit button and show the submit button
+        document.getElementById('editButton').style.display = 'none';
+        document.getElementById('updateButton').style.display = 'block';
+        document.getElementById('cancelButton').style.display = 'block';
     };
+    function cancelEdit() {
+        // Refresh the page
+        window.location.reload();
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // set the default date to today()
+        document.getElementById('paymentDate').valueAsDate = new Date();
+    });
 </script>
-<%- include('partials/footer.ejs'); -%>
+    
+<%- include('partials/footer.ejs'); %>
