@@ -31,7 +31,6 @@ import {
   fetchAllEvents,
   fetchEventById,
   fetchEventMoneyRaised,
-  fetchEventMonthlyCosts,
   fetchYearlyEventCosts,
   fetchYearlyMoneyRaised,
   insertEvent,

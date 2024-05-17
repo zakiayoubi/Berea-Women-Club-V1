@@ -77,40 +77,21 @@ async function fetchAllEvents() {
   async function fetchEventMoneyRaised() {
     const query = `
     SELECT
-        EXTRACT(YEAR FROM eventDate) AS eventYear,
+        strftime('%Y',eventDate) AS eventYear,
         SUM(amountRaised) AS totalAmountRaised,
         SUM(eventCost) AS totalEventCost
-    FROM
-        event
-    GROUP BY
-        EXTRACT(YEAR FROM eventDate)
-    ORDER BY
-        eventYear DESC;
-
+    FROM event
+    GROUP BY strftime('%Y',eventDate)
+    ORDER BY eventYear DESC;
     `;
-    const result = await db.query(query);
-    return result.rows;
+    return await db.all(query);
   };
   
-  async function fetchEventMonthlyCosts(year) {
-    const query = `
-      SELECT 
-        EXTRACT(MONTH FROM eventDate) AS eventMonth, 
-        SUM(eventCost) AS totalCost
-      FROM event
-      WHERE EXTRACT(YEAR FROM eventDate) = $1
-      GROUP BY EXTRACT(MONTH FROM eventDate)
-      ORDER BY EXTRACT(MONTH FROM eventDate)
-    `;
-    const result = await db.query(query, [year]);
-    return result.rows;
-  };
   async function fetchYearlyEventCosts(year) {
     const query = `
-      SELECT 
-        SUM(eventCost) AS totalCost
+      SELECT SUM(eventCost) AS totalCost
       FROM event
-      WHERE EXTRACT(YEAR FROM eventDate) = $1
+      WHERE strftime('%Y',eventDate) = $1
     `;
     const result = await db.query(query, [year]);
     return result.rows; // Assuming you want to return a single value for total cost
@@ -118,10 +99,9 @@ async function fetchAllEvents() {
   
   async function fetchYearlyMoneyRaised(year) {
     const query = `
-      SELECT 
-        SUM(amountRaised) AS totalRaised
+      SELECT SUM(amountRaised) AS totalRaised
       FROM event
-      WHERE EXTRACT(YEAR FROM eventDate) = $1
+      WHERE strftime('%Y',eventDate) = $1
     `;
     const result = await db.query(query, [year]);
     return result.rows; // Assuming you want to return a single value for total raised
@@ -173,7 +153,6 @@ async function fetchAllEvents() {
     insertEvent,
     updateEvent,
     deleteEvent,
-    fetchEventMonthlyCosts,
     fetchYearlyEventCosts,
     fetchYearlyMoneyRaised,
     fetchEventByName,
