@@ -66,9 +66,6 @@
                                                 <span class="input-group-text">Other</span>
                                                 <input type="text" id="inputDonor" aria-label="Created Donor"  class="form-control">
                                             </div>
-                                            <button type="button" class="btn btn-light" id="addDonor" data-type="newDonor" style="margin-left: 10px;">
-                                                Add donor
-                                            </button>
                                         </div>
                                     </div>
                                     <div class="d-block mb-3">
@@ -131,48 +128,26 @@
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('organizationSearch');
-    const organizationList = document.getElementById('organizationList');
     const organizationInput = document.getElementById('organizationInput');
     const hiddenInput = document.getElementById('organizationHidden');
 
-    searchInput.addEventListener('keyup', function() {
-        const searchText = searchInput.value.toLowerCase();
+    document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
+        const hiddenInput = document.getElementById('organizationHidden');
+        
+        // Check if the hidden input has a value
+        if (!hiddenInput.value) {
+            event.preventDefault(); // Prevent the form from submitting
+            event.stopPropagation(); // Stop propagation of the event
 
-        Array.from(organizationList.querySelectorAll('.list-group-item')).forEach(function(item) {
-            const text = item.textContent.toLowerCase();
-            item.style.display = text.includes(searchText) ? '' : 'none';
-        });
-    });
-
-    organizationList.addEventListener('click', function(e) {
-        if (e.target.tagName === 'BUTTON' && e.target.classList.contains('list-group-item-action')) {
-            organizationInput.value = e.target.textContent; // Update the disabled input field
-            hiddenInput.value = e.target.getAttribute('data-value'); // Set the value in hidden input for form submission
-            var myModalEl = document.getElementById('organizationModal');
-            var modal = bootstrap.Modal.getInstance(myModalEl);
-            modal.hide(); // Hide the modal
+            // Provide feedback to the user that organization selection is required
+            organizationInput.classList.add('is-invalid'); // Highlight the input field
+            // alert('Please select an organization before submitting.'); // Alert or some better feedback
+        } else {
+            organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
         }
     });
-});
 
-document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
-    const hiddenInput = document.getElementById('organizationHidden');
-    
-    // Check if the hidden input has a value
-    if (!hiddenInput.value) {
-        event.preventDefault(); // Prevent the form from submitting
-        event.stopPropagation(); // Stop propagation of the event
 
-        // Provide feedback to the user that organization selection is required
-        organizationInput.classList.add('is-invalid'); // Highlight the input field
-        // alert('Please select an organization before submitting.'); // Alert or some better feedback
-    } else {
-        organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("submittedDonor").addEventListener('click', function() {
         const donorName = document.getElementById('selectedDonor').textContent;
         const donorID = document.getElementById('selectedDonor').dataset.value;
@@ -186,23 +161,28 @@ document.addEventListener('DOMContentLoaded', function() {
         var modalInstance = bootstrap.Modal.getInstance(modalElement);
         modalInstance.hide();
     })
-})
 
-document.addEventListener('DOMContentLoaded', function() {
+
     document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
         item.addEventListener('click', function() {
             selectDonor(this.textContent, this.dataset.value, this.dataset.type);
         });
     });
+
+    // Select the 'Other' text when clicking back into the text box
+    document.getElementById("inputDonor").addEventListener('focus', function() {
+        if (this.value) {
+            selectDonor(this.value, 0, this.dataset.type);
+        }
+    });
+    // Select the 'Other' text while typing
+    document.getElementById("inputDonor").addEventListener('keydown', function() {
+        selectDonor(this.value, 0, this.dataset.type);
+    });
+
 });
 
 
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById("addDonor").addEventListener('click', function() {
-        const newDonorName = document.getElementById('inputDonor').value;
-        selectDonor(newDonorName, 0, this.dataset.type);
-    })
-})
 
 
 </script>
