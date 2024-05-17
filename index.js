@@ -47,7 +47,6 @@ import {
 
 import {
   fetchAllOrganizations,
-  sortOrganizations,
   fetchOrganizationCount,
   fetchSpecificOrganization,
   fetchOrganizationByName,
@@ -63,7 +62,6 @@ import {
   deleteDonationInflow,
   addDonationInflow,
   getDonationInflowByName,
-  sortInflows,
   fetchDonationInflowsTotal,
   fetchNewInflows,
 } from "./donationInflowQueries.js";
@@ -75,7 +73,6 @@ import {
   deleteDonationOutflow,
   addDonationOutflow,
   getDonationOutflowByName,
-  sortOutflows,
   fetchDonationOutflowsTotal,
   fetchNewOutflows,
 } from "./donationOutflowQueries.js";
@@ -202,7 +199,7 @@ app.post("/updatePassword/:memberID", async (req, res) => {
 
 app.get("/members", async (req, res) => {
   try {
-    res.render("member.ejs", { members: await getMembers() });
+    res.render("members.ejs", { members: await getMembers() });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
@@ -215,7 +212,7 @@ app.post("/members/dues", async (req, res) => {
   const status = req.body.status;
   try {
     const result = await getMemberDues(year, status);
-    res.render("member.ejs", { members: result });
+    res.render("members.ejs", { members: result });
 
   } catch (err) {
     console.error(err);
@@ -228,7 +225,7 @@ app.post("/members/newMembers", async (req, res) => {
   const year = req.body.year;
   try {
     const members = await fetchNewMembers(year);
-    res.render("member.ejs", { members, });
+    res.render("members.ejs", { members, });
 
   } catch (err) {
     console.error(err);
@@ -309,7 +306,7 @@ app.get("/members/:memberId", async (req, res) => {
       }
 
       const memberDues = await getMemberDuesById(memberId);
-      res.render("memberInfo.ejs", {
+      res.render("member.ejs", {
         member: member,
         dues: memberDues,
         currentUser: req.user,
@@ -405,7 +402,7 @@ app.get("/organizations", async (req, res) => {
   try {
     const organizations = await fetchAllOrganizations();
     // const numOrganization = await fetchOrganizationCount();
-    res.render("organization.ejs", { organizations });
+    res.render("organizations.ejs", { organizations });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
@@ -417,7 +414,7 @@ app.get("/organizations/searchOrganization", async (req, res) => {
   const searchTerm = req.query.searchTerm.trim();
   try {
     const organizations = await fetchOrganizationByName(searchTerm);
-    res.render("organization.ejs", { organizations });
+    res.render("organizations.ejs", { organizations });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
@@ -470,7 +467,7 @@ app.get("/organizations/:organizationId", async (req, res) => {
   if (/^\d+$/.test(organizationId)) {
     const result = await fetchSpecificOrganization(organizationId);
     if (result.length > 0) {
-      res.render("organizationInfo.ejs", {
+      res.render("organization.ejs", {
         organization: result[0],
       });
     } else {
@@ -541,7 +538,7 @@ app.get("/events", async (req, res) => {
   try {
     const events = await fetchAllEvents();
     console.log(events)
-    res.render("event.ejs", { events });
+    res.render("events.ejs", { events });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
@@ -554,9 +551,9 @@ app.get("/events/searchEvent", async (req, res) => {
     const events = await fetchEventByName(searchTerm);
     console.log(events);
     if (events.length > 0) {
-      res.render("event.ejs", { events: events });
+      res.render("events.ejs", { events: events });
     } else {
-      res.render("event.ejs", { events: [] });
+      res.render("events.ejs", { events: [] });
     }
   } catch (error) {
     console.error(error);
@@ -639,7 +636,7 @@ app.post("/events/newEvents", async (req, res) => {
 
   try {
     const events = await fetchNewEvents(year);
-    res.render("event.ejs", {
+    res.render("events.ejs", {
       events,
     });
   } catch (error) {
@@ -663,7 +660,7 @@ app.get("/events/:eventId", async (req, res) => {
       const allMembers = await getMembers();
       const attendees = await fetchEventAttendees(eventId);
 
-      res.render("eventInfo.ejs", {
+      res.render("event.ejs", {
         event: finalResult,
         members: allMembers,
         attendees: attendees,
@@ -761,7 +758,7 @@ app.post("/deleteEvent/:eventId", async (req, res) => {
 app.get("/donationInflows", async (req, res) => {
   try {
     const donationInflows = await fetchDonationInflows();
-    res.render("donationInflow.ejs", {
+    res.render("donationInflows.ejs", {
       donationInflows,
     });
   } catch (error) {
@@ -775,7 +772,7 @@ app.post("/donationInflows/newInflows", async (req, res) => {
   console.log(year);
   try {
     const donationInflows = await fetchNewInflows(year);
-    res.render("donationInflow.ejs", {
+    res.render("donationInflows.ejs", {
       donationInflows,
     });
   } catch (error) {
@@ -828,25 +825,10 @@ app.get("/donationInflows/searchInflow", async (req, res) => {
   try {
     const donationInflows = await getDonationInflowByName(searchTerm);
     if (donationInflows.length > 0) {
-      res.render("donationInflow.ejs", { donationInflows });
+      res.render("donationInflows.ejs", { donationInflows });
     } else {
-      res.render("donationInflow.ejs", { donationInflows: [] });
+      res.render("donationInflows.ejs", { donationInflows: [] });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
-  }
-});
-
-app.post("/donationInflows/sortInflows", async (req, res) => {
-  const sortBy = req.body.sortBy;
-  console.log(sortBy);
-  try {
-    const donationInflows = await sortInflows(sortBy);
-    console.log(donationInflows);
-    res.render("donationInflow.ejs", {
-      donationInflows,
-    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
@@ -937,7 +919,7 @@ app.post("/deleteInflow/:donationInflowId", async (req, res) => {
 app.get("/donationOutflows", async (req, res) => {
   try {
     const donationOutflows = await fetchDonationOutflows();
-    res.render("donationOutflow.ejs", { donationOutflows });
+    res.render("donationOutflows.ejs", { donationOutflows });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
@@ -946,10 +928,9 @@ app.get("/donationOutflows", async (req, res) => {
 
 app.post("/donationOutflows/newOutflows", async (req, res) => {
   const year = req.body.year;
-  console.log(year);
   try {
     const donationOutflows = await fetchNewOutflows(year);
-    res.render("donationOutflow.ejs", {
+    res.render("donationOutflows.ejs", {
       donationOutflows,
     });
   } catch (error) {
@@ -967,11 +948,6 @@ app.get("/donationOutflows/outflowStats", async (req, res) => {
     console.error(error);
     res.status(500).send("Server error");
   }
-});
-
-app.get("/donationOutflows/addDonationOutflow", async (req, res) => {
-  const orgs = await fetchAllOrganizations();
-  res.render("addOutflow.ejs", { orgs: orgs });
 });
 
 app.post("/donationOutflows/addOutflow", async (req, res) => {
@@ -1000,25 +976,10 @@ app.get("/donationOutflows/searchOutflow", async (req, res) => {
   try {
     const donationOutflows = await getDonationOutflowByName(searchTerm);
     if (donationOutflows.length > 0) {
-      res.render("donationOutflow.ejs", { donationOutflows });
+      res.render("donationOutflows.ejs", { donationOutflows });
     } else {
-      res.render("donationOutflow.ejs", { donationOutflows: [] });
+      res.render("donationOutflows.ejs", { donationOutflows: [] });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
-  }
-});
-
-app.post("/donationOutflows/sortOutflows", async (req, res) => {
-  const sortBy = req.body.sortBy;
-  console.log(sortBy);
-  try {
-    const donationOutflows = await sortOutflows(sortBy);
-    console.log(donationOutflows);
-    res.render("donationOutflow.ejs", {
-      donationOutflows,
-    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");

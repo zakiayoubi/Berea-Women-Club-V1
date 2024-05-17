@@ -1,66 +1,137 @@
-<%- include('partials/header.ejs'); -%>
+<%- include("partials/header.ejs"); %>
+<h4 class="mb-3 text-center mt-4">Organization Information</h4>
+<hr class="my-4">
+<form class="needs-validation" id="updateForm" action="/updateOrganizationInfo/<%= organization.organizationid %>" method="POST" novalidate>
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label for="organizationName" class="form-label required">Organization</label>
+            <input type="text" class="form-control" id="organizationName" name="organizationName" value="<%= organization.organizationname %>" required disabled>
+            <div class="invalid-feedback">
+                Valid organization name is required.
+            </div>
+        </div>
 
-<!-- buttons -->
-<div class="mb-3">
-    <!-- Add organization Button -->
-    <a href="/organizations/addOrganization" class="btn btn-primary">Add Organization</a>
-</div>
+        <div class="col-sm-6">
+            <label for="organizationType" class="form-label">Organization Type</label>
+            <input type="text" class="form-control" id="organizationType" name="organizationType" value="<%= organization.organizationtype %>" disabled>
+        </div>
 
-<!-- list of organizations -->
-<table class="table" id="orgs">
-<thead>
-    <tr>
-        <th>Organization</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Address</th>
-        <th>Type</th>
-        <th>Action</th>
-    </tr>
-</thead>
-    <tbody>
-    <% organizations.forEach(org => { %>
-        <tr>
-            <td><a href="/organizations/<%= org.organizationid %>"><%= org.organizationname %></a></td>
-            <td><%= org.email %></td>
-            <td><%= org.phonenumber%></td>
-            <td><%= org.streetname || org.city || org.usstate || org.zipcode ? `${org.streetname || ''} ${org.city || ''} ${org.usstate || ''} ${org.zipcode || ''}`.trim() : "None" %></td>
-            <td><%= org.organizationtype ? org.organizationtype : "None" %></td>
-            <td>
-                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<%= org.organizationid %>">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-trash3-fill" viewBox="0 0 16 16">
-                        <path d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"/>
-                    </svg>
-                </button>
-                <!-- Modal per member -->
-                <div class="modal fade" id="deleteModal<%= org.organizationid %>" tabindex="-1" aria-labelledby="deleteOrganization" aria-hidden="true">
-                    <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="deleteModalLabel">Delete Organization</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                        Are you sure you want to delete this organization?
-                        </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <form action="/deleteOrganization/<%= org.organizationid %>" method="POST">
-                                    <button type="submit" class="btn btn-primary">Confirm</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    <% }) %>
-    </tbody>
-</table>
 
+        <div class="col-sm-6">
+            <label for="email" class="form-label required">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="<%= organization.email %>" required disabled>
+            <div class="invalid-feedback">
+                Valid organization email is required.
+            </div>
+        </div>
+
+        <div class="col-sm-6">
+            <label for="phoneNumber" class="form-label required">Phone</label>
+            <input type="text" class="form-control" id="phoneNumber" name="phoneNumber" value="<%= organization.phonenumber %>" required disabled>
+            <div class="invalid-feedback">
+                Valid phone number is required.
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label for="street" class="form-label">Address</label>
+            <input type="text" class="form-control" id="street" name="street" value="<%= organization.streetname %>"  placeholder="1234 Main St" disabled>
+        </div>
+
+
+        <div class="col-md-5">
+            <label for="city" class="form-label">City</label>
+            <input type="text" class="form-control" id="city" name="city" value="<%= organization.city %>" disabled>
+        </div>
+
+        <div class="col-md-4">
+        <label for="state" class="form-label">State</label>
+        <select class="form-select" id="state" name="state" value="<%= organization.usstate %>" disabled>
+            <option value="<%= organization.usstate %>"><%= organization.usstate %></option>
+            <option value="Alabama">Alabama</option>
+            <option value="Alaska">Alaska</option>
+            <option value="Arizona">Arizona</option>
+            <option value="Arkansas">Arkansas</option>
+            <option value="California">California</option>
+            <option value="Colorado">Colorado</option>
+            <option value="Connecticut">Connecticut</option>
+            <option value="Delaware">Delaware</option>
+            <option value="Florida">Florida</option>
+            <option value="Georgia">Georgia</option>
+            <option value="Hawaii">Hawaii</option>
+            <option value="Idaho">Idaho</option>
+            <option value="Illinois">Illinois</option>
+            <option value="Indiana">Indiana</option>
+            <option value="Iowa">Iowa</option>
+            <option value="Kansas">Kansas</option>
+            <option value="Kentucky">Kentucky</option>
+            <option value="Louisiana">Louisiana</option>
+            <option value="Maine">Maine</option>
+            <option value="Maryland">Maryland</option>
+            <option value="Massachusetts">Massachusetts</option>
+            <option value="Michigan">Michigan</option>
+            <option value="Minnesota">Minnesota</option>
+            <option value="Mississippi">Mississippi</option>
+            <option value="Missouri">Missouri</option>
+            <option value="Montana">Montana</option>
+            <option value="Nebraska">Nebraska</option>
+            <option value="Nevada">Nevada</option>
+            <option value="New Hampshire">New Hampshire</option>
+            <option value="New Jersey">New Jersey</option>
+            <option value="New Mexico">New Mexico</option>
+            <option value="New York">New York</option>
+            <option value="North Carolina">North Carolina</option>
+            <option value="North Dakota">North Dakota</option>
+            <option value="Ohio">Ohio</option>
+            <option value="Oklahoma">Oklahoma</option>
+            <option value="Oregon">Oregon</option>
+            <option value="Pennsylvania">Pennsylvania</option>
+            <option value="Rhode Island">Rhode Island</option>
+            <option value="South Carolina">South Carolina</option>
+            <option value="South Dakota">South Dakota</option>
+            <option value="Tennessee">Tennessee</option>
+            <option value="Texas">Texas</option>
+            <option value="Utah">Utah</option>
+            <option value="Vermont">Vermont</option>
+            <option value="Virginia">Virginia</option>
+            <option value="Washington">Washington</option>
+            <option value="West Virginia">West Virginia</option>
+            <option value="Wisconsin">Wisconsin</option>
+            <option value="Wyoming">Wyoming</option>
+        </select>
+        </div>
+
+        <div class="col-md-3">
+            <label for="zip" class="form-label">Zip</label>
+            <input type="text" class="form-control" id="zip" name="zip" value="<%= organization.zipcode %>" disabled>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center">
+        <button type="button" class="btn btn-primary btn-lg my-4" onclick="toggleEdit()" id="editButton">Edit Organization</button>
+        <button type="submit" class="btn btn-primary btn-lg my-4" style="display:none;" id="updateButton">Save Changes</button>
+        <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" onclick="cancelEdit()" style="display:none;" id="cancelButton">Cancel Changes</button>
+    </div>
+</form>
 <script>
-    window.onload = function() {
-      new DataTable('#orgs', { order: [0, "ASC"] });
+    function toggleEdit() {
+        // Get all input and select elements within the form
+        const formElements = document.querySelectorAll('#updateForm input, #updateForm select');
+        
+        // Enable all input and select fields
+        formElements.forEach(element => {
+            element.disabled = false; // Remove the 'disabled' attribute
+        });
+        
+        // Hide the edit button and show the submit button
+        document.getElementById('editButton').style.display = 'none';
+        document.getElementById('updateButton').style.display = 'block';
+        document.getElementById('cancelButton').style.display = 'block';
+    }
+    function cancelEdit() {
+        // Refresh the page
+        window.location.reload();
     };
 </script>
-<%- include('partials/footer.ejs'); -%>
+    
+
+<%- include('partials/footer.ejs'); %>
