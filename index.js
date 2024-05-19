@@ -105,17 +105,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // async function hashingPassword(password) {
-//   try {
-//       bcrypt.hash(password, saltRounds, async(err, hash) => {
+//   return new Promise((resolve, reject) => {
+//     bcrypt.hash(password, saltRounds, (err, hash) => {
 //       if (err) {
-//         console.log("Error hasing password", err);
+//         console.log("Error hashing password", err);
+//         reject(err);
 //       } else {
 //         console.log(hash);
+//         resolve(hash);
 //       }
 //     });
-//     } catch (err) {
-//       console.log(err);
-//     }
+//   });
 // }
 
 // (async () => {
