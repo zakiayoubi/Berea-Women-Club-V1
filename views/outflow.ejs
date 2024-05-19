@@ -1,22 +1,21 @@
-<%- include('partials/header.ejs'); -%>
-
-            <h4 class="mb-3 text-center mt-4">Record a New Donation Outflow</h4>
+<%- include("partials/header.ejs"); %>
+            <h4 class="mb-3 text-center mt-4">Donation Outflow Information</h4>
             <hr class="my-4">
-            <form class="needs-validation" action="/donationOutflows/create" method="POST">
+            <form class="needs-validation" id="updateForm" action="/updateDonationOutflow/<%= donation.donationoutflowid %>" method="POST">
                 <div class="row g-3">
-
                     <div class="col-sm-6">
-                        <label for="recordName" class="form-label required">Record Name</label>
-                        <input type="text" class="form-control" id="recordName" name="recordName" required>
+                        <label for="recordName" class="form-label">Record Name</label>
+                        <input type="text" class="form-control" id="recordName" name="recordName" value="<%= donation.recordname %>" required disabled>
                         <div class="invalid-feedback">
                             Valid record name is required.
                         </div>
                     </div>
 
+
                     <div class="col-sm-6">
-                        <label for="organizationInput" class="form-label">Organization <span class="text-body-secondary">(if not found, please add first) </label>
-                        <input type="text" class="form-control" id="organizationInput" placeholder="Select Organization" data-bs-toggle="modal" data-bs-target="#organizationModal" readonly>
-                        <input type="hidden" name="organization" id="organizationHidden">
+                        <label for="organizationInput" class="form-label">Organization<span class="text-body-secondary">(if not found, please add first) </label>
+                        <input type="text" class="form-control" id="organizationInput" value="<%= donation.organizationname %>" placeholder="Select an Organization" data-bs-toggle="modal" data-bs-target="#organizationModal" readonly disabled>
+                        <input type="hidden" name="organization" id="organizationHidden" value="<%= donation.organizationid %>">
                     </div>
                     
                     <!-- Organization Selection Modal -->
@@ -56,41 +55,56 @@
      
                     <div class="col-sm-6">
                         <label for="contactPerson" class="form-label required">Contact Person</label>
-                        <input type="text" class="form-control" id="contactPerson" name="contactPerson">
-                    </div>
-
-
-                    <div class="col-sm-6">
-                        <label for="category" class="form-label">Category</label>
-                        <input type="text" class="form-control" id="category" name="category">
+                        <input type="text" class="form-control" id="contactPerson" name="contactPerson" disabled>
                     </div>
 
                     <div class="col-sm-4">
-                        <label for="amount" class="form-label required">Amount</label>
-                        <input type="number" class="form-control" id="amount" name="amount" required>
+                        <label for="category" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="category" name="category" value="<%= donation.category %>" disabled>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" name="amount" value="<%= donation.amount %>" required disabled>
                         <div class="invalid-feedback">
                         Please enter an amount.
                         </div>
                     </div>
-                
                     <div class="col-sm-4">
-                        <label for="donationDate" class="form-label required">Date</label>
-                        <input type="date" class="form-control" id="donationDate" name="donationDate" placeholder="YYYY-MM-DD" required>
+                        <label for="donationDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="donationDate" name="donationDate" placeholder="YYYY-MM-DD" value="<%= donation.donationdate %>" required disabled>
                         <div class="invalid-feedback">
                         Please enter your donation date.
                         </div>
                     </div>
                 </div>
-                <hr class="my-4">
-                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Submit</button>
-                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary btn-lg my-4 mx-1" onclick="toggleEdit()" id="editButton">Edit Record</button>
+                    <button type="submit" class="btn btn-primary btn-lg my-4 mx-1" style="display:none;" id="updateButton">Save Changes</button>
+                    <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" onclick="cancelEdit()" style="display:none;" id="cancelButton">Cancel Changes</button>
+                </div>                
             </form>
+
 <script>
 
+    function selectOrganization(organizationName, organizationID) {
+        document.getElementById('selectedOrganization').textContent = organizationName; 
+        document.getElementById('selectedOrganization').dataset.value = organizationID; 
+}
 
-function selectOrganization(organizationName, organizationID) {
-    document.getElementById('selectedOrganization').textContent = organizationName; 
-    document.getElementById('selectedOrganization').dataset.value = organizationID; 
+
+    function toggleEdit() {
+    const formElements = document.querySelectorAll('#updateForm input, #updateForm select');
+    formElements.forEach(element => {
+        element.disabled = false;
+    });
+    document.getElementById('editButton').style.display = 'none';
+    document.getElementById('updateButton').style.display = 'block';
+    document.getElementById('cancelButton').style.display = 'block';
+}
+
+function cancelEdit() {
+    // Refresh the page
+    window.location.reload();
 }
 
 
@@ -109,12 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
         modalInstance.hide();
     })
 
-    // Choose an organization from the dropdown in the modal
+    // Choose anorganization from the dropdown in the modal
     document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
         item.addEventListener('click', function() {
             selectOrganization(this.textContent, this.dataset.value);
         });
     });
+
 
     document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
         const organizationInput = document.getElementById('organizationInput');
@@ -134,8 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 })
 
+</script>
 
+<%- include('partials/footer.ejs'); %>
 
-</script>   
-    
-<%- include('partials/footer.ejs'); -%>

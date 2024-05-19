@@ -1,120 +1,63 @@
 import db from "./db.js";
 
+function baseQuery() {
+  return `
+      SELECT m.*, d.lastPaidYear, d.status
+      FROM member m 
+      LEFT JOIN duesStatus d ON m.memberID = d.memberID 
+      `;
+}
 
 async function getMemberById(memberId) {
-
-  const query = `
-  SELECT * from member
-  WHERE memberId = ${memberId};
-`;
-
-  try {
-    const result = await db.query(query);
-    return result.rows;
-  } catch (err) {
-    console.error(err);
-  }
+  return await db.get(baseQuery() + `WHERE m.memberId = ?`, [memberId]);
 }
 
 async function getMemberDuesById(memberId) {
 
   const query = `
-  SELECT * from membershipFee
-  WHERE memberId = ${memberId};
-`;
+    SELECT d.*, r.firstName, r.lastName
+    FROM duesPayment d
+    JOIN member r ON r.memberID = d.recordedBy
+    WHERE d.memberID = ?
+    ORDER BY d.forYear DESC;`;
 
   try {
-    const result = await db.query(query);
-    return result.rows;
+    return await db.all(query, [memberId]);
+
   } catch (err) {
     console.error(err);
+    return []
   }
 }
 
 
-async function getMembers(orderBy) {
-    let column = 'memberid'; // default ordering
-    switch (orderBy) {
-      case 'firstname':
-        column = 'firstname';
-        break;
-      case 'lastname':
-        column = 'lastname';
-        break;
-      case 'datejoined':
-        column = 'datejoined DESC';
-        break;
-      case 'membertype':
-        column = 'membertype';
-        break;
-      // Add more cases as needed
-    }
+async function getMembers() {
+  const query = baseQuery() + `ORDER BY m.memberid`
   
-    const query = `
-    SELECT * from member
-    ORDER BY ${column};
-`;
-
-  
-    try {
-      const result = await db.query(query);
-      return result.rows;
-    } catch (err) {
-      console.error(err);
-      return [];
-    }
-  }
-
-  async function getMemberByName(searchTerm) {
-    const query = `SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-      FROM member m LEFT JOIN membershipFee mf ON m.memberID = mf.memberID WHERE firstName LIKE $1 OR lastName LIKE $2`;
-    const searchPattern = `%${searchTerm}%`; 
-  
-    try {
-      const result = await db.query(query, [searchPattern, searchPattern]);
-      return result.rows; // Return the member details
-    } catch (error) {
-      console.error('Error executing getMemberByName query:', error);
-      throw error;
-    }
-  }
-  
-
-async function getMemberDues(year, status) {
-  const query = `
-    SELECT m.*, mf.paymentyear, mf.paydate, mf.status
-    FROM member m
-    LEFT JOIN membershipFee mf ON m.memberID = mf.memberID
-    WHERE mf.paymentyear = $1 AND mf.status = $2
-  `;
-
   try {
-    const result = await db.query(query, [year, status]);
-    return result.rows; // Return the fetched rows
+    const result = await db.query(query);
+    return result.rows;
+
   } catch (err) {
-    console.error('Error executing fetchMemberDues query:', err);
-    throw err; // Rethrow or handle as needed
+    console.error(err);
+    return [];
   }
 }
 
 async function fetchNewMembers(year) {
-    const query = `
-        SELECT *
-        FROM member 
-        WHERE datejoined >= $1 AND datejoined <= $2 ORDER BY firstName
-    `;
-    const startDate = `${year}-01-01`;
-    const endDate = `${year}-12-31`;
+    const startDate = `${year.split('-')[0]}-08-01`;
+    const query = baseQuery() + `WHERE m.datejoined >= $1 ORDER BY m.firstName`;
+    []
 
     try {
-        const result = await db.query(query, [startDate, endDate]);
+        const result = await db.query(query, [startDate]);
         return result.rows;
+
     } catch (err) {
         console.error('Error executing fetchNewMembers query:', err);
         throw err;
     }
 }
-
 async function fetchTotalMembers() {
     const query = "SELECT COUNT(*) FROM member;";
 
@@ -148,7 +91,6 @@ async function addNewMember(memberData) {
       INSERT INTO member 
       (firstName, lastName, email, phoneNumber, streetName, city, usState, zipCode, dateOfBirth, dateJoined, memberType) 
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) 
-      RETURNING memberID
     `;
     const memberValues = [
       memberData.firstName, memberData.lastName, memberData.email, 
@@ -156,8 +98,8 @@ async function addNewMember(memberData) {
       memberData.state, memberData.zip, memberData.dateOfBirth, memberData.dateJoined, memberData.membershipType
     ];
   
-    const memberResult = await db.query(memberQuery, memberValues);
-    return memberResult.rows[0].memberid; // Return the new member's ID
+    const memberResult = await db.run(memberQuery, memberValues);
+    return memberResult.lastID; // Return the new member's ID
   }
   
 
@@ -176,45 +118,36 @@ async function updateMemberInformation(memberData) {
           usState = $7,
           zipCode = $8,
           dateOfBirth = $9,
-          memberType = $10
-        WHERE memberId = $11
+          dateJoined = $10,
+          memberType = $11
+        WHERE memberId = $12
       `;
       await db.query(updateMemberQuery, [memberData.firstName, memberData.lastName, memberData.email, 
         memberData.phoneNumber, memberData.streetName, memberData.city, 
-        memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.memberType, memberData.memberId]);
+        memberData.usState, memberData.zipCode, memberData.dateOfBirth, memberData.dateJoined, memberData.memberType, memberData.memberId]);
 
     } catch (error) {
-      await db.query('ROLLBACK'); // Rollback transaction on error
       console.error('Failed to update member information:', error);
       throw error; // Rethrow the error to be handled by the caller
     }
   }
 
 
-  async function addMembershipFee(memberId, paymentYear, paymentDate, status) {
-    // Validate inputs
-    if (status === 'Paid' && paymentDate === null) {
-        throw new Error('Payment date must be provided when status is "Paid".');
-    }
-    if (status === 'Not Paid' && paymentDate !== null) {
-        throw new Error('Payment date must be null when status is "Not Paid".');
-    }
+  async function removeDues(memberId, duesFor) {
+    db.run("DELETE FROM duesPayment WHERE memberID=? AND forYear=?",[memberId,duesFor])
+  }
 
-    const feeQuery = "INSERT INTO membershipFee (memberID, paymentYear, payDate, status) VALUES ($1, $2, $3, $4)";
-    const dueValues = [memberId, paymentYear, paymentDate, status];
+  async function recordDues(memberId, duesFor, paymentDate, currentUser) {
+    const feeQuery = "INSERT INTO duesPayment (memberID, forYear, paymentDate, recordedBy) VALUES (?,?,?,?)";
+    const dueValues = [memberId, duesFor, paymentDate, currentUser];
 
     try {
-        await db.query(feeQuery, dueValues);
+        await db.run(feeQuery, dueValues);
+
     } catch (error) {
-        // Handle database errors (e.g., unique constraint violations)
         throw new Error('Database error: ' + error.message);
     }
 }
-
-
-
-  
-  
 
   async function deleteMember(memberId) {
     const selectQuery = 'SELECT * FROM member WHERE memberID = $1';
@@ -276,13 +209,12 @@ export {
     getMemberById,
     getMemberDuesById,
     getMembers,
-    getMemberByName,
-    getMemberDues,
     fetchNewMembers,
     fetchTotalMembers,
     fetchTotalMembersYear,
     addNewMember,
-    addMembershipFee,
+    recordDues,
+    removeDues,
     updateMemberInformation,
     deleteMember,
     fetchMemberEvents,

@@ -1,34 +1,28 @@
 <%- include('partials/header.ejs'); -%>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-7 col-lg-8">
-          <h4 class="mb-3 text-center mt-4">Annual Incoming Donation Summary</h4>
-            <hr class="my-4">
-            <table class="table table-hover" id="yearlyDataTable">
-              <thead>
-                <tr>
-                  <th scope="col" class="col-2 text-center">Year</th>
-                  <th scope="col" class="col-2 text-center">Min</th>
-                  <th scope="col" class="col-2 text-center">Max</th>
-                  <th scope="col" class="col-2 text-center">Average</th>
-                  <th scope="col" class="col-2 text-center">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% stats.forEach(stat => { %>
-                <tr>
-                  <td class="col-md-2 bg-primary text-white text-center"><%= stat.donationyear %></td>
-                  <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.donationmin).toFixed(2) %></td>
-                  <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.donationmax).toFixed(2) %></td>
-                  <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.donationaverage).toFixed(2) %></td>
-                  <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.totalamountraised).toFixed(2) %></td>                    
-                </tr>
-                <% }) %>
-              </tbody>
-            </table>            
-        </div>
-    </div>
-</div>
+<h4 class="mb-3 text-center mt-4">Annual Incoming Donation Summary</h4>
+<hr class="my-4">
+<table class="table table-hover" id="yearlyDataTable">
+  <thead>
+    <tr>
+      <th scope="col" class="col-2 text-center">Year</th>
+      <th scope="col" class="col-2 text-center">Min</th>
+      <th scope="col" class="col-2 text-center">Max</th>
+      <th scope="col" class="col-2 text-center">Average</th>
+      <th scope="col" class="col-2 text-center">Total</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% stats.forEach(stat => { %>
+    <tr>
+      <td class="col-md-2 bg-primary text-white text-center"><%= stat.donationyear %></td>
+      <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.donationmin).toFixed(2) %></td>
+      <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.donationmax).toFixed(2) %></td>
+      <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.donationaverage).toFixed(2) %></td>
+      <td class="col-md-2 bg-primary text-white text-center"><%= parseFloat(stat.totalamountraised).toFixed(2) %></td>                    
+    </tr>
+    <% }) %>
+  </tbody>
+</table>            
 
 <%- include('partials/footer.ejs'); -%>
