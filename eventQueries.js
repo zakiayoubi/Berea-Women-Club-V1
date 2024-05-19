@@ -1,18 +1,17 @@
 import db from "./db.js";
 
-
-
 async function fetchEventByName(searchTerm) {
-  const query = 'SELECT * FROM event WHERE eventName LIKE $1';
-  const result = await db.query(query, [`%${searchTerm}%`]);
+  const query = 'SELECT * FROM event WHERE LOWER(eventName) LIKE $1';
+  const result = await db.query(query, [`%${searchTerm.toLowerCase()}%`]);
   return result.rows;
 };
 
 async function fetchEventAttendees(eventId) {
   const query = `
-    SELECT m.memberId, CONCAT(m.firstName, ' ', m.lastName) AS name
-    FROM host h JOIN member m on m.memberid = h.memberid JOIN event e ON h.eventid = 
-    e.eventid WHERE e.eventId = $1;
+    SELECT h.memberId, CONCAT(m.firstName, ' ', m.lastName) AS name
+    FROM eventAttendee h 
+    JOIN member m on m.memberid = h.memberid
+    WHERE h.eventId = $1;
   `;
   const result = await db.query(query, [eventId]);
   return result.rows;
@@ -21,7 +20,7 @@ async function fetchEventAttendees(eventId) {
 // ----------------------host table ---------------------------
 async function updateEventAttendees(memberId, eventId) {
   const query = `
-      UPDATE host set 
+      UPDATE eventAttendee set 
       memberID = $1
       WHERE eventID = $2
 
@@ -33,14 +32,14 @@ async function updateEventAttendees(memberId, eventId) {
 
 async function addEventAttendees(eventId, memberId) {
   const query = `
-    INSERT INTO host(eventID, memberID) VALUES ($1, $2);
+    INSERT OR REPLACE INTO eventAttendee(eventID, memberID) VALUES ($1, $2);
   `;
   const result = await db.query(query, [eventId, memberId]);
   return result.rows;
 };
 
 async function deleteEventAttendees(eventId) {
-  const query = 'DELETE FROM host WHERE eventID = $1';
+  const query = 'DELETE FROM eventAttendee WHERE eventID = $1';
   const result = await db.query(query, [eventId]);
   return result.rows;
 };
@@ -67,35 +66,13 @@ async function fetchNewEvents(year) {
 
 
 async function fetchAllEvents() {
-    const result = await db.query('SELECT * FROM event ORDER BY eventName');
-    return result.rows;
-  };
+  return await db.all('SELECT * FROM event ORDER BY eventDate DESC')
+};
   
   async function fetchEventById(eventID) {
     const result = await db.query('SELECT * FROM event WHERE eventID = $1', [eventID]);
     return result.rows;
   };
-  
-  async function sortEvents(sortBy) {
-    let orderBy = 'eventID'; // default ordering
-    switch (sortBy) {
-      case 'eventDate':
-        orderBy = 'eventDate DESC';
-        break;
-      case 'eventType':
-        orderBy = 'eventType';
-        break;
-      case 'amountRaised':
-        orderBy = 'amountRaised DESC';
-        break;
-      case 'eventCost':
-        orderBy = 'eventCost DESC';
-        break;
-    }
-    const result = await db.query(`SELECT * FROM event ORDER BY ${orderBy}`);
-    return result.rows;
-  };
-
   
   async function fetchEventMoneyRaised() {
     const query = `
@@ -156,10 +133,9 @@ async function fetchAllEvents() {
     const query = `
       INSERT INTO event (eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING *;
     `;
-    const result = await db.query(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType]);
-    return result.rows;
+    const result = await db.run(query, [eventName, eventLocation, streetName, city, usState, zipCode, eventDate, amountRaised, eventCost, eventType]);
+    return db.get("SELECT * FROM event where eventID=?", result.lastID)
   };
   
   async function updateEvent(eventId, eventData) {
@@ -193,7 +169,6 @@ async function fetchAllEvents() {
     fetchNewEvents,
     fetchAllEvents,
     fetchEventById,
-    sortEvents,
     fetchEventMoneyRaised,
     insertEvent,
     updateEvent,

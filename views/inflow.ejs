@@ -1,21 +1,18 @@
-<%- include('partials/header.ejs'); -%>
-
-            <h4 class="mb-3 text-center mt-4">Record a New Donation Inflow</h4>
+<%- include("partials/header.ejs"); %>
+            <h4 class="mb-3 text-center mt-4">Donation Inflow Information</h4>
             <hr class="my-4">
-            <form class="needs-validation" action="/donationInflows/create" method="POST">
+            <form class="needs-validation" id="updateForm" action="/updateDonationInflow/<%= donation.donationinflowid %>" method="POST">
                 <div class="row g-3">
-
                     <div class="col-sm-6">
-                        <label for="recordName" class="form-label required">Record Name</label>
-                        <input type="text" class="form-control" id="recordName" name="recordName" required>
+                        <label for="recordName" class="form-label">Record Name</label>
+                        <input type="text" class="form-control" id="recordName" name="recordName" value="<%= donation.recordname %>" required disabled>
                         <div class="invalid-feedback">
                             Valid record name is required.
                         </div>
                     </div>
-
                     <div class="col-sm-6">
                         <label for="donorInput" class="form-label">Donor<span class="text-body-secondary"></label>
-                        <input type="text" class="form-control" id="donorInput" name="donorInput" placeholder="Select or type donor" data-bs-toggle="modal" data-bs-target="#donorModal" readonly>
+                        <input type="text" class="form-control" id="donorInput" placeholder="Select or type donor" value="<%= donor %>" name="donorInput" data-bs-toggle="modal" data-bs-target="#donorModal" required disabled readonly>
                         <input type="hidden" name="donor" id="donorHidden" data-type="">
                         <input type="hidden" name="donorType" id="donorTypeHidden" data-type="">
                     </div>
@@ -52,7 +49,7 @@
                                             data-bs-toggle="dropdown" aria-expanded="false">Members
                                             </button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                                <% if (members && members.length > 0) { %>
+                                                <% if (members && members.length > 0) { %>'
                                                     <% members.forEach(member => { %> 
                                                         <li><a class="dropdown-item" href="#" data-value="<%= member.memberid %>" data-type="member"><%= member.firstname %> <%= member.lastname %></a></li>
                                                     <% }) %>
@@ -65,9 +62,9 @@
 
                                     <div class="d-block mb-3">
                                         <div class="btn-group">
-                                            <div class="input-group">
+                                            <div class="input-group" style="width: 300px;">
                                                 <span class="input-group-text">Other</span>
-                                                <input type="text" id="inputDonor" aria-label="Created Donor"  data-type="newDonor" class="form-control">
+                                                <input type="text" id="inputDonor" aria-label="Created Donor"  class="form-control">
                                             </div>
                                         </div>
                                     </div>
@@ -79,45 +76,78 @@
                             </div>
                         </div>
                     </div>
-     
-                    <div class="col-sm-4">
-                        <label for="category" class="form-label">Category</label>
-                        <input type="text" class="form-control" id="category" name="category">
-                    </div>
+
 
                     <div class="col-sm-4">
-                        <label for="amount" class="form-label required">Amount</label>
-                        <input type="number" class="form-control" id="amount" name="amount" required>
+                        <label for="category" class="form-label">Category</label>
+                        <input type="text" class="form-control" id="category" name="category" value="<%= donation.category %>" disabled>
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="amount" name="amount" value="<%= donation.amount %>" required disabled>
                         <div class="invalid-feedback">
-                            Please enter an amount.
+                        Please enter an amount.
                         </div>
                     </div>
-                
                     <div class="col-sm-4">
-                        <label for="donationDate" class="form-label required">Date</label>
-                        <input type="date" class="form-control" id="donationDate" name="donationDate" placeholder="YYYY-MM-DD" required>
+                        <label for="donationDate" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="donationDate" name="donationDate" placeholder="YYYY-MM-DD" value="<%= donation.donationdate %>" required disabled>
                         <div class="invalid-feedback">
                         Please enter your donation date.
                         </div>
                     </div>
                 </div>
-                <hr class="my-4">
-                <button class="w-100 btn btn-primary btn-lg mb-5" type="submit">Submit</button>
-                </div>
+                <div class="d-flex justify-content-center">
+                    <button type="button" class="btn btn-primary btn-lg my-4 mx-1" onclick="toggleEdit()" id="editButton">Edit Record</button>
+                    <button type="submit" class="btn btn-primary btn-lg my-4 mx-1" style="display:none;" id="updateButton">Save Changes</button>
+                    <button type="button" class="btn btn-secondary btn-lg my-4 mx-1" onclick="cancelEdit()" style="display:none;" id="cancelButton">Cancel Changes</button>
+                </div>                
             </form>
-<script>
 
-function selectDonor(donorName, donorID, donorType) {
-    document.getElementById('selectedDonor').textContent = donorName; 
-    document.getElementById('selectedDonor').dataset.value = donorID; 
-    document.getElementById('selectedDonor').dataset.type = donorType;
-}
+<script>
+    function selectDonor(donorName, donorID, donorType) {
+        document.getElementById('selectedDonor').textContent = donorName; 
+        document.getElementById('selectedDonor').dataset.value = donorID; 
+        document.getElementById('selectedDonor').dataset.type = donorType;
+    }
+
+    function toggleEdit() {
+    const formElements = document.querySelectorAll('#updateForm input, #updateForm select');
+    formElements.forEach(element => {
+        element.disabled = false;
+    });
+    document.getElementById('editButton').style.display = 'none';
+    document.getElementById('updateButton').style.display = 'block';
+    document.getElementById('cancelButton').style.display = 'block';
+    }
+
+    function cancelEdit() {
+        // Refresh the page
+        window.location.reload();
+    }
+
 
 document.addEventListener('DOMContentLoaded', function() {
-    const organizationInput = document.getElementById('donorInput');
-    const hiddenInput = document.getElementById('donorHidden');
+    const organizationInput = document.getElementById('organizationInput');
+    const hiddenInput = document.getElementById('organizationHidden');
 
-    // Clicking on the donor shows the modal to pick different types
+    document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
+        const hiddenInput = document.getElementById('organizationHidden');
+        
+        // Check if the hidden input has a value
+        if (!hiddenInput.value) {
+            event.preventDefault(); // Prevent the form from submitting
+            event.stopPropagation(); // Stop propagation of the event
+
+            // Provide feedback to the user that organization selection is required
+            organizationInput.classList.add('is-invalid'); // Highlight the input field
+            // alert('Please select an organization before submitting.'); // Alert or some better feedback
+        } else {
+            organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
+        }
+    });
+
+
     document.getElementById("submittedDonor").addEventListener('click', function() {
         const donorName = document.getElementById('selectedDonor').textContent;
         const donorID = document.getElementById('selectedDonor').dataset.value;
@@ -132,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
         modalInstance.hide();
     })
 
-    // Choose a member or organization from the dropdown in the modal
+
     document.querySelectorAll('.dropdown-menu .dropdown-item').forEach(item => {
         item.addEventListener('click', function() {
             selectDonor(this.textContent, this.dataset.value, this.dataset.type);
@@ -150,23 +180,11 @@ document.addEventListener('DOMContentLoaded', function() {
         selectDonor(this.value, 0, this.dataset.type);
     });
 
-    // Validate the new donor inflow form
-    document.querySelector('form.needs-validation').addEventListener('submit', function(event) {
-        const hiddenInput = document.getElementById('organizationHidden');
-        
-        // Check if the hidden input has a value
-        if (!hiddenInput.value) {
-            event.preventDefault(); // Prevent the form from submitting
-            event.stopPropagation(); // Stop propagation of the event
-
-            // Provide feedback to the user that organization selection is required
-            organizationInput.classList.add('is-invalid'); // Highlight the input field
-        } else {
-            organizationInput.classList.remove('is-invalid'); // Remove the highlight if the selection is made
-        }
-    });
 });
 
-</script>   
-    
-<%- include('partials/footer.ejs'); -%>
+
+
+
+</script>
+<%- include('partials/footer.ejs'); %>
+

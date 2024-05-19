@@ -29,8 +29,8 @@ async function sortOrganizations(sortBy) {
   };
 
   async function fetchOrganizationByName(searchTerm) {
-    const query = 'SELECT * FROM organization WHERE organizationName LIKE $1';
-    const result = await db.query(query, [`%${searchTerm}%`]);
+    const query = 'SELECT * FROM organization WHERE LOWER(organizationName) LIKE $1';
+    const result = await db.query(query, [`%${searchTerm.toLowerCase()}%`]);
     return result.rows;
   };
   
@@ -69,6 +69,7 @@ async function sortOrganizations(sortBy) {
   async function deleteOrganization(id) {
     const query = 'DELETE FROM organization WHERE organizationID = $1';
     await db.query(query, [id]);
+    console.log(`Organization with ID ${id} successfully deleted.`)
   };
 
   export {
