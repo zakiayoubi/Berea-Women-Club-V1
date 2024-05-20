@@ -117,17 +117,11 @@
 
 <hr class="mt-4">
 <h4 class="mb-3 text-center">Event Attendees</h4>
-<div class="row">
-    <div class="col-6 col-md-4 me-0"> <!-- Adjust the column size as needed -->
         <button type="button" class="btn btn-primary mt-4" data-bs-toggle="modal" data-bs-target="#memberModal">Add Attendees</button>
-    </div>
-</div>
 <form action="/events/<%=event.eventid%>/addAttendees" method="POST">
-    <div id="selectedMembers" class="mt-4 p-3 border rounded shadow-sm""></div> <!-- Container for selected members -->
-    <div class="row">
-        <div class="col-6 col-md-4"> <!-- Adjust the column size as needed -->
-            <input type="submit" class="btn btn-primary mt-4" value="Save Attendees" />
-        </div>
+    <div>
+        <div id="selectedMembers" class="mt-4 p-3 border rounded shadow-sm" data-stayVisible="<%=attendees.length ? 'true' : ''%>"></div> <!-- Container for selected members -->
+        <input type="submit" class="btn btn-primary mt-4" value="Save Attendees" />
     </div>
 </form>
 
@@ -231,8 +225,8 @@
                 document.getElementById(`mbutton-${memberId}`).classList.remove('selected')
                 selectedMemberIds.delete(memberId);
                 memberBadge.remove();
-                if (selectedMembersDiv.children.length === 0) {
-                    selectedMembersDiv.style.display = 'none';
+                if (selectedMembersDiv.children.length === 0 && !selectedMembersDiv.dataset.stayvisible) {
+                    selectedMembersDiv.parentElement.style.display = 'none';
                 }
             };
 
@@ -245,7 +239,7 @@
             hiddenInput.setAttribute('name', 'attendeeIds[]');
             hiddenInput.value = memberId;
             memberBadge.appendChild(hiddenInput);
-            selectedMembersDiv.style.display = selectedMemberIds.size > 0 ? 'block' : 'none';
+            selectedMembersDiv.parentElement.style.display = selectedMemberIds.size > 0 || selectedMembersDiv.wataset.stayvisible ? 'block' : 'none';
         }
     }
 
@@ -256,7 +250,7 @@
         addMemberBadge(attendee.name, attendee.memberid);
     });
 
-    selectedMembersDiv.style.display = selectedMemberIds.size > 0 ? 'block' : 'none';
+    selectedMembersDiv.parentElement.style.display = selectedMemberIds.size > 0 || selectedMembersDiv.dataset.stayvisible ? 'block' : 'none';
 });
 
 

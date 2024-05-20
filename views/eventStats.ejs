@@ -2,20 +2,20 @@
 
 <h4 class="mb-3 text-center mt-4">Annual Event Summary</h4>
 <hr class="my-4">
-<table class="table table-hover" id="yearlyDataTable">
+<table class="table" id="yearlyDataTable">
   <thead>
     <tr>
-      <th scope="col" class="col-4 text-center">Year</th>
-      <th scope="col" class="col-4 text-center">Cost</th>
-      <th scope="col" class="col-4 text-center">Amount Raised</th>
+      <th class="col-4 text-center">Year</th>
+      <th class="col-4 text-center">Cost</th>
+      <th class="col-4 text-center">Amount Raised</th>
     </tr>
   </thead>
   <tbody>
     <% stats.forEach(stat => { %>
     <tr>
-          <td class="col-4 bg-primary text-white text-center"><%= stat.eventyear %></td>
-          <td class="col-4 bg-primary text-white text-center"><%= stat.totaleventcost %></td>
-          <td class="col-4 bg-primary text-white text-center"><%= stat.totalamountraised %></td>
+          <td class="text-center"><%= stat.eventYear %></td>
+          <td class="text-center"><%= stat.totalEventCost %></td>
+          <td class="text-center"><%= stat.totalAmountRaised %></td>
       </tr>
       <% }) %>
     </tbody>
