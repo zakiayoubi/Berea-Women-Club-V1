@@ -44,17 +44,17 @@ $(document).ready(function() {
                 // Create a dropdown menu button for each entity (member, organization, event, donation inflow, donation outflow)
                 $.each(suggestions, function(key, value) {
                     let dropdownContent = `
-                        <div class="dropdown">
-                            <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton3" 
-                            data-bs-toggle="dropdown" aria-expanded="false">${key}
+                        <div>
+                            <button class=" btn suggestions-box" type="button" id="dropdownMenuButton3" 
+                            aria-expanded="false"><b>${key}</b>
                             </button>
-                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton3">
+                            <ul>
                     `
                                 
                     // Create dropdown suggestions for each entity
                     $.each(value, function(index, suggestion) {
                         dropdownContent += `
-                            <li><a class="dropdown-item" href="${key}/${suggestion.id}" data-value="${suggestion.id}" data-type="${key}"> ${suggestion.property} </a></li>
+                            <li><a class="btn btn-light suggestions-box" href="${key}/${suggestion.id}" data-value="${suggestion.id}" data-type="${key}"> ${suggestion.property} </a></li>
                         `                       
                     });
 
@@ -62,10 +62,12 @@ $(document).ready(function() {
 
                     suggestionsBox.append(dropdownContent);
                 });
+                suggestionsBox.addClass('active'); 
             });
         } else {
             // if the input box is input, the suggestion box will be emptied, meaning there is no suggestion to fetch for
             suggestionsBox.empty();
+            suggestionsBox.removeClass('active');
         }
     });
 });
