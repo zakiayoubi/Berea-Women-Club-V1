@@ -66,12 +66,12 @@
     content: " *";
     color: red;
   }
-  
+
+
 
   button.selected::before {
     content: '\2713';
     display: inline-block;
-    color: green;
     padding: 0 6px 0 0;
   }
 

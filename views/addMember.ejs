@@ -30,7 +30,7 @@
 
         <div class="col-sm-6">
             <label for="phone" class="form-label required">Phone</label>
-            <input type="text" class="form-control" id="phone" name="phone" placeholder="8599865432" required>
+            <input type="text" class="form-control" id="phone" name="phone" placeholder="111-111-1111" required>
             <div class="invalid-feedback">
             Please enter a valid phone number .
             </div>
@@ -190,6 +190,24 @@
         // Call on page load in case the form retains values on reload
         togglePaymentDateRequirement();
     });
+
+    const phoneInput = document.getElementById('phone');
+
+    phoneInput.addEventListener('input', function (e) {
+        const x = e.target.value.replace(/\D/g, '').slice(0, 10);
+        let formattedNumber = x;
+        if (x.length > 6) {
+            formattedNumber = `${x.slice(0, 3)}-${x.slice(3, 6)}-${x.slice(6, 10)}`;
+        } else if (x.length > 3) {
+            formattedNumber = `${x.slice(0, 3)}-${x.slice(3, 6)}`;
+        }
+        e.target.value = formattedNumber;
+    });
+
+
+
+
+
 </script>
     
 <%- include('partials/footer.ejs'); -%>

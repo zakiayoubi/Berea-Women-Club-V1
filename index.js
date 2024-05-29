@@ -31,7 +31,6 @@ import {
   fetchAllEvents,
   fetchEventById,
   fetchEventMoneyRaised,
-  fetchEventMonthlyCosts,
   fetchYearlyEventCosts,
   fetchYearlyMoneyRaised,
   insertEvent,
@@ -279,8 +278,8 @@ app.post("/members/newMemberForm", async (req, res) => {
     if(paymentDate) {
       await recordDues(memberId, duesFor, paymentDate, req.user.memberID);
     }
-
-    res.redirect(`/members/${memberId}`);
+    res.flash("success", "Member successfully updated!")
+    res.redirect(`/members`);
 
   } catch (error) {
     console.error("Error adding member and membership fee:", error);
@@ -353,6 +352,7 @@ app.post("/updatedMemberInfo/:memberId", async (req, res) => {
 
   try {
     await updateMemberInformation(newMember);
+    res.flash("success", "Member successfully updated!")
     res.redirect(`/members/${memberId}`);
 
   } catch (error) {
@@ -384,6 +384,7 @@ app.post("/deleteMember/:memberId", async (req, res) => {
   console.log(memberId);
   try {
     await deleteMember(memberId);
+    res.flash("success", "Member successfully deleted.")
     res.redirect("/members");
   } catch (error) {
     console.error("Error deleting the member:", error);
@@ -451,13 +452,14 @@ app.post("/organizations/newOrgForm", async (req, res) => {
     // Step 1: Insert the new event
     await addOrganization(newOrg);
     res.flash("success","Organization successfully added!")
+    res.redirect("/organizations");
 
   } catch (error) {
     console.error("Error adding organization", error);
     res.flash("failures","Error adding organization")
   }
 
-  res.redirect("/organizations");
+  // res.redirect("/organizations");
 });
 
 // route to each organization
@@ -508,6 +510,7 @@ app.post("/updateOrganizationInfo/:organizationId", async (req, res) => {
 
   try {
     await updateOrganization(orgId, orgData);
+    res.flash("success", "Organization successfully updated.")
     res.redirect(`/organizations/${orgId}`);
   } catch (error) {
     console.error(error);
@@ -610,8 +613,6 @@ app.post("/events/newEventForm", async (req, res) => {
     amountRaised: amountRaised,
   };
 
-  console.log("New Event Values")
-  console.log(newEvent)
 
   try {
     // Step 1: Insert the new event
@@ -621,7 +622,7 @@ app.post("/events/newEventForm", async (req, res) => {
         await addEventAttendees(event.eventID, attendees[i]);
       }
     }
-
+    res.flash("success", "Event successfully added!")
     res.redirect("/events");
   } catch (error) {
     console.error("Error adding event", error);
@@ -721,8 +722,6 @@ app.post("/updateEventInfo/:eventId", async (req, res) => {
     amountRaised: Number(amountRaised),
   };
 
-  // console.log(newEvent);
-
   const attendees = req.body.attendeeIds;
   console.log(attendees);
 
@@ -734,6 +733,7 @@ app.post("/updateEventInfo/:eventId", async (req, res) => {
         await addEventAttendees(eventId, attendees[i]);
       }
     }
+    res.flash("success", "Event successfully updated!")
     res.redirect(`/events/${eventId}`);
   } catch (error) {
     console.error("Error updating the event:", error);
@@ -746,6 +746,7 @@ app.post("/deleteEvent/:eventId", async (req, res) => {
   console.log(eventId);
   try {
     await deleteEvent(eventId);
+    res.flash("success", "Event successfully deleted!")
     res.redirect("/events");
   } catch (error) {
     console.error("Error deleting the event:", error);
@@ -813,7 +814,7 @@ app.post("/donationInflows/create", async (req, res) => {
 
   try {
     await addDonationInflow(newDonor);
-    res.flash("success","Donation inflow successfully added")
+    res.flash("success","Donation inflow successfully added!")
     res.redirect("/donationInflows");
   } catch (err) {
     console.log("failure");
@@ -889,6 +890,7 @@ app.post("/updateDonationInflow/:donationInflowId", async (req, res) => {
 
   try {
     await updateDonationInflow(inflowId, updatedRecord);
+    res.flash("success", "Donation inflow successfully updated!")
     res.redirect("/donationInflows");
   } catch (error) {
     console.error("Error executing update query", error);
@@ -977,6 +979,91 @@ app.post("/donationOutflows/create", async (req, res) => {
     console.log("failure");
   }
 });
+
+
+app.get("/search", async (req, res) => {
+    // Get all the necessary data for matching process
+    const query = req.query.q;
+    const donationInList = await fetchDonationInflows();
+    const donationOutList = await fetchDonationOutflows();
+    const memberList = await getMembers();
+    const eventList = await fetchAllEvents();
+    const organizationList = await fetchAllOrganizations();
+    const entityData = {
+      "donationInflows": [],
+      "donationOutflows": [],
+      "members": [],
+      "events": [],
+      "organizations": [],
+    }
+
+    // Update the entityData, which is an object containing data for each entity
+    if (donationInList) {
+      donationInList.forEach((donation) => {
+        entityData.donationInflows.push({
+          'property': donation.recordname,
+          "id": donation.donationinflowid
+        });
+      });
+    };
+
+
+    if (donationOutList) {
+      donationOutList.forEach((donation) => {
+        entityData.donationOutflows.push({
+          'property': donation.recordname,
+          "id": donation.donationoutflowid
+        });
+      });
+    };
+
+    if (memberList) {
+      memberList.forEach((member) => {
+        entityData.members.push({
+          'property': member.firstname + " " + member.lastname,
+          "id": member.memberid
+        });
+      });
+    };
+
+    
+    if (eventList) {
+      eventList.forEach((event) => {
+        entityData.events.push({
+          'property': event.eventName,
+          "id": event.eventID
+        });
+      });
+    };
+
+    if (organizationList) {
+      organizationList.forEach((organization) => {
+        entityData.organizations.push({
+          'property': organization.organizationname,
+          "id": organization.organizationid
+        });
+      });
+    };
+
+    const filteredSuggestions = {};
+
+
+    for (const key in entityData) {
+      if (entityData.hasOwnProperty(key)) {
+        filteredSuggestions[key] = entityData[key].filter(item => 
+          item.property.toLowerCase().includes(query.toLowerCase())
+        );
+      }
+    }
+
+    // Remove keys with empty arrays
+    for (const key in filteredSuggestions) {
+      if (filteredSuggestions[key].length === 0) {
+        delete filteredSuggestions[key];
+      }
+    }
+    res.json(filteredSuggestions);                                                                                       
+})
 
 app.get("/donationOutflows/searchOutflow", async (req, res) => {
   const searchTerm = req.query.searchTerm;

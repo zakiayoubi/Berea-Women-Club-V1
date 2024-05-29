@@ -1,21 +1,10 @@
 <%- include('partials/header.ejs'); -%>
     <!-- Buttons -->
     <div class="mb-3">
-        <a href="/donationOutflows/addOutflow" class="btn btn-primary">Add Donation</a>
-        <div class="btn-group">
-            <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                New Outflows
-            </button>
-            <form action="/donationOutflows/newOutflows" method="POST" class="dropdown-menu p-2">
-                <!-- Year selection -->
-                <label class="dropdown-item-text mt-2">Year:</label>
-                <select class="form-select" name="year" id="yearSelect"></select>
-                <!-- Submit button -->
-                <button type="submit" class="btn btn-primary mt-3 w-100">Submit</button>
-            </form>
-        </div>
+        <a href="/donationOutflows/addDonationOutflow" class="btn btn-primary">Add Donation</a>
         <a href="/donationOutflows/outflowStats" class="btn btn-secondary">Outflow Stats</a>
     </div>
+
     <!-- List of donation Outflows -->
     <table class="table" id="outflowTable">
         <thead>
@@ -73,14 +62,6 @@
 
 <script>
     window.onload = function() {
-      const select = document.getElementById('yearSelect');
-      const startYear = 2022; // Starting from the year 2022
-      const currentYear = new Date().getFullYear(); // Gets the current year
-      
-      for (let year = startYear; year <= (currentYear + 1); year++) {
-        const option = new Option(year, year);
-        select.add(option);
-      }
       new DataTable('#outflowTable', { order: [5, "DESC"] });
     };
 </script>

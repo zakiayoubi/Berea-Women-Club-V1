@@ -4,36 +4,18 @@
         <div class="p-5 shadow bg-white rounded-3" style="width: 50%; margin-top: -20%;">
             <form action="/search" method="get">
                 <div class="row g-2 align-items-center">
-                    <div class="col-md-8">
-                        <div class="form-floating">
-                            <input type="search" class="form-control rounded-3" id="searchInput" name="query" placeholder="Search for a member" autocomplete="off">
-                            <label for="searchInput">Search for a resource</label>
+                    <div class="col-md-12">
+                        <div class="autocomplete-container form-floating">
+                            <input type="search" class="form-control rounded-3" id="searchEntity" name="searchEntity" placeholder="" autocomplete="off">
+                            <label for="searchEntity">Search for an entity </label>
                         </div>
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-primary btn-lg w-100 rounded-3" type="button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                                <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
-                            </svg>
-                            Search
-                        </button>
+                        <div id="suggestions-box" class="suggestions-box"></div>
                     </div>
                 </div>
             </form>
-            <div>
-                <ul id="dropdownMenu" class="nav nav-pills" style="display: none;">
-                    <li class="nav-item mt-1"><a href="/" class="nav-link text-primary bg-transparent border border-primary" aria-current="page">Home</a></li>
-                    <li class="nav-item mt-1"><a href="/members" class="nav-link text-light bg-transparent border border-primary">Members</a></li>
-                    <li class="nav-item mt-1"><a href="/events" class="nav-link text-light bg-transparent border border-primary">Events</a></li>
-                    <li class="nav-item mt-1"><a href="/organizations" class="nav-link text-light bg-transparent border border-primary">Organizations</a></li>
-                    <li class="nav-item mt-1"><a href="/donationInflows" class="nav-link text-light bg-transparent border border-primary">Donation Inflow</a></li>
-                    <li class="nav-item mt-1"><a href="/donationOutflows" class="nav-link text-light bg-transparent border border-primary">Donation Outflow</a></li>
-                  </ul>                    
-            </div>
             
         </div>
-        
-</div>
+    </div>
 </div>
 
 
@@ -41,17 +23,53 @@
 
 
 <script> 
-document.getElementById('searchInput').addEventListener('focus', function() {
-    document.getElementById('dropdownMenu').style.display = 'block';
-});
 
-document.getElementById('searchInput').addEventListener('blur', function(event) {
-    // Use a timeout to delay the hiding, allowing for link click
-    setTimeout(() => {
-        if (!document.getElementById('dropdownMenu').contains(event.relatedTarget)) {
-            document.getElementById('dropdownMenu').style.display = 'none';
+$(document).ready(function() {
+    const input = $("#searchEntity");
+    const suggestionsBox = $("#suggestions-box")
+    
+    // Perform search whenever a new input is typed
+    input.on('input', function() {
+        const query = input.val();
+        if (query.length > 0) {
+            $.ajax({
+                url: `/search?q=${query}`,
+                method: 'GET',
+                dataType: 'json'
+            })
+            .done(function(suggestions) {
+                // Empty suggestion box for cases where input is deleted
+                suggestionsBox.empty();
+
+                // Create a dropdown menu button for each entity (member, organization, event, donation inflow, donation outflow)
+                $.each(suggestions, function(key, value) {
+                    let dropdownContent = `
+                        <div>
+                            <button class=" btn suggestions-box" type="button" id="dropdownMenuButton3" 
+                            aria-expanded="false"><b>${key}</b>
+                            </button>
+                            <ul>
+                    `
+                                
+                    // Create dropdown suggestions for each entity
+                    $.each(value, function(index, suggestion) {
+                        dropdownContent += `
+                            <li><a class="btn btn-light suggestions-box" href="${key}/${suggestion.id}" data-value="${suggestion.id}" data-type="${key}"> ${suggestion.property} </a></li>
+                        `                       
+                    });
+
+                    dropdownContent += `</ul></div>`; 
+
+                    suggestionsBox.append(dropdownContent);
+                });
+                suggestionsBox.addClass('active'); 
+            });
+        } else {
+            // if the input box is input, the suggestion box will be emptied, meaning there is no suggestion to fetch for
+            suggestionsBox.empty();
+            suggestionsBox.removeClass('active');
         }
-    }, 100);
+    });
 });
 
 </script>
