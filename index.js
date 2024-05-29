@@ -234,7 +234,6 @@ app.post("/members/newMembers", async (req, res) => {
 
 app.get("/members/addMember", (req, res) => {
   try {
-    res.flash("success", "Member successfully added.")
     res.render("addMember.ejs");
   } catch (error) {
     console.error(error);
@@ -279,8 +278,8 @@ app.post("/members/newMemberForm", async (req, res) => {
     if(paymentDate) {
       await recordDues(memberId, duesFor, paymentDate, req.user.memberID);
     }
-
-    res.redirect(`/members/${memberId}`);
+    res.flash("success", "Member successfully updated!")
+    res.redirect(`/members`);
 
   } catch (error) {
     console.error("Error adding member and membership fee:", error);
@@ -353,7 +352,7 @@ app.post("/updatedMemberInfo/:memberId", async (req, res) => {
 
   try {
     await updateMemberInformation(newMember);
-    res.flash("success", "Member successfully updated.")
+    res.flash("success", "Member successfully updated!")
     res.redirect(`/members/${memberId}`);
 
   } catch (error) {
